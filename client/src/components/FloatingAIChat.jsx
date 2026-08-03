@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBusiness } from '../context/BusinessContext';
+import { useAuth } from '../context/AuthContext';
 import { Sparkles, Send, X, Bot, User, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -9,13 +10,15 @@ export default function FloatingAIChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [language, setLanguage] = useState('en'); // 'en' | 'gu'
   const { metrics, invoices, customers, expenses, products, company } = useBusiness();
+  const { user } = useAuth();
   const messagesEndRef = useRef(null);
+  const firstName = user?.name?.split(' ')[0] || 'there';
 
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'ai',
-      text: `Hello Krish! 👋 I am **Amexora AI**, your financial co-pilot for ${company.name}.\n\nYou can ask me ANY question in **English** or **ગુજરાતી (Gujarati)**—about customers, revenue, GST rules, or business growth advice!`
+      text: `Hello! I am **Biizora AI**, your financial co-pilot for ${company?.name || 'your business'}.\n\nYou can ask me about customers, revenue, GST rules, or business growth — in English or Gujarati.`
     }
   ]);
 
@@ -120,23 +123,23 @@ export default function FloatingAIChat() {
     // 3. Greetings & Owner Meta
     if (/^(hi|hello|hey|greetings|namaste|kem cho|kemcho|નમસ્તે|કેમ છો)/i.test(q)) {
       if (isGu) {
-        return `નમસ્તે Krish! 🙏 કેમ છો? હું **અમેક્ષોરા AI**, ${company.name} નો તમારો નાણાકીય સહાયક છું.\n\nતમે મને તમારા ₹${metrics.totalRevenue.toLocaleString('en-IN')} ના વેચાણ, નફો, બાકી ચુકવણીઓ, GST નિયમો અથવા બિઝનેસ ગ્રોથ વિશે કંઈ પણ પૂછી શકો છો!`;
+        return `નમસ્તે ${firstName}! હું **Biizora AI**, ${company.name} નો તમારો નાણાકીય સહાયક છું.\n\nતમે મને તમારા ₹${metrics.totalRevenue.toLocaleString('en-IN')} ના વેચાણ, નફો, બાકી ચુકવણીઓ, GST નિયમો અથવા બિઝનેસ ગ્રોથ વિશે કંઈ પણ પૂછી શકો છો!`;
       }
-      return `Hello Krish! 😊 How can I assist you and **${company.name}** right now?\n\nAsk me about your ₹${metrics.totalRevenue.toLocaleString('en-IN')} revenue, unpaid client balances, GST calculations, or any business query!`;
+      return `Hello ${firstName}! How can I assist you and **${company.name}** right now?\n\nAsk me about your ₹${metrics.totalRevenue.toLocaleString('en-IN')} revenue, unpaid client balances, GST calculations, or any business query!`;
     }
 
-    if (q.includes('owner') || q.includes('created') || q.includes('krish') || q.includes('kpatel') || q.includes('માલિક')) {
+    if (q.includes('owner') || q.includes('created') || q.includes('માલિક')) {
       if (isGu) {
-        return `👤 **માલિક પ્રોફાઇલ**: **ક્રિશ પટેલ (Krish Patel)** (${company.name})\n• **ઇમેઇલ**: kpatel3360@gmail.com\n• **મોબાઇલ**: +91 99049 14513\n• **ભૂમિકા**: બિઝનેસ ઓનર અને એડમિનિસ્ટ્રેટર`;
+        return `👤 **માલિક પ્રોફાઇલ**: **${user?.name || 'Adrian Hale'}** (${company.name})\n• **ઇમેઇલ**: ${user?.email || 'adrian.hale@biizora.demo'}\n• **મોબાઇલ**: ${user?.phone || '+91 98765 43210'}\n• **ભૂમિકા**: બિઝનેસ ઓનર અને એડમિનિસ્ટ્રેટર`;
       }
-      return `👤 **Owner Account**: **Krish Patel** (${company.name})\n• **Email**: kpatel3360@gmail.com\n• **Phone**: +91 99049 14513\n• **Role**: Account Owner & Administrator`;
+      return `👤 **Owner Account**: **${user?.name || 'Adrian Hale'}** (${company.name})\n• **Email**: ${user?.email || 'adrian.hale@biizora.demo'}\n• **Phone**: ${user?.phone || '+91 98765 43210'}\n• **Role**: Account Owner & Administrator`;
     }
 
     if (q.includes('who are you') || q.includes('what can you do') || q.includes('your name') || q.includes('કોણ છ') || q.includes('શું કરી શ')) {
       if (isGu) {
-        return `હું **અમેક્ષોરા AI (Amexora AI)** છું, તમારો ફાયનાન્સિયલ ઓપરેટિંગ એસિસ્ટન્ટ.\n\nhું તમને આ બાબતોમાં સંપૂર્ણ સહાય આપી શકું છું:\n• **લાઇવ બિઝનેસ હિસાબ**: વેચાણ, ચોખ્ખો નફો, ઓપરેટિંગ ખર્ચ અને કેશ ફ્લો.\n• **ગ્રાહક ઓડિટ**: Apex, Zenith, કે Nova ની બાકી ચુકવણીઓ.\n• **GST કરવેરા નિયમો**: CGST, SGST અને IGST ની ગણતરી.\n• **ઇનવોઇસ ગાઇડ**: નવું બિલ બનાવવું અને સ્માર્ટ PDF ડાઉનલોડ.`;
+        return `હું **અમેક્ષોરા AI (Biizora AI)** છું, તમારો ફાયનાન્સિયલ ઓપરેટિંગ એસિસ્ટન્ટ.\n\nhું તમને આ બાબતોમાં સંપૂર્ણ સહાય આપી શકું છું:\n• **લાઇવ બિઝનેસ હિસાબ**: વેચાણ, ચોખ્ખો નફો, ઓપરેટિંગ ખર્ચ અને કેશ ફ્લો.\n• **ગ્રાહક ઓડિટ**: Apex, Zenith, કે Nova ની બાકી ચુકવણીઓ.\n• **GST કરવેરા નિયમો**: CGST, SGST અને IGST ની ગણતરી.\n• **ઇનવોઇસ ગાઇડ**: નવું બિલ બનાવવું અને સ્માર્ટ PDF ડાઉનલોડ.`;
       }
-      return `I am **Amexora AI**, your autonomous financial operating assistant.\n\nHere is what I can answer specifically for you:\n• **Live Business Analytics**: Revenue, profits, expenses, cash forecasts.\n• **Debtor Audits**: Instant status on clients like Apex, Zenith, or Nova.\n• **GST Compliance**: Intrastate (CGST+SGST) vs Interstate (IGST), HSN codes.\n• **App Navigation**: Guidance on invoice creation, customer directory, or theme PDF export.\n• **Custom Business Strategy**: Answers to any tailored question!`;
+      return `I am **Biizora AI**, your autonomous financial operating assistant.\n\nHere is what I can answer specifically for you:\n• **Live Business Analytics**: Revenue, profits, expenses, cash forecasts.\n• **Debtor Audits**: Instant status on clients like Apex, Zenith, or Nova.\n• **GST Compliance**: Intrastate (CGST+SGST) vs Interstate (IGST), HSN codes.\n• **App Navigation**: Guidance on invoice creation, customer directory, or theme PDF export.\n• **Custom Business Strategy**: Answers to any tailored question!`;
     }
 
     // 4. Financial Metrics & Live Data (Profit, Receivables, Cash flow, Expenses)
@@ -217,7 +220,7 @@ export default function FloatingAIChat() {
                `• **લેણાંનું જોખમ**: મધ્યમ (₹${metrics.pendingRevenue.toLocaleString('en-IN')} બાકી)\n\n` +
                `બાકી બિલ વસૂલ કરીને તમારો સ્કોર 95 થી ઉપર લઈ જઈ શકો છો!`;
       }
-      return `🛡️ **Amexora Financial Health Score: ${metrics.healthScore} / 100**\n\n` +
+      return `🛡️ **Biizora Financial Health Score: ${metrics.healthScore} / 100**\n\n` +
              `• **Cash Liquidity**: High (₹${metrics.cashBalance.toLocaleString('en-IN')})\n` +
              `• **Profitability**: Strong (${((metrics.netProfit / (metrics.totalRevenue || 1)) * 100).toFixed(0)}% Net Margin)\n` +
              `• **Receivables Risk**: Moderate (₹${metrics.pendingRevenue.toLocaleString('en-IN')} pending)\n\n` +
@@ -239,7 +242,7 @@ export default function FloatingAIChat() {
              `  - Split equally into **CGST (9%)** + **SGST (9%)** = 18% Total Tax.\n\n` +
              `• **Interstate Sales (Different States, e.g. Karnataka to Maharashtra)**:\n` +
              `  - Billed as **IGST (18%)** Total Tax.\n\n` +
-             `Amexora automatically calculates CGST/SGST vs IGST based on client state!`;
+             `Biizora automatically calculates CGST/SGST vs IGST based on client state!`;
     }
 
     // 6. Platform How-To & Navigation
@@ -284,7 +287,7 @@ export default function FloatingAIChat() {
              `તમારા વેપાર માટે વધુ કઈ મદદ કરી શકું?`;
     }
 
-    return `🤖 **Amexora Business AI**: Re: "${userQuery}"\n\n` +
+    return `🤖 **Biizora Business AI**: Re: "${userQuery}"\n\n` +
            `Regarding **${topic ? topic.toUpperCase() : 'your request'}** for **${company.name}**:\n\n` +
            `• **Current Standing**: Your cash balance is **₹${metrics.cashBalance.toLocaleString('en-IN')}** with **₹${metrics.totalRevenue.toLocaleString('en-IN')}** in sales and a Health Score of **${metrics.healthScore}/100**.\n` +
            `• **Recommendation**: Ensure your invoice payment terms are clearly stated, and keep tracking expenses to maximize your claimable GST Input Tax Credit (ITC).\n\n` +
@@ -318,160 +321,139 @@ export default function FloatingAIChat() {
 
   return (
     <div className="fixed bottom-6 right-6 z-40">
-      {/* Trigger Button */}
       <AnimatePresence>
         {!isOpen && (
           <motion.button
-            initial={{ scale: 0, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
+            exit={{ scale: 0.9, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2.5 px-4.5 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-2xl hover:shadow-blue-500/30 transition-all group font-bold text-xs sm:text-sm"
+            className="flex items-center gap-2.5 px-4 py-3 bg-green-bottle hover:bg-[#264A41] text-white rounded-[16px] shadow-elev transition-all duration-[220ms] text-xs sm:text-sm font-semibold"
           >
-            <div className="relative">
-              <Sparkles className="w-5 h-5 animate-pulse" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-teal-400 rounded-full animate-ping" />
-            </div>
-            <span>Ask Amexora AI</span>
-            <span className="px-1.5 py-0.5 bg-white/20 rounded-md text-[10px] uppercase font-mono">GUJ / EN</span>
+            <Sparkles className="w-4 h-4" strokeWidth={1.75} />
+            <span>Ask Biizora AI</span>
           </motion.button>
         )}
       </AnimatePresence>
 
-      {/* Floating Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="w-[360px] sm:w-[460px] h-[560px] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden"
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            className="w-[360px] sm:w-[420px] h-[560px] bg-white rounded-[20px] shadow-elev border border-stone flex flex-col overflow-hidden"
           >
-            {/* Header */}
-            <div className="px-4 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white flex items-center justify-between">
+            <div className="px-4 py-3 border-b border-stone bg-cream/60 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-blue-600/30 border border-blue-400/30 text-blue-400">
-                  <Bot className="w-5 h-5" />
+                <div className="p-2 rounded-[12px] bg-white border border-stone text-green-bottle">
+                  <Bot className="w-4 h-4" strokeWidth={1.75} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm flex items-center gap-1.5">
-                    Amexora AI Co-pilot
-                    <span className="text-[9px] px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-full font-bold">Online</span>
+                  <h3 className="font-semibold text-sm text-charcoal flex items-center gap-1.5">
+                    Biizora AI
+                    <span className="text-[9px] px-1.5 py-0.5 bg-yellow-champagne text-green-bottle rounded-md border border-yellow-butter/50 font-medium">Online</span>
                   </h3>
-                  <p className="text-[11px] text-slate-300">Financial AI for {company.name}</p>
+                  <p className="text-[11px] text-warm-gray truncate max-w-[160px]">{company?.name}</p>
                 </div>
               </div>
 
-              {/* Language Selector Controls */}
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
+                <div className="flex items-center gap-0.5 bg-ivory p-0.5 rounded-[10px] border border-stone">
                   <button
+                    type="button"
                     onClick={() => setLanguage('en')}
-                    className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${
-                      language === 'en'
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
+                    className={`px-2 py-1 text-[10px] font-semibold rounded-[8px] transition-all ${
+                      language === 'en' ? 'bg-white text-charcoal shadow-subtle border border-stone' : 'text-warm-gray'
                     }`}
                   >
-                    English
+                    EN
                   </button>
                   <button
+                    type="button"
                     onClick={() => setLanguage('gu')}
-                    className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all ${
-                      language === 'gu'
-                        ? 'bg-teal-600 text-white shadow-sm'
-                        : 'text-slate-400 hover:text-white'
+                    className={`px-2 py-1 text-[10px] font-semibold rounded-[8px] transition-all ${
+                      language === 'gu' ? 'bg-white text-charcoal shadow-subtle border border-stone' : 'text-warm-gray'
                     }`}
                   >
-                    ગુજરાતી
+                    ગુ
                   </button>
                 </div>
-
-                <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white p-1 rounded-lg">
-                  <X className="w-5 h-5" />
+                <button type="button" onClick={() => setIsOpen(false)} className="text-warm-gray hover:text-charcoal p-1 rounded-[8px] hover:bg-cream">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
 
-            {/* Language Banner Indicator */}
-            <div className="px-4 py-1.5 bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-[11px] flex items-center justify-between text-slate-600 dark:text-slate-300">
-              <span className="flex items-center gap-1">
-                <Globe className="w-3.5 h-3.5 text-blue-500" />
-                AI Output Language: <strong>{language === 'gu' ? 'ગુજરાતી (Gujarati)' : 'English'}</strong>
-              </span>
-              <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold">Gujarati Type & Speech Ready</span>
+            <div className="px-4 py-1.5 bg-ivory border-b border-stone text-[11px] flex items-center gap-1.5 text-warm-gray">
+              <Globe className="w-3.5 h-3.5" strokeWidth={1.75} />
+              Output: <strong className="text-charcoal">{language === 'gu' ? 'Gujarati' : 'English'}</strong>
             </div>
 
-            {/* Message Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-slate-50/60 dark:bg-slate-900/50">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-ivory">
               {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+                <div key={msg.id} className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                   {msg.sender === 'ai' && (
-                    <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 mt-1 shadow-md">
-                      <Sparkles className="w-4 h-4" />
+                    <div className="w-7 h-7 rounded-[10px] bg-green-bottle text-white flex items-center justify-center shrink-0 mt-1">
+                      <Sparkles className="w-3.5 h-3.5" />
                     </div>
                   )}
                   <div
-                    className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm whitespace-pre-line leading-relaxed ${
+                    className={`max-w-[85%] px-3.5 py-2.5 rounded-[16px] text-xs sm:text-sm whitespace-pre-line leading-relaxed ${
                       msg.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-none shadow-md font-medium'
-                        : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700/80 rounded-bl-none shadow-sm'
+                        ? 'bg-green-bottle text-white rounded-br-md'
+                        : 'bg-white text-charcoal border border-stone rounded-bl-md'
                     }`}
                   >
                     {msg.text}
                   </div>
                   {msg.sender === 'user' && (
-                    <div className="w-7 h-7 rounded-xl bg-slate-700 text-white flex items-center justify-center shrink-0 mt-1 shadow-md">
-                      <User className="w-4 h-4" />
+                    <div className="w-7 h-7 rounded-[10px] bg-green-forest text-white flex items-center justify-center shrink-0 mt-1">
+                      <User className="w-3.5 h-3.5" />
                     </div>
                   )}
                 </div>
               ))}
 
               {isTyping && (
-                <div className="flex gap-2.5 items-center text-xs text-slate-400 italic">
-                  <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-md">
-                    <Sparkles className="w-4 h-4 animate-spin" />
+                <div className="flex gap-2.5 items-center text-xs text-warm-gray italic">
+                  <div className="w-7 h-7 rounded-[10px] bg-green-bottle text-white flex items-center justify-center shrink-0">
+                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
                   </div>
-                  <span>{language === 'gu' ? 'અમેક્ષોરા AI ઉત્તર તૈયાર કરી રહ્યું છે...' : 'Amexora AI is analyzing your request...'}</span>
+                  <span>{language === 'gu' ? 'Biizora AI જવાબ તૈયાર કરી રહ્યું છે…' : 'Biizora AI is thinking…'}</span>
                 </div>
               )}
-
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Prompt Chips */}
-            <div className="px-3 py-2 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 overflow-x-auto flex gap-1.5 scrollbar-none">
+            <div className="px-3 py-2 bg-white border-t border-stone overflow-x-auto flex gap-1.5">
               {activeQuickQuestions.map((q, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => handleSend(q)}
-                  className="px-2.5 py-1 text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-blue-600 hover:text-white rounded-full shrink-0 transition-all border border-slate-200 dark:border-slate-700"
+                  className="px-2.5 py-1 text-[11px] font-medium bg-cream text-warm-gray hover:bg-yellow-champagne hover:text-charcoal rounded-full shrink-0 transition-all border border-stone"
                 >
                   {q}
                 </button>
               ))}
             </div>
 
-            {/* Freeform Chat Input Bar */}
             <form
               onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-              className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2"
+              className="p-3 bg-white border-t border-stone flex items-center gap-2"
             >
               <input
                 type="text"
-                placeholder={language === 'gu' ? "વેચાણ, નફો, બાકી બિલ, GST અથવા ગ્રાહક વિશે પૂછો..." : "Ask about Apex Global, GST, invoices, profit, or anything..."}
+                placeholder={language === 'gu' ? 'નફો, બાકી બિલ, GST વિશે પૂછો…' : 'Ask about invoices, profit, GST…'}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                className="flex-1 px-4 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-xs sm:text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                className="flex-1 px-3.5 py-2.5 bg-ivory border border-stone text-charcoal placeholder-text-disabled text-xs sm:text-sm rounded-[14px] focus:outline-none focus:border-green-bottle/35 focus:shadow-focus"
               />
               <button
                 type="submit"
                 disabled={!input.trim()}
-                className="p-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl transition-all shadow-md"
+                className="p-2.5 bg-yellow-butter hover:bg-yellow-honey disabled:opacity-40 text-charcoal rounded-[14px] transition-all duration-[220ms]"
               >
                 <Send className="w-4 h-4" />
               </button>

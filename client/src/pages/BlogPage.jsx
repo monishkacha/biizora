@@ -15,8 +15,8 @@ export default function BlogPage() {
       <Navbar />
       <div className="max-w-6xl mx-auto px-4 py-16 flex-1 space-y-12">
         <div className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">Insights & Guides</span>
-          <h1 className="text-4xl font-extrabold">Amexora Financial Blog</h1>
+          <span className="text-xs font-bold text-accent uppercase tracking-widest">Insights & Guides</span>
+          <h1 className="text-4xl font-extrabold">Biizora Financial Blog</h1>
           <p className="text-slate-600 dark:text-slate-400">Actionable advice on GST compliance, cash flow optimization, and AI automation.</p>
         </div>
 
@@ -25,13 +25,13 @@ export default function BlogPage() {
             <article key={i} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between hover:border-blue-500 transition-all">
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-300 font-semibold rounded">{post.category}</span>
+                  <span className="px-2 py-0.5 bg-bg-secondary dark:bg-bg-secondary text-accent dark:text-blue-300 font-semibold rounded">{post.category}</span>
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {post.readTime}</span>
                 </div>
                 <h3 className="font-bold text-lg leading-snug">{post.title}</h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{post.excerpt}</p>
               </div>
-              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-blue-600">
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-accent">
                 <span>Read Full Guide</span> <ArrowRight className="w-4 h-4" />
               </div>
             </article>

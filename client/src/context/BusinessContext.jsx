@@ -1,216 +1,172 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
-  defaultCompany,
-  defaultCustomers,
-  defaultProducts,
-  defaultInvoices,
-  defaultExpenses,
-  defaultAIInsights
-} from '../data/initialData';
+  customersApi,
+  productsApi,
+  invoicesApi,
+  expensesApi,
+  businessApi,
+  setActiveBusinessId,
+} from '../api/client';
+import { useAuth } from './AuthContext';
+import { defaultAIInsights } from '../data/initialData';
 
 const BusinessContext = createContext();
 
 export const BusinessProvider = ({ children }) => {
-  const [company, setCompany] = useState(() => {
-    const saved = localStorage.getItem('amexora_company');
-    return saved ? JSON.parse(saved) : defaultCompany;
-  });
-
-  const [customers, setCustomers] = useState(() => {
-    const saved = localStorage.getItem('amexora_customers');
-    return saved ? JSON.parse(saved) : defaultCustomers;
-  });
-
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('amexora_products');
-    return saved ? JSON.parse(saved) : defaultProducts;
-  });
-
-  const [invoices, setInvoices] = useState(() => {
-    const saved = localStorage.getItem('amexora_invoices');
-    return saved ? JSON.parse(saved) : defaultInvoices;
-  });
-
-  const [expenses, setExpenses] = useState(() => {
-    const saved = localStorage.getItem('amexora_expenses');
-    return saved ? JSON.parse(saved) : defaultExpenses;
-  });
-
-  const [aiInsights, setAiInsights] = useState(() => {
-    const saved = localStorage.getItem('amexora_insights');
-    return saved ? JSON.parse(saved) : defaultAIInsights;
-  });
-
+  const { user, activeBusinessId, businesses, refreshBusinesses } = useAuth();
+  const [company, setCompany] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [invoices, setInvoices] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [aiInsights] = useState(defaultAIInsights);
   const [toast, setToast] = useState(null);
-
-  // Sync to localStorage
-  useEffect(() => {
-    localStorage.setItem('amexora_company', JSON.stringify(company));
-    localStorage.setItem('amexora_customers', JSON.stringify(customers));
-    localStorage.setItem('amexora_products', JSON.stringify(products));
-    localStorage.setItem('amexora_invoices', JSON.stringify(invoices));
-    localStorage.setItem('amexora_expenses', JSON.stringify(expenses));
-    localStorage.setItem('amexora_insights', JSON.stringify(aiInsights));
-  }, [company, customers, products, invoices, expenses, aiInsights]);
+  const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState(null);
+  const [permissions, setPermissions] = useState(null);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type, id: Date.now() });
-    setTimeout(() => {
-      setToast(null);
-    }, 4000);
+    setTimeout(() => setToast(null), 4000);
   };
 
-  // Company management
-  const updateCompany = (newDetails) => {
-    setCompany(prev => ({ ...prev, ...newDetails }));
+  const loadBusinessData = useCallback(async () => {
+    if (!user || !activeBusinessId) {
+      setCompany(null);
+      setCustomers([]);
+      setProducts([]);
+      setInvoices([]);
+      setExpenses([]);
+      return;
+    }
+
+    setActiveBusinessId(activeBusinessId);
+    setLoading(true);
+    try {
+      const [bizRes, custRes, prodRes, invRes, expRes] = await Promise.all([
+        businessApi.get(activeBusinessId),
+        customersApi.list(),
+        productsApi.list(),
+        invoicesApi.list(),
+        expensesApi.list(),
+      ]);
+
+      setCompany(bizRes.business);
+      setRole(bizRes.role);
+      setPermissions(bizRes.permissions);
+      setCustomers(custRes.customers || []);
+      setProducts(prodRes.products || []);
+      setInvoices(invRes.invoices || []);
+      setExpenses(expRes.expenses || []);
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Failed to load business data', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [user, activeBusinessId]);
+
+  useEffect(() => {
+    loadBusinessData();
+  }, [loadBusinessData]);
+
+  const updateCompany = async (newDetails) => {
+    const data = await businessApi.update(activeBusinessId, newDetails);
+    setCompany(data.business);
     showToast('Company profile & bank details updated!');
+    await refreshBusinesses?.();
+    return data.business;
   };
 
-  // Customer CRUD
-  const addCustomer = (customerData) => {
-    const newCustomer = {
-      id: `cust-${Date.now()}`,
-      ...customerData,
-      outstandingBalance: 0,
-      totalSpent: 0,
-      status: 'active'
-    };
-    setCustomers(prev => [newCustomer, ...prev]);
-    showToast(`Customer "${newCustomer.name}" added successfully.`);
-    return newCustomer;
+  const addCustomer = async (customerData) => {
+    const data = await customersApi.create(customerData);
+    setCustomers((prev) => [data.customer, ...prev]);
+    showToast(`Customer "${data.customer.name}" added successfully.`);
+    return data.customer;
   };
 
-  const updateCustomer = (id, updatedFields) => {
-    setCustomers(prev => prev.map(c => c.id === id ? { ...c, ...updatedFields } : c));
+  const updateCustomer = async (id, updatedFields) => {
+    const data = await customersApi.update(id, updatedFields);
+    setCustomers((prev) => prev.map((c) => (c.id === id ? data.customer : c)));
     showToast('Customer record updated!');
   };
 
-  const deleteCustomer = (id) => {
-    setCustomers(prev => prev.filter(c => c.id !== id));
+  const deleteCustomer = async (id) => {
+    await customersApi.remove(id);
+    setCustomers((prev) => prev.filter((c) => c.id !== id));
     showToast('Customer deleted.', 'warning');
   };
 
-  // Product CRUD
-  const addProduct = (productData) => {
-    const newProd = {
-      id: `prod-${Date.now()}`,
-      ...productData
-    };
-    setProducts(prev => [newProd, ...prev]);
-    showToast(`Product/Service "${newProd.name}" added.`);
-    return newProd;
+  const addProduct = async (productData) => {
+    const data = await productsApi.create(productData);
+    setProducts((prev) => [data.product, ...prev]);
+    showToast(`Product/Service "${data.product.name}" added.`);
+    return data.product;
   };
 
-  const updateProduct = (id, updatedFields) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+  const updateProduct = async (id, updatedFields) => {
+    const data = await productsApi.update(id, updatedFields);
+    setProducts((prev) => prev.map((p) => (p.id === id ? data.product : p)));
     showToast('Inventory item updated!');
   };
 
-  const deleteProduct = (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
+  const deleteProduct = async (id) => {
+    await productsApi.remove(id);
+    setProducts((prev) => prev.filter((p) => p.id !== id));
     showToast('Item removed from inventory.', 'warning');
   };
 
-  // Invoice Operations
   const generateInvoiceNumber = () => {
+    const prefix = company?.invoicePrefix || 'INV-';
     const nextNum = invoices.length + 101;
-    return `${company.invoicePrefix}${String(nextNum).padStart(3, '0')}`;
+    return `${prefix}${String(nextNum).padStart(3, '0')}`;
   };
 
-  const createInvoice = (invoiceData) => {
-    const newInvoice = {
-      id: `inv-${Date.now()}`,
-      invoiceNumber: invoiceData.invoiceNumber || generateInvoiceNumber(),
-      paidAmount: invoiceData.status === 'paid' ? invoiceData.grandTotal : 0,
-      paymentMethod: invoiceData.status === 'paid' ? 'UPI / Online' : 'Pending',
-      ...invoiceData
-    };
-
-    setInvoices(prev => [newInvoice, ...prev]);
-
-    // Update customer outstanding balance & spent totals
-    if (newInvoice.customerId) {
-      setCustomers(prev => prev.map(c => {
-        if (c.id === newInvoice.customerId) {
-          const isPaid = newInvoice.status === 'paid';
-          return {
-            ...c,
-            totalSpent: c.totalSpent + newInvoice.grandTotal,
-            outstandingBalance: isPaid ? c.outstandingBalance : c.outstandingBalance + newInvoice.grandTotal
-          };
-        }
-        return c;
-      }));
-    }
-
-    showToast(`Invoice ${newInvoice.invoiceNumber} created successfully!`);
-    return newInvoice;
+  const createInvoice = async (invoiceData) => {
+    const data = await invoicesApi.create(invoiceData);
+    setInvoices((prev) => [data.invoice, ...prev]);
+    await loadBusinessData();
+    showToast(`Invoice ${data.invoice.invoiceNumber} created successfully!`);
+    return data.invoice;
   };
 
-  const updateInvoiceStatus = (id, newStatus, paymentMethod = 'UPI / Online') => {
-    setInvoices(prev => prev.map(inv => {
-      if (inv.id === id) {
-        const isPaid = newStatus === 'paid';
-        const updatedPaidAmount = isPaid ? inv.grandTotal : inv.paidAmount;
-
-        // Adjust customer outstanding balance if marked paid
-        if (inv.customerId) {
-          setCustomers(cList => cList.map(c => {
-            if (c.id === inv.customerId && inv.status !== 'paid' && isPaid) {
-              return {
-                ...c,
-                outstandingBalance: Math.max(0, c.outstandingBalance - inv.grandTotal)
-              };
-            }
-            return c;
-          }));
-        }
-
-        return {
-          ...inv,
-          status: newStatus,
-          paidAmount: updatedPaidAmount,
-          paymentMethod: isPaid ? paymentMethod : inv.paymentMethod
-        };
-      }
-      return inv;
-    }));
+  const updateInvoiceStatus = async (id, newStatus, paymentMethod = 'UPI / Online') => {
+    const data = await invoicesApi.updateStatus(id, { status: newStatus, paymentMethod });
+    setInvoices((prev) => prev.map((inv) => (inv.id === id ? data.invoice : inv)));
+    await loadBusinessData();
     showToast(`Invoice status updated to "${newStatus.toUpperCase()}".`);
   };
 
-  const deleteInvoice = (id) => {
-    setInvoices(prev => prev.filter(inv => inv.id !== id));
+  const deleteInvoice = async (id) => {
+    await invoicesApi.remove(id);
+    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
     showToast('Invoice deleted.', 'warning');
   };
 
-  // Expense Operations
-  const addExpense = (expenseData) => {
-    const newExp = {
-      id: `exp-${Date.now()}`,
-      status: 'paid',
-      receiptUrl: expenseData.receiptUrl || '',
-      ...expenseData
-    };
-    setExpenses(prev => [newExp, ...prev]);
-    showToast(`Expense ₹${newExp.amount.toLocaleString('en-IN')} recorded!`);
-    return newExp;
+  const addExpense = async (expenseData) => {
+    const data = await expensesApi.create(expenseData);
+    setExpenses((prev) => [data.expense, ...prev]);
+    showToast(`Expense ₹${Number(data.expense.amount).toLocaleString('en-IN')} recorded!`);
+    return data.expense;
   };
 
-  const deleteExpense = (id) => {
-    setExpenses(prev => prev.filter(e => e.id !== id));
+  const deleteExpense = async (id) => {
+    await expensesApi.remove(id);
+    setExpenses((prev) => prev.filter((e) => e.id !== id));
     showToast('Expense removed.', 'warning');
   };
 
-  // Financial Metrics Calculation
   const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.status === 'paid' ? inv.grandTotal : 0), 0);
-  const pendingRevenue = invoices.reduce((sum, inv) => sum + (inv.status === 'pending' || inv.status === 'overdue' ? inv.grandTotal : 0), 0);
+  const pendingRevenue = invoices.reduce(
+    (sum, inv) => sum + (inv.status === 'pending' || inv.status === 'overdue' ? inv.grandTotal : 0),
+    0
+  );
   const totalExpenses = expenses.reduce((sum, exp) => sum + Number(exp.amount), 0);
   const netProfit = totalRevenue - totalExpenses;
-  const cashBalance = 350000 + netProfit; // Starting cash + net
+  const cashBalance = 350000 + netProfit;
 
-  // Financial Health Score algorithm (0 - 100)
   const calculateHealthScore = () => {
-    let score = 70; // Base score
+    let score = 70;
     if (totalRevenue > totalExpenses) score += 15;
     if (pendingRevenue < totalRevenue * 0.4) score += 10;
     if (expenses.length > 0) score += 5;
@@ -218,41 +174,53 @@ export const BusinessProvider = ({ children }) => {
   };
 
   return (
-    <BusinessContext.Provider value={{
-      company,
-      updateCompany,
-      customers,
-      addCustomer,
-      updateCustomer,
-      deleteCustomer,
-      products,
-      addProduct,
-      updateProduct,
-      deleteProduct,
-      invoices,
-      generateInvoiceNumber,
-      createInvoice,
-      updateInvoiceStatus,
-      deleteInvoice,
-      expenses,
-      addExpense,
-      deleteExpense,
-      aiInsights,
-      toast,
-      showToast,
-      metrics: {
-        totalRevenue,
-        pendingRevenue,
-        totalExpenses,
-        netProfit,
-        cashBalance,
-        healthScore: calculateHealthScore(),
-        totalCustomers: customers.length,
-        totalProducts: products.length,
-        pendingInvoicesCount: invoices.filter(i => i.status === 'pending' || i.status === 'overdue').length,
-        paidInvoicesCount: invoices.filter(i => i.status === 'paid').length
-      }
-    }}>
+    <BusinessContext.Provider
+      value={{
+        company: company || {
+          name: '',
+          currencySymbol: '₹',
+          invoicePrefix: 'INV-',
+          defaultTaxRate: 18,
+        },
+        updateCompany,
+        customers,
+        addCustomer,
+        updateCustomer,
+        deleteCustomer,
+        products,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        invoices,
+        generateInvoiceNumber,
+        createInvoice,
+        updateInvoiceStatus,
+        deleteInvoice,
+        expenses,
+        addExpense,
+        deleteExpense,
+        aiInsights,
+        toast,
+        showToast,
+        loading,
+        role,
+        permissions,
+        reload: loadBusinessData,
+        businesses,
+        metrics: {
+          totalRevenue,
+          pendingRevenue,
+          totalExpenses,
+          netProfit,
+          cashBalance,
+          healthScore: calculateHealthScore(),
+          totalCustomers: customers.length,
+          totalProducts: products.length,
+          pendingInvoicesCount: invoices.filter((i) => i.status === 'pending' || i.status === 'overdue').length,
+          paidInvoicesCount: invoices.filter((i) => i.status === 'paid').length,
+        },
+      }}
+    >
       {children}
     </BusinessContext.Provider>
   );

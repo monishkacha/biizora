@@ -21,9 +21,9 @@ export default function AIFeaturesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-1">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 text-xs font-bold rounded-full">
-            <Sparkles className="w-4 h-4 text-teal-500" /> Amexora Intelligence Engine
+            <Sparkles className="w-4 h-4 text-accent-soft" /> Biizora Intelligence Engine
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight">The 7 AI Pillars of Amexora</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight">The 7 AI Pillars of Biizora</h1>
           <p className="text-slate-600 dark:text-slate-400">Put your financial accounting on autopilot with OpenAI-powered models fine-tuned for Indian SMEs.</p>
         </div>
 
@@ -32,7 +32,7 @@ export default function AIFeaturesPage() {
             const Icon = ai.icon;
             return (
               <div key={i} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 hover:border-teal-500 transition-all">
-                <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-950 text-accent-soft dark:text-text-muted flex items-center justify-center">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-bold">{ai.title}</h3>
@@ -42,9 +42,9 @@ export default function AIFeaturesPage() {
           })}
         </div>
 
-        <div className="mt-16 p-8 bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-3xl text-center space-y-4">
+        <div className="mt-16 p-8 bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-[20px] text-center space-y-4">
           <h2 className="text-2xl font-bold">Experience AI-Driven Financial Freedom</h2>
-          <Link to="/app/ai-suite" className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 text-slate-900 font-bold rounded-xl shadow-lg hover:bg-teal-400">
+          <Link to="/app/ai-suite" className="inline-flex items-center gap-2 px-6 py-3 bg-accent-soft text-slate-900 font-bold rounded-xl shadow-lg hover:bg-accent">
             <span>Launch Live AI Workspace</span> <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

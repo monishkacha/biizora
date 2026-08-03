@@ -53,7 +53,7 @@ export default function AIPowerSuitePage() {
     } else if (reminderChannel === 'email') {
       return `Subject: Payment Reminder - Invoice ${selectedInv.invoiceNumber} (${company.name})\n\nDear ${selectedInv.customerName},\n\nWe hope this email finds you well. This is a reminder that Invoice ${selectedInv.invoiceNumber} for ₹${selectedInv.grandTotal.toLocaleString('en-IN')} was due on ${selectedInv.dueDate}.\n\nPlease arrange for payment via NEFT/UPI at your earliest convenience.\n\nWarm regards,\n${company.name}`;
     } else {
-      return `AMEXORA ALERT: Invoice ${selectedInv.invoiceNumber} of ₹${selectedInv.grandTotal} is due. Pay via UPI ID: ${company.bankDetails.upiId}`;
+      return `Biizora ALERT: Invoice ${selectedInv.invoiceNumber} of ₹${selectedInv.grandTotal} is due. Pay via UPI ID: ${company.bankDetails.upiId}`;
     }
   };
 
@@ -68,13 +68,13 @@ export default function AIPowerSuitePage() {
     <div className="space-y-6">
       
       {/* Top Header Banner */}
-      <div className="p-6 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white rounded-3xl border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-6 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white rounded-[20px] border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
-            <Sparkles className="w-4 h-4 text-emerald-400" /> Enterprise Financial AI Engine
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-bg-secondary0/20 text-emerald-300 text-xs font-bold rounded-full border border-emerald-500/30">
+            <Sparkles className="w-4 h-4 text-text-muted" /> Enterprise Financial AI Engine
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-            {language === 'gu' ? 'અમેક્ષોરા ફાયનાન્સિયલ AI સૂટ' : 'Amexora Financial AI Suite'}
+            {language === 'gu' ? 'અમેક્ષોરા ફાયનાન્સિયલ AI સૂટ' : 'Biizora Financial AI Suite'}
           </h1>
           <p className="text-xs text-slate-300">
             {language === 'gu'
@@ -89,7 +89,7 @@ export default function AIPowerSuitePage() {
             <button
               onClick={() => { setLanguage('en'); setReminderLang('en'); }}
               className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all ${
-                language === 'en' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400 hover:text-white'
+                language === 'en' ? 'bg-accent text-white shadow-md' : 'text-slate-400 hover:text-white'
               }`}
             >
               English
@@ -108,7 +108,7 @@ export default function AIPowerSuitePage() {
             <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">
               {language === 'gu' ? 'હેલ્થ સ્કોર' : 'FINANCIAL HEALTH SCORE'}
             </span>
-            <span className="text-xl font-extrabold text-emerald-400">{metrics.healthScore} / 100</span>
+            <span className="text-xl font-extrabold text-text-muted">{metrics.healthScore} / 100</span>
           </div>
         </div>
       </div>
@@ -132,7 +132,7 @@ export default function AIPowerSuitePage() {
               onClick={() => setActiveModule(mod.id)}
               className={`p-3 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center justify-center gap-1.5 ${
                 isActive
-                  ? 'bg-blue-600 text-white border-blue-500 shadow-md shadow-blue-500/25'
+                  ? 'bg-accent text-white border-blue-500 shadow-md shadow-subtle'
                   : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-blue-400'
               }`}
             >
@@ -144,7 +144,7 @@ export default function AIPowerSuitePage() {
       </div>
 
       {/* Main Module Display Area */}
-      <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card">
+      <div className="p-8 bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card">
         
         {/* Module 1: AI Business Advisor */}
         {activeModule === 'advisor' && (
@@ -152,7 +152,7 @@ export default function AIPowerSuitePage() {
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-teal-500" />
+                  <Sparkles className="w-5 h-5 text-accent-soft" />
                   {language === 'gu' ? 'AI બિઝનેસ સલાહકાર પૃથક્કરણ' : 'AI Business Advisor Diagnostic'}
                 </h2>
                 <p className="text-xs text-slate-400">
@@ -166,7 +166,7 @@ export default function AIPowerSuitePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <h4 className="text-sm font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
+                <h4 className="text-sm font-bold text-accent dark:text-text-muted flex items-center gap-1.5">
                   <TrendingUp className="w-4 h-4" /> {language === 'gu' ? 'વેચાણ અને ભાવ સુધારણા' : 'Revenue & Pricing Optimization'}
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -177,7 +177,7 @@ export default function AIPowerSuitePage() {
               </div>
 
               <div className="p-5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <h4 className="text-sm font-bold text-teal-600 dark:text-teal-400 flex items-center gap-1.5">
+                <h4 className="text-sm font-bold text-accent-soft dark:text-text-muted flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4" /> {language === 'gu' ? 'વર્કિંગ કેપિટલ અને બાકી લેણાં' : 'Working Capital & Receivables'}
                 </h4>
                 <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
@@ -190,21 +190,21 @@ export default function AIPowerSuitePage() {
 
             <div className="p-4 bg-gradient-to-r from-blue-900/30 to-indigo-900/30 rounded-2xl border border-blue-500/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Bot className="w-6 h-6 text-blue-400" />
+                <Bot className="w-6 h-6 text-text-muted" />
                 <div>
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                     {language === 'gu' ? 'ધંધા વિશે કોઈ ચોક્કસ પ્રશ્ન છે?' : 'Have a specific question about your business?'}
                   </h4>
                   <p className="text-[11px] text-slate-400">
                     {language === 'gu'
-                      ? 'સ્ક્રીનના નીચે જમણી બાજુએ આપેલ "Ask Amexora AI" બટન દબાવીને ગુજરાતી કે ઈંગ્લીશમાં ચેટ કરો!'
-                      : 'Use the floating **Ask Amexora AI** button at the bottom-right of your screen to chat in English or Gujarati anytime!'}
+                      ? 'સ્ક્રીનના નીચે જમણી બાજુએ આપેલ "Ask Biizora AI" બટન દબાવીને ગુજરાતી કે ઈંગ્લીશમાં ચેટ કરો!'
+                      : 'Use the floating **Ask Biizora AI** button at the bottom-right of your screen to chat in English or Gujarati anytime!'}
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => showToast(language === 'gu' ? 'ચેટ શરૂ કરવા નીચે જમણી બાજુ "Ask Amexora AI" પર ક્લિક કરો!' : 'Click the bottom-right "Ask Amexora AI" button to launch instant chat!')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-blue-700"
+                onClick={() => showToast(language === 'gu' ? 'ચેટ શરૂ કરવા નીચે જમણી બાજુ "Ask Biizora AI" પર ક્લિક કરો!' : 'Click the bottom-right "Ask Biizora AI" button to launch instant chat!')}
+                className="px-4 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md hover:bg-text"
               >
                 {language === 'gu' ? 'ચેટબોટ ખોલો' : 'Launch Chatbot'}
               </button>
@@ -217,7 +217,7 @@ export default function AIPowerSuitePage() {
           <div className="space-y-6">
             <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-blue-600" />
+                <TrendingUp className="w-5 h-5 text-accent" />
                 {language === 'gu' ? 'AI કેશ ફ્લો અનુમાન (૭, ૩૦ અને ૯૦ દિવસ)' : 'AI Cash Flow Predictor (7, 30 & 90 Days)'}
               </h2>
               <p className="text-xs text-slate-400">
@@ -232,17 +232,17 @@ export default function AIPowerSuitePage() {
                   {language === 'gu' ? '૭-દિવસનું અંદાજ' : '7-DAY PROJECTION'}
                 </span>
                 <p className="text-3xl font-extrabold text-slate-900 dark:text-white">₹{(metrics.cashBalance + 45000).toLocaleString('en-IN')}</p>
-                <p className="text-xs text-emerald-500 font-semibold">
+                <p className="text-xs text-accent-soft font-semibold">
                   {language === 'gu' ? 'અપેક્ષિત આવક: ₹૪૫,૦૦૦' : 'Expected Inflow: ₹45,000'}
                 </p>
                 <span className="text-[10px] text-slate-400 block">{language === 'gu' ? 'AI સ્કોર: ૯૮%' : 'Confidence Score: 98%'}</span>
               </div>
 
-              <div className="p-5 bg-blue-50 dark:bg-blue-950/60 rounded-2xl border border-blue-200 dark:border-blue-800 space-y-2">
-                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+              <div className="p-5 bg-bg-secondary dark:bg-bg-secondary/60 rounded-2xl border border-border dark:border-border space-y-2">
+                <span className="text-xs font-bold text-accent dark:text-text-muted uppercase tracking-wider">
                   {language === 'gu' ? '૩૦-દિવસનું અંદાજ' : '30-DAY PROJECTION'}
                 </span>
-                <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">₹{(metrics.cashBalance + 135000).toLocaleString('en-IN')}</p>
+                <p className="text-3xl font-extrabold text-accent dark:text-text-muted">₹{(metrics.cashBalance + 135000).toLocaleString('en-IN')}</p>
                 <p className="text-xs text-blue-700 dark:text-blue-300 font-semibold">
                   {language === 'gu' ? 'અપેક્ષિત આવક: ₹૧,૮૫,૦૦૦' : 'Expected Inflow: ₹1,85,000'}
                 </p>
@@ -250,10 +250,10 @@ export default function AIPowerSuitePage() {
               </div>
 
               <div className="p-5 bg-teal-50 dark:bg-teal-950/60 rounded-2xl border border-teal-200 dark:border-teal-800 space-y-2">
-                <span className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider">
+                <span className="text-xs font-bold text-accent-soft dark:text-text-muted uppercase tracking-wider">
                   {language === 'gu' ? '૯૦-દિવસનું અંદાજ' : '90-DAY PROJECTION'}
                 </span>
-                <p className="text-3xl font-extrabold text-teal-600 dark:text-teal-400">₹{(metrics.cashBalance + 380000).toLocaleString('en-IN')}</p>
+                <p className="text-3xl font-extrabold text-accent-soft dark:text-text-muted">₹{(metrics.cashBalance + 380000).toLocaleString('en-IN')}</p>
                 <p className="text-xs text-teal-700 dark:text-teal-300 font-semibold">
                   {language === 'gu' ? 'અપેક્ષિત આવક: ₹૪,૫૦,૦૦૦' : 'Expected Inflow: ₹4,50,000'}
                 </p>
@@ -287,7 +287,7 @@ export default function AIPowerSuitePage() {
                     {language === 'gu' ? 'માસિક કાર્ડ પેમેન્ટના બદલે વાર્ષિક પેકેજ લેવાથી વર્ષે ₹૧૮,૪૦૦ ની બચત થાય છે.' : 'Switching monthly card payments to upfront annual subscriptions saves ₹18,400 per year.'}
                   </p>
                 </div>
-                <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 text-xs font-extrabold rounded-lg">
+                <span className="px-3 py-1 bg-emerald-100 dark:bg-bg-secondary text-text text-xs font-extrabold rounded-lg">
                   {language === 'gu' ? 'બચત ₹૧૮.૪ હજાર/વર્ષ' : 'Save ₹18.4k/yr'}
                 </span>
               </div>
@@ -301,7 +301,7 @@ export default function AIPowerSuitePage() {
                     {language === 'gu' ? 'ઓફિસ લીઝ પર ચૂકવેલ ₹૯,૯૧૫ GST પૂરેપૂરો ટેક્સ ક્રેડિટ તરીકે સેટ-ઓફ કરી શકાય છે.' : '₹9,915 GST paid on office lease is 100% claimable against output tax.'}
                   </p>
                 </div>
-                <span className="px-3 py-1 bg-teal-100 dark:bg-teal-950 text-teal-600 text-xs font-extrabold rounded-lg">
+                <span className="px-3 py-1 bg-teal-100 dark:bg-teal-950 text-accent-soft text-xs font-extrabold rounded-lg">
                   {language === 'gu' ? '₹૯.૯ હજાર ટેક્સ બચત' : '₹9.9k Tax Saved'}
                 </span>
               </div>
@@ -314,7 +314,7 @@ export default function AIPowerSuitePage() {
           <div className="space-y-6">
             <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-emerald-600" />
+                <MessageSquare className="w-5 h-5 text-text" />
                 {language === 'gu' ? 'AI ઇનવોઇસ ચુકવણી યાદી નિર્માતા' : 'AI Invoice Payment Reminder Generator'}
               </h2>
               <p className="text-xs text-slate-400">
@@ -366,7 +366,7 @@ export default function AIPowerSuitePage() {
                 <select
                   value={reminderLang}
                   onChange={(e) => setReminderLang(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-teal-500 rounded-xl text-xs font-bold text-teal-600 dark:text-teal-400"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-teal-500 rounded-xl text-xs font-bold text-accent-soft dark:text-text-muted"
                 >
                   <option value="en">English</option>
                   <option value="gu">ગુજરાતી (Gujarati)</option>
@@ -390,7 +390,7 @@ export default function AIPowerSuitePage() {
               <div className="pt-2 flex items-center gap-3">
                 <button
                   onClick={() => handleCopyReminder(generateReminderText())}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5"
+                  className="px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold flex items-center gap-1.5"
                 >
                   <Copy className="w-3.5 h-3.5" /> {language === 'gu' ? 'ડ્રાફ્ટ કોપી કરો' : 'Copy Draft'}
                 </button>
@@ -415,18 +415,18 @@ export default function AIPowerSuitePage() {
             <div className="border-b border-slate-200 dark:border-slate-800 pb-4 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-teal-500" />
+                  <ShieldCheck className="w-5 h-5 text-accent-soft" />
                   {language === 'gu' ? 'AI નાણાકીય હેલ્થ સ્કોર વિશ્લેષણ' : 'AI Financial Health Score Breakdown'}
                 </h2>
                 <p className="text-xs text-slate-400">
                   {language === 'gu' ? 'રોકડ પ્રવાહ અને ઓપરેટિંગ જોખમોનું મૂલ્યાંકન.' : 'Multi-pillar assessment of liquidity, solvency, and operational risk.'}
                 </p>
               </div>
-              <span className="text-3xl font-extrabold text-blue-600">{metrics.healthScore} / 100</span>
+              <span className="text-3xl font-extrabold text-accent">{metrics.healthScore} / 100</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 space-y-1">
+              <div className="p-4 bg-bg-secondary dark:bg-bg-secondary/40 rounded-2xl border border-emerald-200 space-y-1">
                 <h4 className="font-bold text-emerald-800 dark:text-emerald-300">
                   {language === 'gu' ? 'મજબૂત પાસાઓ (Strengths)' : 'Strengths'}
                 </h4>
@@ -438,7 +438,7 @@ export default function AIPowerSuitePage() {
                 </p>
               </div>
 
-              <div className="p-4 bg-amber-50 dark:bg-amber-950/40 rounded-2xl border border-amber-200 space-y-1">
+              <div className="p-4 bg-bg-hover dark:bg-bg-hover/40 rounded-2xl border border-amber-200 space-y-1">
                 <h4 className="font-bold text-amber-800 dark:text-amber-300">
                   {language === 'gu' ? 'જોખમ અને સુધારણા (Risks)' : 'Risks & Weaknesses'}
                 </h4>
@@ -458,7 +458,7 @@ export default function AIPowerSuitePage() {
           <div className="space-y-6">
             <div className="border-b border-slate-200 dark:border-slate-800 pb-4">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-blue-600" />
+                <FileCheck className="w-5 h-5 text-accent" />
                 {language === 'gu' ? 'AI માસિક એક્ઝિક્યુટિવ સારાંશ' : 'AI Monthly Executive Summary'}
               </h2>
               <p className="text-xs text-slate-400">
@@ -467,7 +467,7 @@ export default function AIPowerSuitePage() {
             </div>
 
             <div className="p-6 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-200 leading-relaxed space-y-3 font-mono">
-              <p className="font-bold text-blue-600 dark:text-blue-400">
+              <p className="font-bold text-accent dark:text-text-muted">
                 EXECUTIVE NARRATIVE REPORT ({language === 'gu' ? 'ગુજરાતી આવૃત્તિ' : 'English Edition'}) - {company.name}
               </p>
               {language === 'gu' ? (

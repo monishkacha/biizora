@@ -192,7 +192,7 @@ export default function InvoiceCreatePage() {
           </button>
           <button
             onClick={() => handleSaveInvoice('pending')}
-            className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5"
+            className="px-5 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all flex items-center gap-1.5"
           >
             <Sparkles className="w-4 h-4" /> Generate & Save Invoice
           </button>
@@ -200,13 +200,13 @@ export default function InvoiceCreatePage() {
       </div>
 
       {/* Main Form Container */}
-      <div className="p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card space-y-8">
+      <div className="p-8 bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card space-y-8">
         
         {/* Header Block */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-slate-800">
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">{company.name}</h2>
-            <p className="text-xs text-slate-400">GSTIN: <span className="font-mono text-blue-600">{company.gstin}</span></p>
+            <p className="text-xs text-slate-400">GSTIN: <span className="font-mono text-accent">{company.gstin}</span></p>
           </div>
 
           <div className="space-y-2 text-right">
@@ -215,7 +215,7 @@ export default function InvoiceCreatePage() {
               type="text"
               value={invoiceNumber}
               readOnly
-              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-sm font-bold text-blue-600 text-right"
+              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-sm font-bold text-accent text-right"
             />
           </div>
         </div>
@@ -228,7 +228,7 @@ export default function InvoiceCreatePage() {
               <button
                 type="button"
                 onClick={() => setQuickCustModalOpen(true)}
-                className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+                className="text-[11px] font-bold text-accent dark:text-text-muted hover:underline flex items-center gap-1"
               >
                 <UserPlus className="w-3 h-3" /> + Quick Add Customer
               </button>
@@ -327,12 +327,12 @@ export default function InvoiceCreatePage() {
                   />
                 </div>
 
-                <div className="col-span-1 text-right font-bold text-blue-600">
+                <div className="col-span-1 text-right font-bold text-accent">
                   ₹{(Number(item.quantity) * Number(item.rate)).toLocaleString('en-IN')}
                 </div>
 
                 <div className="col-span-1 flex items-center justify-end">
-                  <button onClick={() => removeItem(item.id)} className="p-1 text-slate-400 hover:text-red-500">
+                  <button onClick={() => removeItem(item.id)} className="p-1 text-slate-400 hover:text-accent-soft">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -343,7 +343,7 @@ export default function InvoiceCreatePage() {
 
           <button
             onClick={addItem}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-bg-secondary dark:bg-bg-secondary text-accent dark:text-blue-300 rounded-xl text-xs font-bold hover:bg-bg-secondary transition-colors"
           >
             <Plus className="w-3.5 h-3.5" /> Add Another Line Item
           </button>
@@ -393,17 +393,17 @@ export default function InvoiceCreatePage() {
               {isIgst ? (
                 <div className="flex justify-between text-slate-600 dark:text-slate-300">
                   <span>IGST Total (18%):</span>
-                  <span className="font-semibold text-teal-600">₹{igst.toLocaleString('en-IN')}</span>
+                  <span className="font-semibold text-accent-soft">₹{igst.toLocaleString('en-IN')}</span>
                 </div>
               ) : (
                 <>
                   <div className="flex justify-between text-slate-600 dark:text-slate-300">
                     <span>CGST (9%):</span>
-                    <span className="font-semibold text-teal-600">₹{cgst.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold text-accent-soft">₹{cgst.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between text-slate-600 dark:text-slate-300">
                     <span>SGST (9%):</span>
-                    <span className="font-semibold text-teal-600">₹{sgst.toLocaleString('en-IN')}</span>
+                    <span className="font-semibold text-accent-soft">₹{sgst.toLocaleString('en-IN')}</span>
                   </div>
                 </>
               )}
@@ -411,7 +411,7 @@ export default function InvoiceCreatePage() {
 
             <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-sm font-extrabold">
               <span className="text-slate-900 dark:text-white">Grand Total Owed:</span>
-              <span className="text-xl text-blue-600 dark:text-blue-400">₹{grandTotal.toLocaleString('en-IN')}</span>
+              <span className="text-xl text-accent dark:text-text-muted">₹{grandTotal.toLocaleString('en-IN')}</span>
             </div>
           </div>
 
@@ -422,10 +422,10 @@ export default function InvoiceCreatePage() {
       {/* Inline Quick Add Customer Modal */}
       {quickCustModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[20px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-blue-600" /> Quick Add Customer
+                <UserPlus className="w-5 h-5 text-accent" /> Quick Add Customer
               </h3>
               <button onClick={() => setQuickCustModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
@@ -434,7 +434,7 @@ export default function InvoiceCreatePage() {
 
             <form onSubmit={handleQuickAddCustomerSubmit} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold mb-1">Company / Customer Name <span className="text-red-500">*</span></label>
+                <label className="block text-xs font-semibold mb-1">Company / Customer Name <span className="text-accent-soft">*</span></label>
                 <input
                   required
                   type="text"
@@ -498,7 +498,7 @@ export default function InvoiceCreatePage() {
 
               <div className="pt-3 flex items-center justify-end gap-3">
                 <button type="button" onClick={() => setQuickCustModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-blue-700">
+                <button type="submit" className="px-5 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md hover:bg-text">
                   Add & Select Customer
                 </button>
               </div>

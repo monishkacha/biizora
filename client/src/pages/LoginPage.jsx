@@ -1,77 +1,87 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Eye, EyeOff, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Button } from '../components/ui/Button';
+
+const DEMO_EMAIL = 'adrian.hale@biizora.demo';
+const DEMO_PASSWORD = 'demo1234';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('kpatel3360@gmail.com');
-  const [password, setPassword] = useState('password123');
-  const [rememberMe, setRememberMe] = useState(true);
+  const [email, setEmail] = useState(DEMO_EMAIL);
+  const [password, setPassword] = useState(DEMO_PASSWORD);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const signIn = async (loginEmail, loginPassword) => {
     setLoading(true);
-    setTimeout(() => {
-      login(email, password, rememberMe);
-      setLoading(false);
+    setError('');
+    try {
+      await login(loginEmail, loginPassword);
       navigate('/app');
-    }, 600);
+    } catch (err) {
+      setError(err.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDemoFill = () => {
-    setEmail('kpatel3360@gmail.com');
-    setPassword('password123');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await signIn(email, password);
+  };
+
+  const handleDemoLogin = async () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
+    await signIn(DEMO_EMAIL, DEMO_PASSWORD);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
-      
-      {/* Background glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen flex flex-col justify-center py-12 px-4 relative">
+      <div className="absolute inset-0 bg-hero-glow pointer-events-none" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-3">
-        <Link to="/" className="inline-flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30">
-            <Sparkles className="w-5 h-5" />
+      <div className="relative z-10 w-full max-w-md mx-auto space-y-8">
+        <div className="text-center space-y-3">
+          <Link to="/" className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-[14px] bg-green-bottle text-white flex items-center justify-center">
+              <Sparkles className="w-5 h-5" strokeWidth={1.75} />
+            </div>
+            <span className="text-xl font-display font-semibold tracking-tight">Biizora</span>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-display font-semibold tracking-tight">Welcome back</h1>
+            <p className="mt-1.5 text-sm text-warm-gray">Sign in to your business operating system</p>
           </div>
-          <span className="text-2xl font-extrabold text-white tracking-tight">Amexora</span>
-        </Link>
-        <h2 className="text-2xl font-bold text-white">Welcome Back to Amexora</h2>
-        <p className="text-xs text-slate-400">Sign in to manage your GST invoices, cash flow & AI insights.</p>
-      </div>
+        </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
-        <div className="bg-slate-800/90 border border-slate-700/80 p-8 rounded-3xl shadow-2xl backdrop-blur-md space-y-6">
-          
+        <div className="bz-card p-7 sm:p-8 space-y-5">
           <button
             type="button"
-            onClick={handleDemoFill}
-            className="w-full py-2 bg-blue-950/60 border border-blue-500/30 text-blue-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-blue-900/60 transition-colors"
+            disabled={loading}
+            onClick={handleDemoLogin}
+            className="w-full py-2.5 rounded-[14px] bg-cream border border-stone text-warm-gray text-xs font-medium hover:bg-bg-hover transition-colors disabled:opacity-60"
           >
-            <Sparkles className="w-3.5 h-3.5" /> Auto-Fill Demo Owner Credentials
+            {loading ? 'Opening demo workspace…' : 'Try demo workspace (Adrian Hale)'}
           </button>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Work Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500"
-                placeholder="you@company.com"
-              />
-            </div>
+          {error ? (
+            <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">{error}</p>
+          ) : null}
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-semibold text-slate-300">Password</label>
-                <Link to="/forgot-password" className="text-xs text-blue-400 hover:underline">Forgot password?</Link>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium text-warm-gray">Work email</span>
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="bz-input" placeholder="you@company.com" />
+            </label>
+
+            <label className="block space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-warm-gray">Password</span>
+                <Link to="/forgot-password" className="text-xs text-warm-gray hover:text-green-bottle">Forgot?</Link>
               </div>
               <div className="relative">
                 <input
@@ -79,55 +89,24 @@ export default function LoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500 pr-10"
-                  placeholder="••••••••"
+                  className="bz-input pr-10"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-400 hover:text-white"
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-disabled hover:text-warm-gray">
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-            </div>
+            </label>
 
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-blue-500"
-                />
-                <span>Remember me on this browser</span>
-              </label>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <span>Signing In...</span>
-              ) : (
-                <>
-                  <span>Sign In to Workspace</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
+            <Button type="submit" loading={loading} className="w-full" size="lg">
+              Sign in <ArrowRight className="w-4 h-4" />
+            </Button>
           </form>
-
-          <div className="pt-4 border-t border-slate-700/60 text-center text-xs text-slate-400">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-blue-400 font-bold hover:underline">
-              Start 14-Day Free Trial
-            </Link>
-          </div>
-
         </div>
+
+        <p className="text-center text-sm text-warm-gray">
+          New to Biizora?{' '}
+          <Link to="/register" className="font-semibold text-green-bottle hover:underline">Create account</Link>
+        </p>
       </div>
     </div>
   );

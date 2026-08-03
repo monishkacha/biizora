@@ -24,7 +24,7 @@ export default function InventoryPage() {
       {/* Header Bar */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Boxes className="w-6 h-6 text-blue-600" /> Stock & Inventory Valuation
+          <Boxes className="w-6 h-6 text-accent" /> Stock & Inventory Valuation
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400">Track warehouse stock levels, inventory asset values, and reorder thresholds.</p>
       </div>
@@ -42,15 +42,15 @@ export default function InventoryPage() {
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
           <span className="text-xs font-semibold text-slate-400">Retail Sales Valuation</span>
-          <p className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">
+          <p className="text-2xl font-extrabold text-accent dark:text-text-muted mt-1">
             ₹{totalRetailValuation.toLocaleString('en-IN')}
           </p>
-          <p className="text-[11px] text-emerald-500 font-semibold mt-1">Potential Profit: ₹{(totalRetailValuation - totalCostValuation).toLocaleString('en-IN')}</p>
+          <p className="text-[11px] text-accent-soft font-semibold mt-1">Potential Profit: ₹{(totalRetailValuation - totalCostValuation).toLocaleString('en-IN')}</p>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
           <span className="text-xs font-semibold text-slate-400">Stock Alerts Triggered</span>
-          <p className={`text-2xl font-extrabold mt-1 ${lowStockItems.length > 0 ? 'text-red-500' : 'text-emerald-500'}`}>
+          <p className={`text-2xl font-extrabold mt-1 ${lowStockItems.length > 0 ? 'text-accent-soft' : 'text-accent-soft'}`}>
             {lowStockItems.length} Low Stock Alert{lowStockItems.length === 1 ? '' : 's'}
           </p>
           <p className="text-[11px] text-slate-400 mt-1">{physicalProducts.length} physical SKUs tracked</p>
@@ -60,9 +60,9 @@ export default function InventoryPage() {
 
       {/* Low Stock Warning Alert Banner */}
       {lowStockItems.length > 0 && (
-        <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl flex items-center justify-between">
+        <div className="p-4 bg-bg-hover dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-2xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-text dark:text-red-400 shrink-0" />
             <div>
               <h4 className="text-xs font-bold text-red-900 dark:text-red-200">Critical Low Stock Threshold Detected</h4>
               <p className="text-[11px] text-red-700 dark:text-red-300">
@@ -74,7 +74,7 @@ export default function InventoryPage() {
       )}
 
       {/* Stock Level Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">Physical Inventory Logs</h3>
         </div>
@@ -99,7 +99,7 @@ export default function InventoryPage() {
                     <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">{p.name}</td>
                     <td className="py-3.5 px-4 font-mono text-slate-400">{p.sku}</td>
                     <td className="py-3.5 px-4 font-extrabold">
-                      <span className={isLow ? 'text-red-500 font-bold' : 'text-slate-900 dark:text-white'}>
+                      <span className={isLow ? 'text-accent-soft font-bold' : 'text-slate-900 dark:text-white'}>
                         {p.stock} {p.unit}s
                       </span>
                     </td>
@@ -108,7 +108,7 @@ export default function InventoryPage() {
                     <td className="py-3.5 px-4 text-right">
                       <button
                         onClick={() => handleRestock(p.id, 25)}
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[10px] font-bold shadow transition-colors"
+                        className="px-3 py-1 bg-accent hover:bg-text text-white rounded-lg text-[10px] font-bold shadow transition-colors"
                       >
                         + Restock 25 Units
                       </button>

@@ -85,14 +85,14 @@ export default function ProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Package className="w-6 h-6 text-blue-600" /> Products & Services Catalog
+            <Package className="w-6 h-6 text-accent" /> Products & Services Catalog
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">Manage catalog SKUs, HSN/SAC GST codes, pricing & low-stock alerts.</p>
         </div>
 
         <button
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all"
+          className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all"
         >
           <Plus className="w-4 h-4" /> Add Item / Service
         </button>
@@ -107,7 +107,7 @@ export default function ProductsPage() {
             placeholder="Search by SKU, item name, HSN code..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
           />
         </div>
 
@@ -126,7 +126,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -157,13 +157,13 @@ export default function ProductsPage() {
                         {p.category}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-extrabold text-blue-600 dark:text-blue-400">
+                    <td className="py-3.5 px-4 font-extrabold text-accent dark:text-text-muted">
                       ₹{Number(p.sellingPrice).toLocaleString('en-IN')}
                     </td>
                     <td className="py-3.5 px-4 text-slate-500">
                       ₹{Number(p.costPrice).toLocaleString('en-IN')}
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-teal-600">
+                    <td className="py-3.5 px-4 font-semibold text-accent-soft">
                       {p.gstRate}% GST
                     </td>
                     <td className="py-3.5 px-4">
@@ -171,11 +171,11 @@ export default function ProductsPage() {
                         <span className="text-slate-400 text-[10px]">N/A (Service)</span>
                       ) : (
                         <div className="flex items-center gap-1.5">
-                          <span className={`font-extrabold ${isLowStock ? 'text-red-500' : 'text-slate-900 dark:text-white'}`}>
+                          <span className={`font-extrabold ${isLowStock ? 'text-accent-soft' : 'text-slate-900 dark:text-white'}`}>
                             {p.stock} {p.unit}s
                           </span>
                           {isLowStock && (
-                            <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-950 text-red-600 text-[9px] font-bold rounded flex items-center gap-0.5">
+                            <span className="px-1.5 py-0.5 bg-bg-hover dark:bg-red-950 text-text text-[9px] font-bold rounded flex items-center gap-0.5">
                               <AlertTriangle className="w-3 h-3" /> Low Stock
                             </span>
                           )}
@@ -183,10 +183,10 @@ export default function ProductsPage() {
                       )}
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-1">
-                      <button onClick={() => handleOpenModal(p)} className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg">
+                      <button onClick={() => handleOpenModal(p)} className="p-1.5 text-slate-400 hover:text-accent rounded-lg">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => deleteProduct(p.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg">
+                      <button onClick={() => deleteProduct(p.id)} className="p-1.5 text-slate-400 hover:text-text rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
@@ -201,7 +201,7 @@ export default function ProductsPage() {
       {/* Add / Edit Product Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[20px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {editingProduct ? 'Edit Catalog Item' : 'Add New Product / Service'}
@@ -253,7 +253,7 @@ export default function ProductsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold mb-1">GST Tax Rate</label>
-                  <select value={formData.gstRate} onChange={(e) => setFormData({...formData, gstRate: Number(e.target.value)})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs font-bold text-teal-600">
+                  <select value={formData.gstRate} onChange={(e) => setFormData({...formData, gstRate: Number(e.target.value)})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs font-bold text-accent-soft">
                     <option value={0}>0% (Exempt)</option>
                     <option value={5}>5% GST</option>
                     <option value={12}>12% GST</option>
@@ -278,7 +278,7 @@ export default function ProductsPage() {
 
               <div className="pt-3 flex items-center justify-end gap-3">
                 <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md">
+                <button type="submit" className="px-5 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md">
                   {editingProduct ? 'Update Item' : 'Save Catalog Item'}
                 </button>
               </div>

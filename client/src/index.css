@@ -1,52 +1,158 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #FAF9F5;
+  --bg-secondary: #F5F3EC;
+  --bg-hover: #F0EEE6;
+  --surface: #FFFFFF;
+  --border: #E6E2D9;
+  --text: #232323;
+  --text-secondary: #6E6E6E;
+  --text-muted: #8A8A8A;
+  --accent: #2F5D50;
+  --accent-soft: #5F7D67;
+  --yellow: #F6D97A;
+  --honey: #F2C75C;
+  --champagne: #F8E8B5;
+  --success: #6FAF76;
+  --warning: #D6A437;
+  --error: #D97A64;
+  --info: #A7C4A0;
+  --radius: 18px;
+  --shadow-card: 0 1px 2px rgba(35, 35, 35, 0.03), 0 10px 28px -14px rgba(47, 93, 80, 0.12);
+}
+
 @layer base {
+  html {
+    @apply antialiased;
+  }
+
   body {
-    @apply font-sans bg-brand-bg text-slate-800 antialiased dark:bg-brand-darkBg dark:text-slate-100 transition-colors duration-200;
+    @apply font-sans bg-ivory text-charcoal selection:bg-yellow-champagne selection:text-charcoal;
+    background-image:
+      radial-gradient(ellipse 80% 45% at 50% -15%, rgba(248, 232, 181, 0.45), transparent 55%),
+      linear-gradient(180deg, #FAF9F5 0%, #F5F3EC 100%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight text-charcoal;
   }
 }
 
-/* Glassmorphism utility */
+@layer components {
+  .bz-card {
+    @apply bg-surface border border-stone rounded-[18px] shadow-card;
+  }
+
+  .bz-panel {
+    @apply bg-white/85 backdrop-blur-xl border border-stone rounded-[18px] shadow-card;
+  }
+
+  .bz-input {
+    @apply w-full px-3.5 py-2.5 rounded-[14px] border border-stone bg-white text-sm text-charcoal
+      placeholder:text-text-disabled
+      focus:outline-none focus:border-green-bottle/35 focus:shadow-focus
+      transition-all duration-[220ms];
+  }
+
+  .bz-btn {
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-[14px]
+      transition-all duration-[220ms] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .bz-btn-primary {
+    @apply bz-btn bg-green-bottle text-white hover:bg-[#264A41] shadow-subtle active:scale-[0.98];
+  }
+
+  .bz-btn-accent {
+    @apply bz-btn bg-yellow-butter text-charcoal hover:bg-yellow-honey shadow-yellow font-semibold;
+  }
+
+  .bz-btn-secondary {
+    @apply bz-btn bg-white text-charcoal border border-stone hover:bg-cream shadow-subtle;
+  }
+
+  .bz-btn-soft {
+    @apply bz-btn bg-cream text-warm-gray border border-stone hover:bg-bg-hover hover:text-charcoal;
+  }
+
+  .bz-btn-ghost {
+    @apply bz-btn bg-transparent text-warm-gray hover:bg-cream hover:text-charcoal;
+  }
+
+  .bz-table-wrap {
+    @apply bz-card overflow-hidden;
+  }
+
+  .bz-table {
+    @apply w-full text-sm;
+  }
+
+  .bz-table th {
+    @apply text-left text-[11px] font-semibold uppercase tracking-wider text-warm-gray
+      px-4 py-3 bg-cream/80 border-b border-stone;
+  }
+
+  .bz-table td {
+    @apply px-4 py-3.5 border-b border-stone text-warm-gray;
+  }
+
+  .bz-table tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .bz-table tbody tr {
+    @apply transition-colors duration-[220ms] hover:bg-cream/70;
+  }
+
+  .bz-kpi {
+    @apply bz-card p-5 transition-all duration-[220ms] hover:shadow-elev hover:border-green-sage/40;
+  }
+
+  .bz-chip {
+    @apply inline-flex items-center px-2 py-0.5 rounded-lg text-[11px] font-medium
+      bg-cream text-warm-gray border border-stone;
+  }
+
+  .bz-skeleton {
+    @apply animate-pulse rounded-[14px] bg-cream;
+  }
+}
+
 .glass-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #E6E2D9;
 }
 
-.dark .glass-panel {
-  background: rgba(17, 24, 39, 0.75);
-  border: 1px solid rgba(31, 41, 55, 0.8);
-}
-
-/* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #D9D4C8;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
-.dark ::-webkit-scrollbar-thumb {
-  background: #374151;
+::-webkit-scrollbar-thumb:hover {
+  background: #C8C2B4;
+  background-clip: padding-box;
+  border: 2px solid transparent;
 }
 
-/* Print styles for GST Invoices */
 @media print {
-  body * {
-    visibility: hidden;
-  }
-  #printable-invoice, #printable-invoice * {
-    visibility: visible;
-  }
+  body * { visibility: hidden; }
+  #printable-invoice, #printable-invoice * { visibility: visible; }
   #printable-invoice {
     position: absolute;
     left: 0;
@@ -57,7 +163,5 @@
     box-shadow: none !important;
     border: none !important;
   }
-  .no-print {
-    display: none !important;
-  }
+  .no-print { display: none !important; }
 }

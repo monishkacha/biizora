@@ -19,7 +19,7 @@ export default function FeaturesPage() {
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-1">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Complete Feature Matrix</span>
+          <span className="text-xs font-bold text-accent dark:text-text-muted uppercase tracking-widest">Complete Feature Matrix</span>
           <h1 className="text-4xl font-extrabold tracking-tight">Designed for Maximum Financial Clarity</h1>
           <p className="text-slate-600 dark:text-slate-400">Everything Indian SMEs, freelancers, and growing agencies need to streamline cash flow.</p>
         </div>
@@ -29,7 +29,7 @@ export default function FeaturesPage() {
             const Icon = f.icon;
             return (
               <div key={i} className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-bg-secondary dark:bg-bg-secondary text-accent dark:text-text-muted flex items-center justify-center">
                   <Icon className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-bold">{f.title}</h3>
@@ -39,7 +39,7 @@ export default function FeaturesPage() {
           })}
         </div>
 
-        <div className="mt-16 p-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-3xl text-center space-y-4">
+        <div className="mt-16 p-8 bg-gradient-to-r from-accent to-indigo-600 text-white rounded-[20px] text-center space-y-4">
           <h2 className="text-2xl font-bold">Ready to test these features in your business?</h2>
           <Link to="/register" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-700 font-bold rounded-xl shadow-lg">
             <span>Start Free 14-Day Trial</span> <ArrowRight className="w-4 h-4" />

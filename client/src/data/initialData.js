@@ -1,26 +1,26 @@
 // Initial seed data tailored for Indian SMEs, Freelancers, and Agencies
 
 export const defaultCompany = {
-  name: "Amexora Technologies Pvt Ltd",
-  tradeName: "Amexora Tech",
+  name: "Biizora Technologies Pvt Ltd",
+  tradeName: "Biizora Tech",
   gstin: "29ABCDE1234F1Z5",
   pan: "ABCDE1234F",
-  email: "kpatel3360@gmail.com",
-  phone: "+91 99049 14513",
+  email: "adrian.hale@biizora.demo",
+  phone: "+91 98765 43210",
   address: "Suite 402, Innovate Tech Park, Koramangala",
   city: "Bengaluru",
   state: "Karnataka",
   pincode: "560095",
   country: "India",
-  website: "https://amexora.in",
+  website: "https://Biizora.in",
   logoUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80",
   bankDetails: {
     bankName: "HDFC Bank Ltd",
-    accountName: "Amexora Technologies Pvt Ltd",
+    accountName: "Biizora Technologies Pvt Ltd",
     accountNumber: "50200012345678",
     ifscCode: "HDFC0001234",
     branch: "Koramangala 4th Block",
-    upiId: "amexora@hdfcbank"
+    upiId: "Biizora@hdfcbank"
   },
   currency: "INR",
   currencySymbol: "₹",
@@ -418,6 +418,6 @@ export const defaultAIInsights = [
 ];
 
 export const defaultWorkspaces = [
-  { id: "ws-1", name: "Amexora Tech HQ", plan: "Pro Tier", role: "Owner", membersCount: 5 },
+  { id: "ws-1", name: "Biizora Tech HQ", plan: "Pro Tier", role: "Owner", membersCount: 5 },
   { id: "ws-2", name: "Apex Retail Outlet", plan: "Starter Tier", role: "Manager", membersCount: 2 }
 ];

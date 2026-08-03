@@ -118,7 +118,7 @@ export default function CustomersPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `amexora_customer_ledger_${Date.now()}.csv`;
+    a.download = `Biizora_customer_ledger_${Date.now()}.csv`;
     a.click();
   };
 
@@ -129,7 +129,7 @@ export default function CustomersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Users className="w-6 h-6 text-blue-600" /> Customer Directory & Ledger
+            <Users className="w-6 h-6 text-accent" /> Customer Directory & Ledger
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">Manage client contacts, GSTIN tax validation, and outstanding balances.</p>
         </div>
@@ -143,7 +143,7 @@ export default function CustomersPage() {
           </button>
           <button
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02]"
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all hover:scale-[1.02]"
           >
             <Plus className="w-4 h-4" /> Add New Customer
           </button>
@@ -159,7 +159,7 @@ export default function CustomersPage() {
             placeholder="Search by customer name, GSTIN, email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
           />
         </div>
 
@@ -187,7 +187,7 @@ export default function CustomersPage() {
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-300 rounded">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-bg-secondary dark:bg-bg-secondary text-accent dark:text-blue-300 rounded">
                     {c.category}
                   </span>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1.5">{c.name}</h3>
@@ -196,10 +196,10 @@ export default function CustomersPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => handleOpenModal(c)} className="p-1.5 text-slate-400 hover:text-blue-600 rounded-lg">
+                  <button onClick={() => handleOpenModal(c)} className="p-1.5 text-slate-400 hover:text-accent rounded-lg">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => deleteCustomer(c.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg">
+                  <button onClick={() => deleteCustomer(c.id)} className="p-1.5 text-slate-400 hover:text-text rounded-lg">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -224,7 +224,7 @@ export default function CustomersPage() {
             <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
               <div>
                 <span className="text-[10px] text-slate-400">Outstanding Balance</span>
-                <p className={`font-extrabold ${c.outstandingBalance > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
+                <p className={`font-extrabold ${c.outstandingBalance > 0 ? 'text-amber-500' : 'text-accent-soft'}`}>
                   ₹{c.outstandingBalance.toLocaleString('en-IN')}
                 </p>
               </div>
@@ -241,7 +241,7 @@ export default function CustomersPage() {
       {/* Add / Edit Customer Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-xl bg-white dark:bg-slate-900 rounded-[20px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {editingCustomer ? 'Edit Customer Details' : 'Add New Customer'}
@@ -254,7 +254,7 @@ export default function CustomersPage() {
             <form onSubmit={handleSubmit} className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1">Company / Customer Name <span className="text-red-500">*</span></label>
+                  <label className="block text-xs font-semibold mb-1">Company / Customer Name <span className="text-accent-soft">*</span></label>
                   <input required type="text" placeholder="e.g. Reliance Retail / Rahul Verma" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs font-bold" />
                 </div>
                 <div>
@@ -319,7 +319,7 @@ export default function CustomersPage() {
 
               <div className="pt-3 flex items-center justify-end gap-3">
                 <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-blue-700">
+                <button type="submit" className="px-5 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md hover:bg-text">
                   {editingCustomer ? 'Update Customer' : 'Save Customer'}
                 </button>
               </div>

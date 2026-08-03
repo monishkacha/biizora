@@ -88,7 +88,7 @@ export default function InvoiceListPage() {
   };
 
   const handleWhatsAppShare = (inv) => {
-    const text = `Hello ${inv.customerName}, here is your tax invoice ${inv.invoiceNumber} for ₹${inv.grandTotal.toLocaleString('en-IN')}. Please click here to view & complete payment: https://amexora.in/invoice/${inv.id}`;
+    const text = `Hello ${inv.customerName}, here is your tax invoice ${inv.invoiceNumber} for ₹${inv.grandTotal.toLocaleString('en-IN')}. Please click here to view & complete payment: https://Biizora.in/invoice/${inv.id}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -99,14 +99,14 @@ export default function InvoiceListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <FileText className="w-6 h-6 text-blue-600" /> GST Invoice Management
+            <FileText className="w-6 h-6 text-accent" /> GST Invoice Management
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">Generate, track, print & export compliant GST invoices.</p>
         </div>
 
         <button
           onClick={() => navigate('/app/invoices/new')}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02]"
+          className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all hover:scale-[1.02]"
         >
           <Plus className="w-4 h-4" /> Create New Invoice
         </button>
@@ -121,7 +121,7 @@ export default function InvoiceListPage() {
             placeholder="Search invoice # or customer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
           />
         </div>
 
@@ -142,7 +142,7 @@ export default function InvoiceListPage() {
       </div>
 
       {/* Invoices Data Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -163,7 +163,7 @@ export default function InvoiceListPage() {
 
                 return (
                   <tr key={inv.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                    <td className="py-3.5 px-4 font-mono font-bold text-accent dark:text-text-muted">
                       {inv.invoiceNumber}
                     </td>
                     <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white">
@@ -176,9 +176,9 @@ export default function InvoiceListPage() {
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        isPaid ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400' :
-                        isOverdue ? 'bg-red-100 dark:bg-red-950 text-red-600 dark:text-red-400' :
-                        'bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400'
+                        isPaid ? 'bg-emerald-100 dark:bg-bg-secondary text-text dark:text-text-muted' :
+                        isOverdue ? 'bg-bg-hover dark:bg-red-950 text-text dark:text-red-400' :
+                        'bg-amber-100 dark:bg-bg-hover text-accent-soft dark:text-text-muted'
                       }`}>
                         {inv.status}
                       </span>
@@ -186,21 +186,21 @@ export default function InvoiceListPage() {
                     <td className="py-3.5 px-4 text-right space-x-1">
                       <button
                         onClick={() => setSelectedInvoice(inv)}
-                        className="p-1.5 text-slate-500 hover:text-blue-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                        className="p-1.5 text-slate-500 hover:text-accent rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                         title="View / Download PDF"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => { setSelectedInvoice(inv); setTimeout(() => handleDownloadPDF(inv), 100); }}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg"
+                        className="p-1.5 text-accent hover:bg-bg-secondary dark:hover:bg-bg-secondary rounded-lg"
                         title="Download PDF"
                       >
                         <FileDown className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleWhatsAppShare(inv)}
-                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950 rounded-lg"
+                        className="p-1.5 text-text hover:bg-bg-secondary dark:hover:bg-bg-secondary rounded-lg"
                         title="Share on WhatsApp"
                       >
                         <Share2 className="w-4 h-4" />
@@ -225,13 +225,13 @@ export default function InvoiceListPage() {
       {/* Invoice Detail / Theme Styled Printable Modal View */}
       {selectedInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-          <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-[20px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             
             {/* Modal Controls Bar */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 no-print">
               <div>
                 <span className="text-xs font-bold text-slate-500">Invoice Preview</span>
-                <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-950 text-blue-600 text-[10px] font-extrabold uppercase rounded-full">
+                <span className="ml-2 px-2 py-0.5 bg-bg-secondary dark:bg-bg-secondary text-accent text-[10px] font-extrabold uppercase rounded-full">
                   Theme: {activeTheme.toUpperCase()}
                 </span>
               </div>
@@ -273,8 +273,8 @@ export default function InvoiceListPage() {
                   : activeTheme === 'minimal'
                   ? 'border-2 border-slate-900 rounded-none font-sans'
                   : activeTheme === 'corporate'
-                  ? 'border border-teal-200 rounded-3xl shadow-lg font-sans'
-                  : 'border border-slate-200 rounded-3xl shadow-sm font-sans'
+                  ? 'border border-teal-200 rounded-[20px] shadow-lg font-sans'
+                  : 'border border-slate-200 rounded-[20px] shadow-sm font-sans'
               }`}
             >
               
@@ -287,7 +287,7 @@ export default function InvoiceListPage() {
                     ? 'bg-white text-slate-900 border-b-4 border-slate-900 rounded-none px-0 pt-0'
                     : activeTheme === 'corporate'
                     ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl shadow-md'
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-md'
+                    : 'bg-gradient-to-r from-accent to-indigo-600 text-white rounded-2xl shadow-md'
                 }`}
               >
                 <div>
@@ -370,7 +370,7 @@ export default function InvoiceListPage() {
                         ? 'border-b-2 border-slate-900 text-slate-900 font-mono'
                         : activeTheme === 'corporate'
                         ? 'bg-teal-50 text-teal-900'
-                        : 'bg-blue-50 text-blue-900'
+                        : 'bg-bg-secondary text-blue-900'
                     }`}
                   >
                     <th className="py-2.5 px-3">Item Description</th>
@@ -413,7 +413,7 @@ export default function InvoiceListPage() {
                   <QrCode className={`w-12 h-12 ${activeTheme === 'corporate' ? 'text-teal-700' : 'text-slate-900'}`} />
                   <div className="text-[10px] text-slate-600">
                     <p className="font-bold text-slate-900">Instant UPI Payment QR</p>
-                    <p className="font-mono font-semibold text-blue-600">{company.bankDetails.upiId}</p>
+                    <p className="font-mono font-semibold text-accent">{company.bankDetails.upiId}</p>
                     <p className="text-[9px] text-slate-400">Google Pay • PhonePe • Paytm</p>
                   </div>
                 </div>
@@ -427,17 +427,17 @@ export default function InvoiceListPage() {
                   {selectedInvoice.igst > 0 ? (
                     <div className="flex justify-between text-slate-600">
                       <span>IGST (18%):</span>
-                      <span className="font-semibold text-teal-600">₹{selectedInvoice.igst.toLocaleString('en-IN')}</span>
+                      <span className="font-semibold text-accent-soft">₹{selectedInvoice.igst.toLocaleString('en-IN')}</span>
                     </div>
                   ) : (
                     <>
                       <div className="flex justify-between text-slate-600">
                         <span>CGST (9%):</span>
-                        <span className="font-semibold text-teal-600">₹{selectedInvoice.cgst.toLocaleString('en-IN')}</span>
+                        <span className="font-semibold text-accent-soft">₹{selectedInvoice.cgst.toLocaleString('en-IN')}</span>
                       </div>
                       <div className="flex justify-between text-slate-600">
                         <span>SGST (9%):</span>
-                        <span className="font-semibold text-teal-600">₹{selectedInvoice.sgst.toLocaleString('en-IN')}</span>
+                        <span className="font-semibold text-accent-soft">₹{selectedInvoice.sgst.toLocaleString('en-IN')}</span>
                       </div>
                     </>
                   )}
@@ -450,10 +450,10 @@ export default function InvoiceListPage() {
                     <span
                       className={`text-xl ${
                         activeTheme === 'corporate'
-                          ? 'text-teal-600'
+                          ? 'text-accent-soft'
                           : activeTheme === 'classic'
                           ? 'text-slate-900 font-serif'
-                          : 'text-blue-600'
+                          : 'text-accent'
                       }`}
                     >
                       ₹{selectedInvoice.grandTotal.toLocaleString('en-IN')}
@@ -466,7 +466,7 @@ export default function InvoiceListPage() {
               {/* Terms & Footer Stamp */}
               <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] text-slate-400">
                 <p>This is a computer-generated tax invoice issued by {company.name}. No signature required.</p>
-                <p className="font-mono font-bold text-slate-500">Amexora AI Financial Platform</p>
+                <p className="font-mono font-bold text-slate-500">Biizora AI Financial Platform</p>
               </div>
 
             </div>

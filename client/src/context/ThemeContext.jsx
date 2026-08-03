@@ -1,36 +1,28 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('amexora_theme');
-    return saved ? saved === 'dark' : false; // Default to Executive Light for clean business feel
-  });
-
-  const [bgStyle, setBgStyle] = useState(() => {
-    return localStorage.getItem('amexora_bg_style') || 'corporate-slate';
+  // Light-only product experience — dark mode disabled
+  const [darkMode] = useState(false);
+  const [bgStyle, setBgStyleState] = useState(() => {
+    return localStorage.getItem('biizora_bg_style') || 'ivory-cream';
   });
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (darkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('amexora_theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('amexora_theme', 'light');
-    }
-  }, [darkMode]);
+    localStorage.setItem('biizora_theme', 'light');
+    document.documentElement.classList.remove('dark');
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem('amexora_bg_style', bgStyle);
+    localStorage.setItem('biizora_bg_style', bgStyle);
   }, [bgStyle]);
 
-  const toggleTheme = () => setDarkMode(prev => !prev);
+  const toggleTheme = () => {};
+  const setBgStyle = (style) => setBgStyleState(style);
 
   return (
-    <ThemeContext.Provider value={{ darkMode, setDarkMode, toggleTheme, bgStyle, setBgStyle }}>
+    <ThemeContext.Provider value={{ darkMode, toggleTheme, bgStyle, setBgStyle }}>
       {children}
     </ThemeContext.Provider>
   );

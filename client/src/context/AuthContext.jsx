@@ -1,99 +1,154 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { defaultWorkspaces } from '../data/initialData';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  authApi,
+  setAccessToken,
+  getAccessToken,
+  setActiveBusinessId,
+  getActiveBusinessId,
+  setUnauthorizedHandler,
+  clearLegacyStorage,
+  businessApi,
+} from '../api/client';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('amexora_user');
-    return saved ? JSON.parse(saved) : {
-      id: "usr-100",
-      name: "Krish Patel",
-      email: "kpatel3360@gmail.com",
-      role: "Owner", // Owner | Manager | Accountant | Employee
-      companyName: "Amexora Technologies Pvt Ltd",
-      phone: "+91 99049 14513",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      emailVerified: true,
-      subscriptionPlan: "Pro Plan",
-      subscriptionStatus: "active",
-      trialDaysLeft: 14
-    };
-  });
+  const [user, setUser] = useState(null);
+  const [businesses, setBusinesses] = useState([]);
+  const [activeBusinessId, setActiveBiz] = useState(getActiveBusinessId());
+  const [loading, setLoading] = useState(true);
+  const [bootError, setBootError] = useState(null);
 
-  const [activeWorkspace, setActiveWorkspace] = useState(defaultWorkspaces[0]);
-  const [workspaces, setWorkspaces] = useState(defaultWorkspaces);
+  const applySession = useCallback((data) => {
+    if (data.accessToken) setAccessToken(data.accessToken);
+    if (data.user) setUser(data.user);
+    if (data.businesses) {
+      setBusinesses(data.businesses);
+      const preferred =
+        data.activeBusinessId ||
+        getActiveBusinessId() ||
+        data.businesses[0]?.id ||
+        null;
+      if (preferred) {
+        setActiveBusinessId(preferred);
+        setActiveBiz(preferred);
+      }
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      /* ignore */
+    }
+    setAccessToken(null);
+    setActiveBusinessId(null);
+    setUser(null);
+    setBusinesses([]);
+    setActiveBiz(null);
+  }, []);
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('amexora_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('amexora_user');
-    }
-  }, [user]);
+    setUnauthorizedHandler(() => {
+      setUser(null);
+      setBusinesses([]);
+      setAccessToken(null);
+    });
 
-  const login = (email, password, rememberMe = true) => {
-    // Simulated JWT login
-    const loggedUser = {
-      id: "usr-100",
-      name: email.split('@')[0].toUpperCase(),
-      email: email,
-      role: "Owner",
-      companyName: "Amexora Technologies Pvt Ltd",
-      phone: "+91 98765 43210",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-      emailVerified: true,
-      subscriptionPlan: "Pro Plan",
-      subscriptionStatus: "active",
-      trialDaysLeft: 14,
-      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.amexora_token_demo"
+    const boot = async () => {
+      clearLegacyStorage();
+      try {
+        if (getAccessToken()) {
+          const data = await authApi.me();
+          setUser(data.user);
+          setBusinesses(data.businesses || []);
+          const preferred = getActiveBusinessId() || data.businesses?.[0]?.id;
+          if (preferred) {
+            setActiveBusinessId(preferred);
+            setActiveBiz(preferred);
+          }
+        } else {
+          const refreshed = await authApi.refresh();
+          if (refreshed) applySession(refreshed);
+        }
+      } catch {
+        setBootError(null);
+      } finally {
+        setLoading(false);
+      }
     };
-    setUser(loggedUser);
-    return { success: true, user: loggedUser };
+    boot();
+  }, [applySession]);
+
+  const login = async (email, password) => {
+    const data = await authApi.login({ email, password });
+    clearLegacyStorage();
+    applySession(data);
+    return { success: true, user: data.user };
   };
 
-  const register = (userData) => {
-    const newUser = {
-      id: `usr-${Date.now()}`,
+  const register = async (userData) => {
+    const data = await authApi.register({
       name: userData.fullName || userData.name,
       email: userData.email,
-      role: "Owner",
-      companyName: userData.companyName || "My Business",
-      phone: userData.phone || "+91 99999 88888",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-      emailVerified: true,
-      subscriptionPlan: "Pro Plan (14-Day Trial)",
-      subscriptionStatus: "trial",
-      trialDaysLeft: 14
-    };
-    setUser(newUser);
-    return { success: true, user: newUser };
+      password: userData.password,
+      companyName: userData.companyName,
+      phone: userData.phone,
+    });
+    clearLegacyStorage();
+    applySession(data);
+    return { success: true, user: data.user };
   };
 
-  const logout = () => {
-    setUser(null);
+  const updateProfile = async (updatedFields) => {
+    const data = await authApi.updateProfile(updatedFields);
+    setUser(data.user);
+    return data.user;
   };
 
-  const updateProfile = (updatedFields) => {
-    setUser(prev => ({ ...prev, ...updatedFields }));
+  const refreshBusinesses = async () => {
+    const data = await businessApi.list();
+    setBusinesses(data.businesses || []);
+    return data.businesses;
   };
 
   const switchWorkspace = (wsId) => {
-    const ws = workspaces.find(w => w.id === wsId);
-    if (ws) setActiveWorkspace(ws);
+    setActiveBusinessId(wsId);
+    setActiveBiz(wsId);
   };
 
+  const activeWorkspace =
+    businesses.find((b) => b.id === activeBusinessId) || businesses[0] || null;
+
+  const workspaces = businesses.map((b) => ({
+    id: b.id,
+    name: b.name,
+    plan: b.plan || 'Pro',
+    role: b.role,
+    membersCount: b.membersCount || 0,
+    onboardingCompleted: b.onboardingCompleted,
+  }));
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      login,
-      register,
-      logout,
-      updateProfile,
-      activeWorkspace,
-      workspaces,
-      switchWorkspace
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        bootError,
+        login,
+        register,
+        logout,
+        updateProfile,
+        activeWorkspace,
+        activeBusinessId,
+        workspaces,
+        businesses,
+        switchWorkspace,
+        refreshBusinesses,
+        setBusinesses,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

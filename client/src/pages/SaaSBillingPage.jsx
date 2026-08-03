@@ -19,16 +19,16 @@ export default function SaaSBillingPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Sliders className="w-6 h-6 text-blue-600" /> SaaS Subscription & Workspaces
+          <Sliders className="w-6 h-6 text-accent" /> SaaS Subscription & Workspaces
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400">Manage plan tier, usage limits, team member seats, and organization workspaces.</p>
       </div>
 
       {/* Current Plan Overview Card */}
-      <div className="p-6 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-3xl border border-blue-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-6 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-[20px] border border-border shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
         
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-500/20 text-teal-300 text-xs font-bold rounded-full border border-teal-500/30">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-accent-soft/20 text-teal-300 text-xs font-bold rounded-full border border-teal-500/30">
             <Sparkles className="w-3.5 h-3.5" /> Active Plan Tier: {user?.subscriptionPlan}
           </div>
           <h2 className="text-2xl font-bold">{activeWorkspace.name}</h2>
@@ -55,26 +55,26 @@ export default function SaaSBillingPage() {
         {plans.map((p, idx) => (
           <div
             key={idx}
-            className={`p-6 bg-white dark:bg-slate-900 rounded-3xl border shadow-card flex flex-col justify-between ${
+            className={`p-6 bg-white dark:bg-slate-900 rounded-[20px] border shadow-card flex flex-col justify-between ${
               p.active ? 'border-blue-600 ring-2 ring-blue-600/20' : 'border-slate-200 dark:border-slate-800'
             }`}
           >
             <div>
-              {p.active && <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest block mb-1">CURRENT PLAN</span>}
+              {p.active && <span className="text-[10px] font-bold text-accent uppercase tracking-widest block mb-1">CURRENT PLAN</span>}
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">{p.name}</h3>
-              <p className="text-2xl font-extrabold text-blue-600 mt-2">{p.price}</p>
+              <p className="text-2xl font-extrabold text-accent mt-2">{p.price}</p>
               
               <ul className="my-6 space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> {p.invoices}</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> {p.seats}</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> Razorpay & UPI Enabled</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-emerald-500" /> OpenAI Financial Advisor</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-accent-soft" /> {p.invoices}</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-accent-soft" /> {p.seats}</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-accent-soft" /> Razorpay & UPI Enabled</li>
+                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-accent-soft" /> OpenAI Financial Advisor</li>
               </ul>
             </div>
 
             <button
               className={`w-full py-2.5 rounded-xl font-bold text-xs ${
-                p.active ? 'bg-slate-100 text-slate-500 cursor-default' : 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                p.active ? 'bg-slate-100 text-slate-500 cursor-default' : 'bg-accent text-white hover:bg-text shadow-md'
               }`}
             >
               {p.active ? 'Current Active Tier' : 'Upgrade Plan'}

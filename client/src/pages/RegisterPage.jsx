@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, ArrowRight, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { authApi, setAccessToken, setActiveBusinessId } from '../api/client';
+import { Sparkles, ArrowRight } from 'lucide-react';
+import { Button } from '../components/ui/Button';
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState('');
@@ -10,122 +12,93 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const inviteToken = params.get('invite');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      register({ fullName, email, companyName, phone, password });
+    setError('');
+    try {
+      if (inviteToken) {
+        const data = await authApi.acceptInvite({ token: inviteToken, name: fullName, password });
+        setAccessToken(data.accessToken);
+        if (data.activeBusinessId) setActiveBusinessId(data.activeBusinessId);
+        window.location.href = '/app';
+        return;
+      }
+      await register({ fullName, email, companyName, phone, password });
+      navigate('/app/onboarding');
+    } catch (err) {
+      setError(err.message || 'Registration failed');
+    } finally {
       setLoading(false);
-      navigate('/app');
-    }, 600);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-teal-500/15 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen flex flex-col justify-center py-12 px-4 relative">
+      <div className="absolute inset-0 bg-hero-glow pointer-events-none" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center space-y-3">
-        <Link to="/" className="inline-flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30">
-            <Sparkles className="w-5 h-5" />
+      <div className="relative z-10 w-full max-w-md mx-auto space-y-8">
+        <div className="text-center space-y-3">
+          <Link to="/" className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-[14px] bg-green-bottle text-white flex items-center justify-center">
+              <Sparkles className="w-5 h-5" strokeWidth={1.75} />
+            </div>
+            <span className="text-xl font-display font-semibold tracking-tight">Biizora</span>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-display font-semibold tracking-tight">
+              {inviteToken ? 'Join your team' : 'Create your workspace'}
+            </h1>
+            <p className="mt-1.5 text-sm text-warm-gray">Smarter Invoicing. Better Cash Flow. Powered by AI.</p>
           </div>
-          <span className="text-2xl font-extrabold text-white tracking-tight">Amexora</span>
-        </Link>
-        <h2 className="text-2xl font-bold text-white">Start Your 14-Day Free Trial</h2>
-        <p className="text-xs text-slate-400">No credit card required. Full access to AI & GST features.</p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
-        <div className="bg-slate-800/90 border border-slate-700/80 p-8 rounded-3xl shadow-2xl backdrop-blur-md space-y-4">
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
-              <input
-                type="text"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500"
-                placeholder="e.g. Krish Patel"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Business Email</label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500"
-                placeholder="krish@company.in"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Company / Firm Name</label>
-              <input
-                type="text"
-                required
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500"
-                placeholder="Amexora Technologies"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number (For WhatsApp Reminders)</label>
-              <input
-                type="text"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500"
-                placeholder="+91 98765 43210"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-500"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 mt-2"
-            >
-              {loading ? (
-                <span>Setting up workspace...</span>
-              ) : (
-                <>
-                  <span>Create Account & Start Trial</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="pt-4 border-t border-slate-700/60 text-center text-xs text-slate-400">
-            Already registered?{' '}
-            <Link to="/login" className="text-blue-400 font-bold hover:underline">
-              Sign In
-            </Link>
-          </div>
-
         </div>
+
+        <div className="bz-card p-7 sm:p-8 space-y-4">
+          {error ? (
+            <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">{error}</p>
+          ) : null}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium text-warm-gray">Full name</span>
+              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="bz-input" placeholder="Adrian Hale" />
+            </label>
+            {!inviteToken ? (
+              <>
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-medium text-warm-gray">Business email</span>
+                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="bz-input" placeholder="adrian.hale@company.com" />
+                </label>
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-medium text-warm-gray">Company name</span>
+                  <input required value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="bz-input" placeholder="Hale & Co." />
+                </label>
+                <label className="block space-y-1.5">
+                  <span className="text-xs font-medium text-warm-gray">Phone</span>
+                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="bz-input" placeholder="+91 98765 43210" />
+                </label>
+              </>
+            ) : null}
+            <label className="block space-y-1.5">
+              <span className="text-xs font-medium text-warm-gray">Password</span>
+              <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="bz-input" />
+            </label>
+            <Button type="submit" variant="accent" loading={loading} className="w-full" size="lg">
+              {inviteToken ? 'Accept invite' : 'Create account'} <ArrowRight className="w-4 h-4" />
+            </Button>
+          </form>
+        </div>
+
+        <p className="text-center text-sm text-warm-gray">
+          Already have an account?{' '}
+          <Link to="/login" className="font-semibold text-green-bottle hover:underline">Sign in</Link>
+        </p>
       </div>
     </div>
   );

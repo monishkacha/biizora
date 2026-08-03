@@ -53,14 +53,14 @@ export default function ExpensePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CreditCard className="w-6 h-6 text-blue-600" /> Expense Tracker & Bill Scanner
+            <CreditCard className="w-6 h-6 text-accent" /> Expense Tracker & Bill Scanner
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">Track operating costs, vendor receipts, and claimable Input Tax Credit (ITC).</p>
         </div>
 
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all"
+          className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all"
         >
           <Plus className="w-4 h-4" /> Record New Expense
         </button>
@@ -79,10 +79,10 @@ export default function ExpensePage() {
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
           <span className="text-xs font-semibold text-slate-400">Claimable Input Tax Credit (ITC)</span>
-          <p className="text-2xl font-extrabold text-teal-600 dark:text-teal-400 mt-1">
+          <p className="text-2xl font-extrabold text-accent-soft dark:text-text-muted mt-1">
             ₹{totalGstClaimable.toLocaleString('en-IN')}
           </p>
-          <p className="text-[11px] text-teal-500 font-semibold mt-1">Deductible from Output GST</p>
+          <p className="text-[11px] text-accent-soft font-semibold mt-1">Deductible from Output GST</p>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
@@ -104,7 +104,7 @@ export default function ExpensePage() {
             placeholder="Search by expense name or vendor..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 dark:text-slate-100"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function ExpensePage() {
       </div>
 
       {/* Expense Table */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -155,7 +155,7 @@ export default function ExpensePage() {
                   <td className="py-3.5 px-4 font-medium">{e.paymentMode}</td>
                   <td className="py-3.5 px-4">
                     {e.gstClaimable ? (
-                      <span className="text-emerald-500 font-bold flex items-center gap-1">
+                      <span className="text-accent-soft font-bold flex items-center gap-1">
                         <CheckCircle className="w-3.5 h-3.5" /> ₹{e.gstAmount} ITC
                       </span>
                     ) : (
@@ -166,7 +166,7 @@ export default function ExpensePage() {
                     ₹{Number(e.amount).toLocaleString('en-IN')}
                   </td>
                   <td className="py-3.5 px-4 text-right">
-                    <button onClick={() => deleteExpense(e.id)} className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg">
+                    <button onClick={() => deleteExpense(e.id)} className="p-1.5 text-slate-400 hover:text-text rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
@@ -180,7 +180,7 @@ export default function ExpensePage() {
       {/* Record Expense Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[20px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <h3 className="text-base font-bold text-slate-900 dark:text-white">Record New Expense</h3>
               <button onClick={() => setModalOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -234,21 +234,21 @@ export default function ExpensePage() {
                     type="checkbox"
                     checked={formData.gstClaimable}
                     onChange={(e) => setFormData({...formData, gstClaimable: e.target.checked})}
-                    className="rounded text-blue-600"
+                    className="rounded text-accent"
                   />
                   <span>GST Input Tax Credit (ITC) Claimable</span>
                 </label>
                 {formData.gstClaimable && (
                   <div>
                     <label className="block text-[11px] text-slate-400 mb-1">Claimable GST Amount (₹)</label>
-                    <input type="number" value={formData.gstAmount} onChange={(e) => setFormData({...formData, gstAmount: Number(e.target.value)})} className="w-full px-2 py-1 bg-white dark:bg-slate-900 border rounded text-xs font-bold text-teal-600" />
+                    <input type="number" value={formData.gstAmount} onChange={(e) => setFormData({...formData, gstAmount: Number(e.target.value)})} className="w-full px-2 py-1 bg-white dark:bg-slate-900 border rounded text-xs font-bold text-accent-soft" />
                   </div>
                 )}
               </div>
 
               <div className="pt-3 flex items-center justify-end gap-3">
                 <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-md">
+                <button type="submit" className="px-5 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md">
                   Save Expense
                 </button>
               </div>

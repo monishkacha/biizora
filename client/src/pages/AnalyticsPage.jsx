@@ -24,7 +24,7 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-blue-600" /> Advanced Financial Analytics
+          <TrendingUp className="w-6 h-6 text-accent" /> Advanced Financial Analytics
         </h1>
         <p className="text-xs text-slate-500 dark:text-slate-400">Deep-dive analysis into client acquisition, revenue concentration, and payment channels.</p>
       </div>
@@ -33,7 +33,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Customer Lifetime Spend Chart */}
-        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
           <h3 className="text-base font-bold text-slate-900 dark:text-white">Top Customer Revenue Concentration</h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -48,7 +48,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Payment Channel Breakdown */}
-        <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
+        <div className="p-6 bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
           <h3 className="text-base font-bold text-slate-900 dark:text-white">Payment Method Distribution</h3>
           <div className="h-64 w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">

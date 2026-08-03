@@ -25,37 +25,37 @@ export default function PaymentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Zap className="w-6 h-6 text-blue-600" /> Razorpay Payments & Gateway
+            <Zap className="w-6 h-6 text-accent" /> Razorpay Payments & Gateway
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400">Accept UPI, Cards, NetBanking & Wallets with instant reconciliation.</p>
         </div>
 
         <button
           onClick={() => setModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md"
+          className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md"
         >
           <CreditCard className="w-4 h-4" /> Simulate Razorpay Checkout
         </button>
       </div>
 
       {/* Payment Gateway Status Banner */}
-      <div className="p-5 bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-3xl border border-blue-800 shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="p-5 bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-[20px] border border-border shadow-card flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shrink-0 font-bold">
+          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-white shrink-0 font-bold">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
             <h3 className="font-bold text-sm">Razorpay Integration Active</h3>
-            <p className="text-xs text-slate-300">Live Key ID: <span className="font-mono text-teal-300">rzp_live_98321amexora</span> • Webhook: Active</p>
+            <p className="text-xs text-slate-300">Live Key ID: <span className="font-mono text-teal-300">rzp_live_98321Biizora</span> • Webhook: Active</p>
           </div>
         </div>
-        <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 font-bold text-xs rounded-full border border-emerald-500/30">
+        <span className="px-3 py-1 bg-bg-secondary0/20 text-emerald-300 font-bold text-xs rounded-full border border-emerald-500/30">
           ● Gateway Ready (0.9% UPI Rate)
         </span>
       </div>
 
       {/* Payment History Log */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white">Transaction Logs & Receipts</h3>
         </div>
@@ -74,13 +74,13 @@ export default function PaymentsPage() {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
               {invoices.filter(i => i.status === 'paid').map((inv, idx) => (
                 <tr key={inv.id}>
-                  <td className="py-3.5 px-4 font-mono text-blue-600">pay_LXZ9832{idx+10}</td>
+                  <td className="py-3.5 px-4 font-mono text-accent">pay_LXZ9832{idx+10}</td>
                   <td className="py-3.5 px-4 font-mono font-bold">{inv.invoiceNumber}</td>
                   <td className="py-3.5 px-4 font-medium">{inv.customerName}</td>
                   <td className="py-3.5 px-4">{inv.paymentMethod || 'Razorpay UPI'}</td>
                   <td className="py-3.5 px-4 font-extrabold text-slate-900 dark:text-white">₹{inv.grandTotal.toLocaleString('en-IN')}</td>
                   <td className="py-3.5 px-4">
-                    <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 font-bold rounded-full text-[10px]">
+                    <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-bg-secondary text-text font-bold rounded-full text-[10px]">
                       Captured
                     </span>
                   </td>
@@ -94,10 +94,10 @@ export default function PaymentsPage() {
       {/* Razorpay Test Payment Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 rounded-[20px] shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <Zap className="w-5 h-5 text-blue-600" /> Razorpay Checkout Simulation
+                <Zap className="w-5 h-5 text-accent" /> Razorpay Checkout Simulation
               </h3>
               <button onClick={() => setModalOpen(false)} className="text-slate-400">✕</button>
             </div>
@@ -125,7 +125,7 @@ export default function PaymentsPage() {
               <button
                 onClick={handleSimulateRazorpay}
                 disabled={paying}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl shadow-lg transition-all"
+                className="w-full py-3 bg-accent hover:bg-text disabled:opacity-50 text-white font-bold rounded-xl shadow-lg transition-all"
               >
                 {paying ? 'Verifying Razorpay Webhook Signature...' : `Pay ₹${selectedInv?.grandTotal.toLocaleString('en-IN')} via Razorpay`}
               </button>
