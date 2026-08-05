@@ -24,6 +24,7 @@ import notificationsRoutes from './routes/notifications.js';
 import activityRoutes from './routes/activity.js';
 import feedbackRoutes from './routes/feedback.js';
 import supportRoutes from './routes/support.js';
+import migrationRoutes from './routes/migration.js';
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json({ limit: '2mb' }));
+app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -72,6 +73,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/migration', migrationRoutes);
 
 app.use(errorHandler);
 

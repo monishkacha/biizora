@@ -56,6 +56,10 @@ export async function api(path, options = {}) {
     ...(rest.headers || {}),
   };
 
+  if (options.body && options.body instanceof FormData) {
+    delete headers['Content-Type'];
+  }
+
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   if (activeBusinessId) headers['X-Business-Id'] = activeBusinessId;
 
@@ -177,3 +181,13 @@ export const supportApi = {
   requestSession: (body) => api('/support/sessions', { method: 'POST', body }),
   createRequest: (body) => api('/support/requests', { method: 'POST', body }),
 };
+
+export const migrationApi = {
+  parse: (body) => api('/migration/parse', { method: 'POST', body }),
+  process: (body) => api('/migration/process', { method: 'POST', body }),
+  getHistory: () => api('/migration/history'),
+  undo: (id) => api(`/migration/undo/${id}`, { method: 'POST' }),
+  export: (format = 'json', scope = 'all') => api(`/migration/export?format=${format}&scope=${scope}`),
+  createBackup: () => api('/migration/backup', { method: 'POST' }),
+};
+

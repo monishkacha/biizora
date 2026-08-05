@@ -15,11 +15,17 @@ const productSchema = new mongoose.Schema(
     minStockLevel: { type: Number, default: 0 },
     unit: { type: String, default: 'unit' },
     description: { type: String, default: '' },
+    brand: { type: String, default: '' },
+    warehouse: { type: String, default: '' },
+    barcode: { type: String, default: '' },
+    images: { type: [String], default: [] },
+    expiryDate: { type: Date },
+    batchNumber: { type: String, default: '' },
   },
   { timestamps: true }
 );
 
-productSchema.index({ businessId: 1, name: 'text', sku: 'text' });
+productSchema.index({ businessId: 1, name: 'text', sku: 'text', barcode: 'text' });
 
 productSchema.methods.toPublicJSON = function toPublicJSON() {
   return {
@@ -36,6 +42,14 @@ productSchema.methods.toPublicJSON = function toPublicJSON() {
     minStockLevel: this.minStockLevel,
     unit: this.unit,
     description: this.description,
+    brand: this.brand,
+    warehouse: this.warehouse,
+    barcode: this.barcode,
+    images: this.images,
+    expiryDate: this.expiryDate,
+    batchNumber: this.batchNumber,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
   };
 };
 

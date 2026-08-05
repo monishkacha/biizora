@@ -14,6 +14,7 @@ import AboutPage from './pages/AboutPage';
 import BlogPage from './pages/BlogPage';
 import FAQPage from './pages/FAQPage';
 import ContactPage from './pages/ContactPage';
+import SupportPage from './pages/SupportPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsPage from './pages/TermsPage';
 
@@ -39,6 +40,7 @@ import SettingsPage from './pages/SettingsPage';
 import OnboardingPage from './pages/OnboardingPage';
 import TeamPage from './pages/TeamPage';
 import ActivityLogPage from './pages/ActivityLogPage';
+import MigrationCenterPage from './pages/MigrationCenterPage';
 
 export default function App() {
   return (
@@ -57,6 +59,7 @@ export default function App() {
                   <Route path="/blog" element={<BlogPage />} />
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/support" element={<SupportPage />} />
                   <Route path="/privacy" element={<PrivacyPolicyPage />} />
                   <Route path="/terms" element={<TermsPage />} />
 
@@ -77,11 +80,13 @@ export default function App() {
                     <Route path="reports" element={<ReportsPage />} />
                     <Route path="analytics" element={<AnalyticsPage />} />
                     <Route path="ai-suite" element={<AIPowerSuitePage />} />
+                    <Route path="migration" element={<MigrationCenterPage />} />
                     <Route path="payments" element={<PaymentsPage />} />
                     <Route path="billing" element={<SaaSBillingPage />} />
                     <Route path="team" element={<TeamPage />} />
                     <Route path="activity" element={<ActivityLogPage />} />
                     <Route path="settings" element={<SettingsPage />} />
+                    <Route path="support" element={<SupportPage />} />
                   </Route>
                 </Routes>
               </BrowserRouter>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { businessApi, setActiveBusinessId } from '../api/client';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { businessApi, setActiveBusinessId } from "../api/client";
+
 import {
   LayoutDashboard,
   FileText,
@@ -21,31 +22,49 @@ import {
   Plus,
   UserPlus,
   ScrollText,
-} from 'lucide-react';
+  Headphones,
+  Database,
+} from "lucide-react";
 
-export default function Sidebar({ collapsed, mobileOpen, setMobileOpen }) {
+export default function Sidebar({
+  collapsed,
+  mobileOpen,
+  setMobileOpen,
+}) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, activeWorkspace, workspaces, switchWorkspace, refreshBusinesses } = useAuth();
+
+  const {
+    user,
+    logout,
+    activeWorkspace,
+    workspaces,
+    switchWorkspace,
+    refreshBusinesses,
+  } = useAuth();
+
   const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
   const [creating, setCreating] = useState(false);
 
   const navItems = [
-    { label: 'Overview', path: '/app', icon: LayoutDashboard },
-    { label: 'Invoices', path: '/app/invoices', icon: FileText },
-    { label: 'Customers', path: '/app/customers', icon: Users },
-    { label: 'Products', path: '/app/products', icon: Package },
-    { label: 'Inventory', path: '/app/inventory', icon: Boxes },
-    { label: 'Expenses', path: '/app/expenses', icon: CreditCard },
-    { label: 'Reports', path: '/app/reports', icon: BarChart3 },
-    { label: 'Analytics', path: '/app/analytics', icon: TrendingUp },
-    { label: 'AI Suite', path: '/app/ai-suite', icon: Sparkles },
-    { label: 'Payments', path: '/app/payments', icon: Zap },
-    { label: 'Team', path: '/app/team', icon: UserPlus },
-    { label: 'Activity', path: '/app/activity', icon: ScrollText },
-    { label: 'Billing', path: '/app/billing', icon: Sliders },
-    { label: 'Settings', path: '/app/settings', icon: Settings },
+    { label: "Overview", path: "/app", icon: LayoutDashboard },
+    { label: "Invoices", path: "/app/invoices", icon: FileText },
+    { label: "Customers", path: "/app/customers", icon: Users },
+    { label: "Products", path: "/app/products", icon: Package },
+    { label: "Inventory", path: "/app/inventory", icon: Boxes },
+    { label: "Expenses", path: "/app/expenses", icon: CreditCard },
+    { label: "Reports", path: "/app/reports", icon: BarChart3 },
+    { label: "Analytics", path: "/app/analytics", icon: TrendingUp },
+    { label: "AI Suite", path: "/app/ai-suite", icon: Sparkles },
+    { label: "Data Migration", path: "/app/migration", icon: Database },
+    { label: "Payments", path: "/app/payments", icon: Zap },
+    { label: "Team", path: "/app/team", icon: UserPlus },
+    { label: "Activity", path: "/app/activity", icon: ScrollText },
+    { label: "Billing", path: "/app/billing", icon: Sliders },
+    { label: "Settings", path: "/app/settings", icon: Settings },
+    { label: "Support", path: "/app/support", icon: Headphones },
   ];
+
 
   const createBusiness = async () => {
     setCreating(true);
@@ -105,11 +124,10 @@ export default function Sidebar({ collapsed, mobileOpen, setMobileOpen }) {
                       setWorkspaceMenuOpen(false);
                       window.location.reload();
                     }}
-                    className={`w-full text-left px-2.5 py-2 rounded-[12px] text-xs transition-colors ${
-                      ws.id === activeWorkspace?.id
-                        ? 'bg-cream text-charcoal font-semibold'
-                        : 'text-warm-gray hover:bg-ivory'
-                    }`}
+                    className={`w-full text-left px-2.5 py-2 rounded-[12px] text-xs transition-colors ${ws.id === activeWorkspace?.id
+                      ? 'bg-cream text-charcoal font-semibold'
+                      : 'text-warm-gray hover:bg-ivory'
+                      }`}
                   >
                     <span className="truncate block">{ws.name}</span>
                   </button>
@@ -144,11 +162,10 @@ export default function Sidebar({ collapsed, mobileOpen, setMobileOpen }) {
               to={item.path}
               title={collapsed ? item.label : undefined}
               onClick={() => setMobileOpen?.(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-[14px] text-[13px] font-medium transition-all duration-[220ms] ${
-                isActive
-                  ? 'bg-white text-green-bottle shadow-subtle border border-stone'
-                  : 'text-warm-gray hover:text-charcoal hover:bg-white/70'
-              }`}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-[14px] text-[13px] font-medium transition-all duration-[220ms] ${isActive
+                ? 'bg-white text-green-bottle shadow-subtle border border-stone'
+                : 'text-warm-gray hover:text-charcoal hover:bg-white/70'
+                }`}
             >
               <Icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
               {!collapsed && <span className="truncate">{item.label}</span>}

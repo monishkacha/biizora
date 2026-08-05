@@ -13,6 +13,7 @@ export default function Navbar() {
     { to: '/ai-features', label: 'AI' },
     { to: '/pricing', label: 'Pricing' },
     { to: '/about', label: 'About' },
+    { to: '/support', label: 'Support' },
     { to: '/faq', label: 'FAQ' },
   ];
 

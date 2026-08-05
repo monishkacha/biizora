@@ -26,6 +26,7 @@ export default function Footer() {
               <li><Link to="/features" className="hover:text-green-bottle transition-colors">Features</Link></li>
               <li><Link to="/ai-features" className="hover:text-green-bottle transition-colors">AI Suite</Link></li>
               <li><Link to="/pricing" className="hover:text-green-bottle transition-colors">Pricing</Link></li>
+              <li><Link to="/support" className="hover:text-green-bottle font-semibold text-green-bottle transition-colors">Support & Remote Help</Link></li>
             </ul>
           </div>
 

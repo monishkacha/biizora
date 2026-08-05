@@ -15,6 +15,7 @@ import {
   X,
   UserPlus,
   ScrollText,
+  Database,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -34,6 +35,7 @@ export default function CommandPalette() {
     { id: 'nav-team', title: 'Team', category: 'Navigate', icon: UserPlus, action: () => navigate('/app/team') },
     { id: 'nav-activity', title: 'Activity log', category: 'Navigate', icon: ScrollText, action: () => navigate('/app/activity') },
     { id: 'nav-ai', title: 'AI Suite', category: 'Navigate', icon: Sparkles, action: () => navigate('/app/ai-suite') },
+    { id: 'nav-mig', title: 'Data Migration Center', category: 'Navigate', icon: Database, action: () => navigate('/app/migration') },
     { id: 'nav-sett', title: 'Settings', category: 'Navigate', icon: Settings, action: () => navigate('/app/settings') },
   ];
 

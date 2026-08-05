@@ -30,18 +30,31 @@ export default function ContactPage() {
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                <Phone className="w-5 h-5 text-accent-soft shrink-0" />
+                <Phone className="w-5 h-5 text-[#25D366] shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">Call / WhatsApp</p>
-                  <p className="text-xs">+91 98765 43210 (Mon-Sat, 9AM-7PM IST)</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">Call / WhatsApp Lines</p>
+                  <p className="text-xs font-mono font-medium text-slate-600 dark:text-slate-300 mt-0.5">
+                    +91 9904914513 | +91 9081051240
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">Mon–Sat, 9AM–8PM IST</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <Mail className="w-5 h-5 text-accent shrink-0" />
+                <div>
+                  <p className="font-semibold text-slate-900 dark:text-white">Email Us</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">hello@biizora.in</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <MapPin className="w-5 h-5 text-indigo-500 shrink-0" />
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">HQ Address</p>
-                  <p className="text-xs">Suite 402, Innovate Tech Park, Koramangala 4th Block, Bengaluru, KA 560095</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">AnyDesk Remote Assistance</p>
+                  <p className="text-xs font-mono text-slate-600 dark:text-slate-300 mt-0.5">
+                    Desk IDs: 1452019780 / 1439051108
+                  </p>
                 </div>
               </div>
             </div>

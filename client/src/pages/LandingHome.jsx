@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import SupportTopBar, { WhatsAppIcon, AnyDeskIcon } from '../components/SupportTopBar';
 import {
   ArrowRight,
   CheckCircle2,
@@ -15,6 +16,11 @@ import {
   BarChart3,
   Zap,
   Building2,
+  Phone,
+  Monitor,
+  Headphones,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -231,8 +237,17 @@ function FeatureShowcase() {
 }
 
 export default function LandingHome() {
+  const [copiedId, setCopiedId] = useState(null);
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(label);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
     <div className="min-h-screen flex flex-col text-charcoal">
+      <SupportTopBar />
       <Navbar />
 
       {/* Hero — brand first, quiet composition */}
@@ -409,6 +424,124 @@ export default function LandingHome() {
             We are building Biizora so creating an invoice, chasing a payment, checking stock, and asking “how is
             cash this month?” never requires five different apps again.
           </p>
+        </div>
+      </section>
+
+      {/* Customer Support & AnyDesk Remote Assistance Section */}
+      <section className="py-20 sm:py-24 border-t border-stone bg-gradient-to-b from-white via-cream/40 to-ivory">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="max-w-3xl mb-12">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-bottle/10 text-green-bottle text-xs font-semibold mb-3">
+              <Headphones className="w-3.5 h-3.5" /> 100% Live Customer Resolution
+            </div>
+            <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-charcoal">
+              Need help? Direct Call, WhatsApp & AnyDesk Remote Support
+            </h2>
+            <p className="mt-3 text-warm-gray text-sm sm:text-base leading-relaxed">
+              We don&apos;t leave you hanging. Connect with our dedicated support team via phone or WhatsApp, or let our engineers connect to your desktop via AnyDesk to solve any issue remotely.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Phone & WhatsApp Card */}
+            <div className="bg-white rounded-[24px] border border-stone p-7 shadow-card space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-[14px] bg-[#25D366]/10 text-[#25D366] flex items-center justify-center border border-[#25D366]/20">
+                  <WhatsAppIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-charcoal">Call & WhatsApp Lines</h3>
+                  <p className="text-xs text-warm-gray">Instant chat and phone support for Indian SMEs</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Phone className="w-4 h-4 text-green-bottle" />
+                    <span className="font-mono text-sm font-bold text-charcoal">+91 9904914513</span>
+                  </div>
+                  <a
+                    href="https://wa.me/919904914513"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold transition-all shadow-subtle"
+                  >
+                    <WhatsAppIcon className="w-3.5 h-3.5" /> WhatsApp
+                  </a>
+                </div>
+
+                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <Phone className="w-4 h-4 text-green-bottle" />
+                    <span className="font-mono text-sm font-bold text-charcoal">+91 9081051240</span>
+                  </div>
+                  <a
+                    href="https://wa.me/919081051240"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold transition-all shadow-subtle"
+                  >
+                    <WhatsAppIcon className="w-3.5 h-3.5" /> WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* AnyDesk Remote Assistance Card */}
+            <div className="bg-white rounded-[24px] border border-stone p-7 shadow-card space-y-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-[14px] bg-terracotta/10 text-terracotta flex items-center justify-center border border-terracotta/20">
+                  <Monitor className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-display text-xl font-semibold text-charcoal">AnyDesk Remote Help</h3>
+                  <p className="text-xs text-warm-gray">Hands-on remote desktop troubleshooting</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-warm-gray block">Desk ID 1</span>
+                    <span className="font-mono text-sm font-bold text-charcoal tracking-wide">1452019780</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('1452019780', 'land_any1')}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] bg-white border border-stone text-xs font-semibold text-charcoal hover:bg-ivory transition-all shadow-subtle"
+                  >
+                    {copiedId === 'land_any1' ? <Check className="w-3.5 h-3.5 text-green-forest" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedId === 'land_any1' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+
+                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-warm-gray block">Desk ID 2</span>
+                    <span className="font-mono text-sm font-bold text-charcoal tracking-wide">1439051108</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('1439051108', 'land_any2')}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] bg-white border border-stone text-xs font-semibold text-charcoal hover:bg-ivory transition-all shadow-subtle"
+                  >
+                    {copiedId === 'land_any2' ? <Check className="w-3.5 h-3.5 text-green-forest" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedId === 'land_any2' ? 'Copied' : 'Copy'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <Link
+              to="/support"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-[14px] bg-green-bottle hover:bg-[#264A41] text-white text-xs font-semibold shadow-card transition-all"
+            >
+              Visit Full Customer Support Center &rarr;
+            </Link>
+          </div>
         </div>
       </section>
 

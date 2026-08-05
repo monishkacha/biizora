@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useBusiness } from '../context/BusinessContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useCommandPalette } from '../context/CommandPaletteContext';
+import { WhatsAppIcon } from './SupportTopBar';
 import {
   Search,
   Plus,
@@ -15,6 +16,12 @@ import {
   LogOut,
   ShieldCheck,
   Menu,
+  Headphones,
+  Phone,
+  Monitor,
+  Copy,
+  Check,
+  ExternalLink,
 } from 'lucide-react';
 
 function timeAgo(date) {
@@ -36,6 +43,14 @@ export default function Header({ setMobileOpen }) {
   const navigate = useNavigate();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const copyToClipboard = (text, key) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(key);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
     <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-stone px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -81,7 +96,103 @@ export default function Header({ setMobileOpen }) {
         <div className="relative">
           <button
             type="button"
-            onClick={() => { setNotificationsOpen(!notificationsOpen); setProfileOpen(false); }}
+            onClick={() => { setSupportOpen(!supportOpen); setNotificationsOpen(false); setProfileOpen(false); }}
+            className="p-2 text-warm-gray hover:text-green-bottle hover:bg-cream rounded-[12px] transition-colors relative flex items-center gap-1.5"
+            title="Customer Support & Remote Assistance"
+          >
+            <Headphones className="w-5 h-5 text-green-bottle" strokeWidth={1.75} />
+            <span className="hidden xl:inline text-xs font-semibold text-charcoal">Support</span>
+          </button>
+
+          {supportOpen && (
+            <div className="absolute right-0 mt-2 w-80 bg-white border border-stone rounded-[18px] shadow-elev p-4 z-50 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-stone">
+                <div className="flex items-center gap-1.5">
+                  <Headphones className="w-4 h-4 text-green-bottle" />
+                  <h4 className="text-xs font-bold text-charcoal">Support & Remote Help</h4>
+                </div>
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#25D366] bg-[#25D366]/10 px-2 py-0.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#25D366] animate-pulse" /> Online
+                </span>
+              </div>
+
+              {/* Phone & WhatsApp */}
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-warm-gray">WhatsApp & Call Lines</p>
+                <a
+                  href="https://wa.me/919904914513"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2 rounded-[12px] bg-ivory hover:bg-cream border border-stone text-xs text-charcoal font-mono transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" /> +91 9904914513
+                  </span>
+                  <span className="text-[10px] font-sans text-green-bottle font-semibold">WhatsApp &rarr;</span>
+                </a>
+                <a
+                  href="https://wa.me/919081051240"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-2 rounded-[12px] bg-ivory hover:bg-cream border border-stone text-xs text-charcoal font-mono transition-colors"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366]" /> +91 9081051240
+                  </span>
+                  <span className="text-[10px] font-sans text-green-bottle font-semibold">WhatsApp &rarr;</span>
+                </a>
+              </div>
+
+              {/* AnyDesk Remote Assistance */}
+              <div className="space-y-1.5 pt-1 border-t border-stone">
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-warm-gray flex items-center gap-1">
+                    <Monitor className="w-3 h-3 text-terracotta" /> AnyDesk Remote IDs
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-[12px] bg-ivory border border-stone text-xs font-mono">
+                  <span>Desk 1: <strong>1452019780</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('1452019780', 'hdr_any1')}
+                    className="p-1 text-warm-gray hover:text-charcoal"
+                    title="Copy Desk ID"
+                  >
+                    {copiedId === 'hdr_any1' ? <Check className="w-3.5 h-3.5 text-green-forest" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-[12px] bg-ivory border border-stone text-xs font-mono">
+                  <span>Desk 2: <strong>1439051108</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard('1439051108', 'hdr_any2')}
+                    className="p-1 text-warm-gray hover:text-charcoal"
+                    title="Copy Desk ID"
+                  >
+                    {copiedId === 'hdr_any2' ? <Check className="w-3.5 h-3.5 text-green-forest" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-stone">
+                <button
+                  type="button"
+                  onClick={() => { setSupportOpen(false); navigate('/app/support'); }}
+                  className="w-full py-2 bg-yellow-butter hover:bg-yellow-honey text-charcoal rounded-[12px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  Open Support Center <ExternalLink className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => { setNotificationsOpen(!notificationsOpen); setProfileOpen(false); setSupportOpen(false); }}
             className="p-2 text-warm-gray hover:text-charcoal hover:bg-cream rounded-[12px] transition-colors relative"
           >
             <Bell className="w-5 h-5" strokeWidth={1.75} />
