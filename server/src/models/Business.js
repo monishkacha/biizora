@@ -11,6 +11,8 @@ const businessSchema = new mongoose.Schema(
     phone: { type: String, default: '' },
     website: { type: String, default: '' },
     logoUrl: { type: String, default: '' },
+    digitalSignatureUrl: { type: String, default: '' },
+    stampUrl: { type: String, default: '' },
     address: {
       line1: { type: String, default: '' },
       city: { type: String, default: '' },
@@ -55,6 +57,8 @@ businessSchema.methods.toPublicJSON = function toPublicJSON() {
     phone: this.phone,
     website: this.website,
     logoUrl: this.logoUrl,
+    digitalSignatureUrl: this.digitalSignatureUrl,
+    stampUrl: this.stampUrl,
     address: this.address?.line1 || '',
     city: this.address?.city || '',
     state: this.address?.state || '',

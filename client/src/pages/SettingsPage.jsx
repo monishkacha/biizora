@@ -47,6 +47,24 @@ export default function SettingsPage() {
     }));
   }, [user]);
 
+  const handleFileChange = (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+    if (!validTypes.includes(file.type)) {
+      showToast('Invalid file format. Please upload PNG, JPG, JPEG, or SVG.', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCompanyForm(prev => ({
+        ...prev,
+        [field]: reader.result
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const saveOrg = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -102,6 +120,8 @@ export default function SettingsPage() {
     { id: 'classic', name: 'Classic' },
     { id: 'minimal', name: 'Minimal Mono' },
     { id: 'corporate', name: 'Corporate' },
+    { id: 'tally', name: 'Professional Tally GST' },
+    { id: 'gst_standard', name: 'Standard GST Bill' }
   ];
 
   return (
@@ -150,7 +170,55 @@ export default function SettingsPage() {
                 <Input label="Account name" value={bankForm.accountName || ''} onChange={(e) => setBankForm({ ...bankForm, accountName: e.target.value })} />
                 <Input label="Account number" value={bankForm.accountNumber || ''} onChange={(e) => setBankForm({ ...bankForm, accountNumber: e.target.value })} />
                 <Input label="IFSC" value={bankForm.ifscCode || ''} onChange={(e) => setBankForm({ ...bankForm, ifscCode: e.target.value })} />
+                <Input label="Branch" value={bankForm.branch || ''} onChange={(e) => setBankForm({ ...bankForm, branch: e.target.value })} />
                 <Input label="UPI ID" value={bankForm.upiId || ''} onChange={(e) => setBankForm({ ...bankForm, upiId: e.target.value })} />
+              </div>
+            </div>
+            <div className="pt-4 border-t border-line">
+              <h4 className="text-sm font-semibold text-ink mb-3 font-semibold text-ink">Logo, Signature & Stamp</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-ink-muted">Company Logo</label>
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                    onChange={(e) => handleFileChange(e, 'logoUrl')}
+                    className="w-full text-xs"
+                  />
+                  {companyForm?.logoUrl && (
+                    <div className="mt-2 p-2 border border-line rounded-lg bg-canvas flex items-center justify-center">
+                      <img src={companyForm.logoUrl} alt="Logo Preview" className="max-h-20 max-w-full object-contain" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-ink-muted">Digital Signature</label>
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                    onChange={(e) => handleFileChange(e, 'digitalSignatureUrl')}
+                    className="w-full text-xs"
+                  />
+                  {companyForm?.digitalSignatureUrl && (
+                    <div className="mt-2 p-2 border border-line rounded-lg bg-canvas flex items-center justify-center">
+                      <img src={companyForm.digitalSignatureUrl} alt="Signature Preview" className="max-h-20 max-w-full object-contain" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold text-ink-muted">Company Stamp</label>
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                    onChange={(e) => handleFileChange(e, 'stampUrl')}
+                    className="w-full text-xs"
+                  />
+                  {companyForm?.stampUrl && (
+                    <div className="mt-2 p-2 border border-line rounded-lg bg-canvas flex items-center justify-center">
+                      <img src={companyForm.stampUrl} alt="Stamp Preview" className="max-h-20 max-w-full object-contain" />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 pt-2">

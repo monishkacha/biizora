@@ -123,6 +123,7 @@ export const customersApi = {
   create: (body) => api('/customers', { method: 'POST', body }),
   update: (id, body) => api(`/customers/${id}`, { method: 'PATCH', body }),
   remove: (id) => api(`/customers/${id}`, { method: 'DELETE' }),
+  gstSearch: (gstin) => api('/customers/gst-search', { method: 'POST', body: { gstin } }),
 };
 
 export const productsApi = {

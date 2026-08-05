@@ -42,7 +42,31 @@ export default function InvoiceCreatePage() {
     state: 'Karnataka'
   });
 
+  const [packingCharge, setPackingCharge] = useState(0);
+  const [handlingCharge, setHandlingCharge] = useState(0);
+  const [loadingCharge, setLoadingCharge] = useState(0);
+  const [insuranceCharge, setInsuranceCharge] = useState(0);
+  const [otherCharges, setOtherCharges] = useState(0);
+  const [roundOffEnabled, setRoundOffEnabled] = useState(false);
+  const [status, setStatus] = useState('pending');
+
+  const [customHeaders, setCustomHeaders] = useState([
+    { label: 'Reference Number', value: '' },
+    { label: 'Purchase Order Number', value: '' },
+    { label: 'Transport Name', value: '' },
+    { label: 'Vehicle Number', value: '' },
+    { label: 'E-Way Bill Number', value: '' },
+    { label: 'Delivery Terms', value: '' }
+  ]);
+
+  const [copyTypes, setCopyTypes] = useState([]);
+
   // Line items state
+  const selectedCustomer = customers.find(c => c.id === selectedCustomerId) || customers[0];
+  const isIgst = selectedCustomer && company
+    ? (selectedCustomer.state || '').trim().toLowerCase() !== (company.state || '').trim().toLowerCase()
+    : (selectedCustomer ? selectedCustomer.isIgst : false);
+
   const [items, setItems] = useState([
     {
       id: `item-${Date.now()}`,
@@ -50,18 +74,19 @@ export default function InvoiceCreatePage() {
       hsnSac: products[0]?.hsnSac || '998314',
       quantity: 1,
       rate: products[0]?.sellingPrice || 49999,
-      gstRate: 18
+      discount: 0,
+      discountType: 'fixed',
+      cgstRate: isIgst ? 0 : 9,
+      sgstRate: isIgst ? 0 : 9,
+      igstRate: isIgst ? 18 : 0
     }
   ]);
-
-  const selectedCustomer = customers.find(c => c.id === selectedCustomerId) || customers[0];
-  const isIgst = selectedCustomer ? selectedCustomer.isIgst : false;
 
   const handleQuickAddCustomerSubmit = (e) => {
     e.preventDefault();
     if (!quickCustData.name.trim()) return;
 
-    const isIgstState = (quickCustData.state || 'Karnataka').toLowerCase() !== 'karnataka';
+    const isIgstState = (quickCustData.state || '').trim().toLowerCase() !== (company?.state || 'Karnataka').trim().toLowerCase();
     const newCust = addCustomer({
       name: quickCustData.name.trim(),
       contactPerson: quickCustData.name.trim(),
@@ -92,7 +117,11 @@ export default function InvoiceCreatePage() {
         hsnSac: '998314',
         quantity: 1,
         rate: 1000,
-        gstRate: 18
+        discount: 0,
+        discountType: 'fixed',
+        cgstRate: isIgst ? 0 : 9,
+        sgstRate: isIgst ? 0 : 9,
+        igstRate: isIgst ? 18 : 0
       }
     ]);
   };
@@ -120,28 +149,54 @@ export default function InvoiceCreatePage() {
         description: prod.name,
         hsnSac: prod.hsnSac,
         rate: prod.sellingPrice,
-        gstRate: prod.gstRate
+        cgstRate: isIgst ? 0 : (prod.gstRate / 2),
+        sgstRate: isIgst ? 0 : (prod.gstRate / 2),
+        igstRate: isIgst ? prod.gstRate : 0
       } : i));
     }
   };
 
-  // Tax calculations
+  // Calculations
   const subtotal = items.reduce((sum, item) => sum + (Number(item.quantity) * Number(item.rate)), 0);
-  const taxableAmount = Math.max(0, subtotal - Number(discount));
-  
-  // Calculate total tax
-  const totalTax = items.reduce((sum, item) => {
-    const itemSub = (Number(item.quantity) * Number(item.rate));
-    return sum + (itemSub * (Number(item.gstRate) / 100));
+
+  const totalDiscount = items.reduce((sum, item) => {
+    const itemSub = Number(item.quantity) * Number(item.rate);
+    const disc = item.discountType === 'percent' ? itemSub * (Number(item.discount || 0) / 100) : Number(item.discount || 0);
+    return sum + disc;
   }, 0);
 
-  const cgst = isIgst ? 0 : totalTax / 2;
-  const sgst = isIgst ? 0 : totalTax / 2;
-  const igst = isIgst ? totalTax : 0;
+  const taxableAmount = Math.max(0, subtotal - totalDiscount);
 
-  const grandTotal = taxableAmount + totalTax + Number(shipping);
+  const cgstTotal = items.reduce((sum, item) => {
+    const itemSub = Number(item.quantity) * Number(item.rate);
+    const disc = item.discountType === 'percent' ? itemSub * (Number(item.discount || 0) / 100) : Number(item.discount || 0);
+    const taxVal = Math.max(0, itemSub - disc);
+    return sum + (taxVal * (Number(item.cgstRate || 0) / 100));
+  }, 0);
 
-  const handleSaveInvoice = (status = 'pending') => {
+  const sgstTotal = items.reduce((sum, item) => {
+    const itemSub = Number(item.quantity) * Number(item.rate);
+    const disc = item.discountType === 'percent' ? itemSub * (Number(item.discount || 0) / 100) : Number(item.discount || 0);
+    const taxVal = Math.max(0, itemSub - disc);
+    return sum + (taxVal * (Number(item.sgstRate || 0) / 100));
+  }, 0);
+
+  const igstTotal = items.reduce((sum, item) => {
+    const itemSub = Number(item.quantity) * Number(item.rate);
+    const disc = item.discountType === 'percent' ? itemSub * (Number(item.discount || 0) / 100) : Number(item.discount || 0);
+    const taxVal = Math.max(0, itemSub - disc);
+    return sum + (taxVal * (Number(item.igstRate || 0) / 100));
+  }, 0);
+
+  const totalTax = cgstTotal + sgstTotal + igstTotal;
+
+  const rawGrandTotal = taxableAmount + totalTax + Number(shipping) + Number(packingCharge) + Number(handlingCharge) + Number(loadingCharge) + Number(insuranceCharge) + Number(otherCharges);
+
+  const roundedGrandTotal = Math.round(rawGrandTotal);
+  const roundOffAmount = roundOffEnabled ? (roundedGrandTotal - rawGrandTotal) : 0;
+  const grandTotal = roundOffEnabled ? roundedGrandTotal : rawGrandTotal;
+
+  const handleSaveInvoice = (statusParam = 'pending') => {
     if (!selectedCustomer) return;
 
     const invoicePayload = {
@@ -151,21 +206,45 @@ export default function InvoiceCreatePage() {
       customerGstin: selectedCustomer.gstin,
       issueDate,
       dueDate,
-      items: items.map(i => ({
-        ...i,
-        amount: Number(i.quantity) * Number(i.rate),
-        taxAmount: (Number(i.quantity) * Number(i.rate)) * (Number(i.gstRate) / 100)
-      })),
+      items: items.map(i => {
+        const itemSub = Number(i.quantity) * Number(i.rate);
+        const discAmount = i.discountType === 'percent' ? itemSub * (Number(i.discount || 0) / 100) : Number(i.discount || 0);
+        const taxVal = Math.max(0, itemSub - discAmount);
+
+        return {
+          ...i,
+          amount: itemSub,
+          discount: Number(i.discount || 0),
+          discountType: i.discountType || 'fixed',
+          taxableValue: taxVal,
+          cgstRate: Number(i.cgstRate || 0),
+          sgstRate: Number(i.sgstRate || 0),
+          igstRate: Number(i.igstRate || 0),
+          cgstAmount: taxVal * (Number(i.cgstRate || 0) / 100),
+          sgstAmount: taxVal * (Number(i.sgstRate || 0) / 100),
+          igstAmount: taxVal * (Number(i.igstRate || 0) / 100),
+          totalGst: (taxVal * (Number(i.cgstRate || 0) / 100)) + (taxVal * (Number(i.sgstRate || 0) / 100)) + (taxVal * (Number(i.igstRate || 0) / 100))
+        };
+      }),
       subtotal,
-      discount: Number(discount),
+      discount: totalDiscount,
       taxableAmount,
-      cgst,
-      sgst,
-      igst,
+      cgst: cgstTotal,
+      sgst: sgstTotal,
+      igst: igstTotal,
       totalTax,
       shippingCharge: Number(shipping),
+      packingCharge: Number(packingCharge),
+      handlingCharge: Number(handlingCharge),
+      loadingCharge: Number(loadingCharge),
+      insuranceCharge: Number(insuranceCharge),
+      otherCharges: Number(otherCharges),
+      roundOffEnabled,
+      roundOffAmount,
+      customHeaders,
+      copyTypes,
       grandTotal,
-      status,
+      status: statusParam === 'draft' ? 'draft' : status,
       notes,
       terms
     };
@@ -270,75 +349,243 @@ export default function InvoiceCreatePage() {
           </div>
         </div>
 
+        {/* Custom Header Fields & Copy Type */}
+        <div className="space-y-4">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Custom Header Fields (Editable Labels)</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+            {customHeaders.map((field, idx) => (
+              <div key={idx} className="space-y-1">
+                <input
+                  type="text"
+                  value={field.label}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomHeaders(prev => prev.map((f, i) => i === idx ? { ...f, label: val } : f));
+                  }}
+                  className="bg-transparent border-b border-dashed border-slate-300 dark:border-slate-700 focus:border-accent text-slate-500 font-semibold text-[10px] uppercase tracking-wider focus:outline-none w-full"
+                  placeholder="Header Label"
+                />
+                <input
+                  type="text"
+                  value={field.value}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomHeaders(prev => prev.map((f, i) => i === idx ? { ...f, value: val } : f));
+                  }}
+                  placeholder={`Enter ${field.label}...`}
+                  className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+          {/* Invoice Copy Types */}
+          <div className="space-y-2">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Invoice Copy Type</label>
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-medium text-slate-700 dark:text-slate-300">
+              {['Original For Recipient', 'Duplicate For Transporter', 'Duplicate For Supplier', "Owner's Extra Copy"].map((opt) => (
+                <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={copyTypes.includes(opt)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setCopyTypes(prev => [...prev, opt]);
+                      } else {
+                        setCopyTypes(prev => prev.filter(c => c !== opt));
+                      }
+                    }}
+                    className="rounded border-slate-300 text-accent focus:ring-accent"
+                  />
+                  <span>{opt}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment Status Selector */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Payment Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 focus:outline-none"
+            >
+              <option value="pending">Pending / Unpaid</option>
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="draft">Draft</option>
+            </select>
+          </div>
+        </div>
+
         {/* Dynamic Line Items */}
         <div className="space-y-3">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Line Items & GST Slabs</h3>
           
+          {/* Header Row */}
+          <div className="hidden md:grid grid-cols-12 gap-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            <div className="col-span-4">Item Description</div>
+            <div className="col-span-2 text-center">HSN/SAC</div>
+            <div className="col-span-2 text-center">Qty</div>
+            <div className="col-span-3 text-right">Rate (₹)</div>
+            <div className="col-span-1"></div>
+          </div>
+
           <div className="space-y-3">
-            {items.map((item, idx) => (
-              <div key={item.id} className="grid grid-cols-12 gap-2 items-center p-3 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/60 text-xs">
-                
-                {/* Product Catalog Dropdown / Description */}
-                <div className="col-span-5 space-y-1">
-                  <select
-                    onChange={(e) => handleSelectProduct(item.id, e.target.value)}
-                    className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px]"
-                  >
-                    <option value="">-- Load from Catalog --</option>
-                    {products.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} (₹{p.sellingPrice})</option>
-                    ))}
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Description..."
-                    value={item.description}
-                    onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                    className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-medium"
-                  />
-                </div>
+            {items.map((item, idx) => {
+              const itemSub = Number(item.quantity) * Number(item.rate);
+              const discAmount = item.discountType === 'percent' ? itemSub * (Number(item.discount || 0) / 100) : Number(item.discount || 0);
+              const taxVal = Math.max(0, itemSub - discAmount);
+              const cgstVal = taxVal * (Number(item.cgstRate || 0) / 100);
+              const sgstVal = taxVal * (Number(item.sgstRate || 0) / 100);
+              const igstVal = taxVal * (Number(item.igstRate || 0) / 100);
+              const lineTotal = taxVal + cgstVal + sgstVal + igstVal;
 
-                <div className="col-span-2">
-                  <input
-                    type="text"
-                    placeholder="HSN/SAC"
-                    value={item.hsnSac}
-                    onChange={(e) => updateItem(item.id, 'hsnSac', e.target.value)}
-                    className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-center"
-                  />
-                </div>
+              return (
+                <div key={item.id} className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/60 text-xs space-y-3">
+                  
+                  {/* Row 1: Description, HSN, Qty, Rate, Delete */}
+                  <div className="grid grid-cols-12 gap-2 items-center">
+                    <div className="col-span-4 space-y-1">
+                      <select
+                        onChange={(e) => handleSelectProduct(item.id, e.target.value)}
+                        className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-[11px]"
+                      >
+                        <option value="">-- Load from Catalog --</option>
+                        {products.map(p => (
+                          <option key={p.id} value={p.id}>{p.name} (₹{p.sellingPrice})</option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Description..."
+                        value={item.description}
+                        onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                        className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-medium"
+                      />
+                    </div>
 
-                <div className="col-span-1">
-                  <input
-                    type="number"
-                    min="1"
-                    value={item.quantity}
-                    onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-center font-bold"
-                  />
-                </div>
+                    <div className="col-span-2">
+                      <label className="block md:hidden text-[9px] font-bold text-slate-400 mb-0.5">HSN/SAC</label>
+                      <input
+                        type="text"
+                        placeholder="HSN/SAC"
+                        value={item.hsnSac}
+                        onChange={(e) => updateItem(item.id, 'hsnSac', e.target.value)}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-mono text-center"
+                      />
+                    </div>
 
-                <div className="col-span-2">
-                  <input
-                    type="number"
-                    value={item.rate}
-                    onChange={(e) => updateItem(item.id, 'rate', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-right font-bold"
-                  />
-                </div>
+                    <div className="col-span-2">
+                      <label className="block md:hidden text-[9px] font-bold text-slate-400 mb-0.5">Quantity</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-center font-bold"
+                      />
+                    </div>
 
-                <div className="col-span-1 text-right font-bold text-accent">
-                  ₹{(Number(item.quantity) * Number(item.rate)).toLocaleString('en-IN')}
-                </div>
+                    <div className="col-span-3">
+                      <label className="block md:hidden text-[9px] font-bold text-slate-400 mb-0.5">Rate (₹)</label>
+                      <input
+                        type="number"
+                        value={item.rate}
+                        onChange={(e) => updateItem(item.id, 'rate', Number(e.target.value))}
+                        className="w-full px-2 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-right font-bold"
+                      />
+                    </div>
 
-                <div className="col-span-1 flex items-center justify-end">
-                  <button onClick={() => removeItem(item.id)} className="p-1 text-slate-400 hover:text-accent-soft">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                    <div className="col-span-1 flex items-center justify-end">
+                      <button onClick={() => removeItem(item.id)} className="p-1.5 text-slate-400 hover:text-accent-soft mt-4 md:mt-0">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
 
-              </div>
-            ))}
+                  {/* Row 2: Discount & Individual CGST, SGST, IGST inputs */}
+                  <div className="grid grid-cols-12 gap-3 items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                    
+                    {/* Discount Input & Type Selector */}
+                    <div className="col-span-3">
+                      <label className="block text-[9px] font-bold text-slate-400 mb-1">Discount</label>
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="number"
+                          min="0"
+                          max={item.discountType === 'percent' ? 100 : itemSub}
+                          value={item.discount || 0}
+                          onChange={(e) => {
+                            const val = Math.max(0, Number(e.target.value));
+                            const maxDisc = item.discountType === 'percent' ? 100 : itemSub;
+                            updateItem(item.id, 'discount', Math.min(val, maxDisc));
+                          }}
+                          className="w-full px-2 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg font-semibold text-right"
+                        />
+                        <select
+                          value={item.discountType || 'fixed'}
+                          onChange={(e) => updateItem(item.id, 'discountType', e.target.value)}
+                          className="px-1.5 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg font-bold"
+                        >
+                          <option value="fixed">Fixed (₹)</option>
+                          <option value="percent">Percent (%)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* CGST % Input */}
+                    <div className="col-span-2">
+                      <label className="block text-[9px] font-bold text-slate-400 mb-1">CGST %</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={item.cgstRate || 0}
+                        onChange={(e) => updateItem(item.id, 'cgstRate', Math.max(0, Number(e.target.value)))}
+                        className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-center font-bold"
+                      />
+                    </div>
+
+                    {/* SGST % Input */}
+                    <div className="col-span-2">
+                      <label className="block text-[9px] font-bold text-slate-400 mb-1">SGST %</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={item.sgstRate || 0}
+                        onChange={(e) => updateItem(item.id, 'sgstRate', Math.max(0, Number(e.target.value)))}
+                        className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-center font-bold"
+                      />
+                    </div>
+
+                    {/* IGST % Input */}
+                    <div className="col-span-2">
+                      <label className="block text-[9px] font-bold text-slate-400 mb-1">IGST %</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={item.igstRate || 0}
+                        onChange={(e) => updateItem(item.id, 'igstRate', Math.max(0, Number(e.target.value)))}
+                        className="w-full px-2 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-center font-bold"
+                      />
+                    </div>
+
+                    {/* Final Line Total calculated amount */}
+                    <div className="col-span-3 text-right">
+                      <label className="block text-[9px] font-bold text-slate-400 mb-1">Line Total</label>
+                      <span className="font-extrabold text-sm text-accent">
+                        ₹{lineTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <button
@@ -369,49 +616,125 @@ export default function InvoiceCreatePage() {
               <span className="font-semibold">₹{subtotal.toLocaleString('en-IN')}</span>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-slate-600 dark:text-slate-300">Discount (₹):</span>
-              <input
-                type="number"
-                value={discount}
-                onChange={(e) => setDiscount(Number(e.target.value))}
-                className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
-              />
+            <div className="flex justify-between text-slate-600 dark:text-slate-300">
+              <span>Total Discount:</span>
+              <span className="font-semibold text-accent-soft">-₹{totalDiscount.toLocaleString('en-IN')}</span>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-slate-600 dark:text-slate-300">Shipping Charge (₹):</span>
-              <input
-                type="number"
-                value={shipping}
-                onChange={(e) => setShipping(Number(e.target.value))}
-                className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
-              />
+            <div className="flex justify-between text-slate-600 dark:text-slate-300 border-t pt-1">
+              <span>Taxable Amount:</span>
+              <span className="font-bold">₹{taxableAmount.toLocaleString('en-IN')}</span>
             </div>
 
             <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1">
-              {isIgst ? (
+              {cgstTotal > 0 && (
                 <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                  <span>IGST Total (18%):</span>
-                  <span className="font-semibold text-accent-soft">₹{igst.toLocaleString('en-IN')}</span>
+                  <span>Central Tax (CGST):</span>
+                  <span className="font-semibold text-accent-soft">₹{cgstTotal.toLocaleString('en-IN')}</span>
                 </div>
-              ) : (
-                <>
-                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                    <span>CGST (9%):</span>
-                    <span className="font-semibold text-accent-soft">₹{cgst.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="flex justify-between text-slate-600 dark:text-slate-300">
-                    <span>SGST (9%):</span>
-                    <span className="font-semibold text-accent-soft">₹{sgst.toLocaleString('en-IN')}</span>
-                  </div>
-                </>
+              )}
+              {sgstTotal > 0 && (
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                  <span>State Tax (SGST):</span>
+                  <span className="font-semibold text-accent-soft">₹{sgstTotal.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+              {igstTotal > 0 && (
+                <div className="flex justify-between text-slate-600 dark:text-slate-300">
+                  <span>Integrated Tax (IGST):</span>
+                  <span className="font-semibold text-accent-soft">₹{igstTotal.toLocaleString('en-IN')}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">Shipping Charges (₹):</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={shipping}
+                  onChange={(e) => setShipping(Math.max(0, Number(e.target.value)))}
+                  className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">Packing Charges (₹):</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={packingCharge}
+                  onChange={(e) => setPackingCharge(Math.max(0, Number(e.target.value)))}
+                  className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">Handling Charges (₹):</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={handlingCharge}
+                  onChange={(e) => setHandlingCharge(Math.max(0, Number(e.target.value)))}
+                  className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">Loading Charges (₹):</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={loadingCharge}
+                  onChange={(e) => setLoadingCharge(Math.max(0, Number(e.target.value)))}
+                  className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">Insurance Charges (₹):</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={insuranceCharge}
+                  onChange={(e) => setInsuranceCharge(Math.max(0, Number(e.target.value)))}
+                  className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-slate-600 dark:text-slate-300">Other Charges (₹):</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={otherCharges}
+                  onChange={(e) => setOtherCharges(Math.max(0, Number(e.target.value)))}
+                  className="w-24 px-2 py-1 bg-white dark:bg-slate-900 border rounded text-right font-semibold"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-600 dark:text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={roundOffEnabled}
+                  onChange={(e) => setRoundOffEnabled(e.target.checked)}
+                  className="rounded border-slate-300 text-accent focus:ring-accent"
+                />
+                <span>Round Off Final Amount</span>
+              </label>
+              {roundOffEnabled && (
+                <span className="font-semibold text-slate-500">
+                  {roundOffAmount >= 0 ? '+' : ''}₹{roundOffAmount.toFixed(3)}
+                </span>
               )}
             </div>
 
             <div className="pt-3 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center text-sm font-extrabold">
               <span className="text-slate-900 dark:text-white">Grand Total Owed:</span>
-              <span className="text-xl text-accent dark:text-text-muted">₹{grandTotal.toLocaleString('en-IN')}</span>
+              <span className="text-xl text-accent dark:text-text-muted">₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
 

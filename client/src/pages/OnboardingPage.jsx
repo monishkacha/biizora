@@ -138,7 +138,33 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <>
-              <Input label="Logo URL" value={form.logoUrl} onChange={(e) => set('logoUrl', e.target.value)} placeholder="https://..." />
+              <div className="space-y-2 text-left">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Company Logo</label>
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg, image/svg+xml"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+                    if (!validTypes.includes(file.type)) {
+                      showToast('Invalid file format. Please upload PNG, JPG, JPEG, or SVG.', 'error');
+                      return;
+                    }
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      set('logoUrl', reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                  className="w-full text-xs"
+                />
+                {form.logoUrl && (
+                  <div className="mt-2 p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
+                    <img src={form.logoUrl} alt="Logo Preview" className="max-h-20 max-w-full object-contain" />
+                  </div>
+                )}
+              </div>
               <Input label="Invoice prefix" value={form.invoicePrefix} onChange={(e) => set('invoicePrefix', e.target.value)} />
               <div className="rounded-2xl border border-line bg-canvas p-4 flex items-start gap-3">
                 <Building2 className="w-5 h-5 text-ink mt-0.5" />

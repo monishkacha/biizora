@@ -77,7 +77,7 @@ export const getBusiness = asyncHandler(async (req, res) => {
 export const updateBusiness = asyncHandler(async (req, res) => {
   const b = req.business;
   const fields = [
-    'name', 'tradeName', 'industry', 'gstin', 'pan', 'email', 'phone', 'website', 'logoUrl',
+    'name', 'tradeName', 'industry', 'gstin', 'pan', 'email', 'phone', 'website', 'logoUrl', 'digitalSignatureUrl', 'stampUrl',
   ];
   fields.forEach((f) => {
     if (req.body[f] !== undefined) b[f] = req.body[f];

@@ -68,3 +68,41 @@ export const deleteCustomer = asyncHandler(async (req, res) => {
 
   res.json({ success: true });
 });
+
+import { GstCache } from '../models/GstCache.js';
+import { lookupGstin } from '../services/gstService.js';
+
+export const gstSearch = asyncHandler(async (req, res) => {
+  const { gstin } = req.body;
+  if (!gstin) {
+    return res.status(400).json({ error: 'GST Number is required' });
+  }
+
+  const normalized = gstin.trim().toUpperCase();
+
+  // Validate format
+  const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+  if (!gstinRegex.test(normalized)) {
+    return res.status(400).json({ error: 'Invalid GST Number' });
+  }
+
+  try {
+    // Check Cache
+    let cached = await GstCache.findOne({ gstin: normalized });
+    if (cached) {
+      return res.json({ success: true, cached: true, data: cached });
+    }
+
+    // Call Lookup
+    const gstData = await lookupGstin(normalized);
+
+    // Save to Cache
+    const newCache = await GstCache.create(gstData);
+
+    return res.json({ success: true, cached: false, data: newCache });
+  } catch (err) {
+    console.error('GST Search API Error:', err);
+    return res.status(400).json({ error: err.message || 'Unable to Fetch Data' });
+  }
+});
+

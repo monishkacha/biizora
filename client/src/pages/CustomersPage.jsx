@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useBusiness } from '../context/BusinessContext';
+import { useNotification } from '../context/NotificationContext';
+import { customersApi } from '../api/client';
 import {
   Users,
   Plus,
@@ -21,11 +23,19 @@ import {
 
 export default function CustomersPage() {
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useBusiness();
+  const { addNotification } = useNotification();
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
+
+  // GST & Form Tab States
+  const [activeTab, setActiveTab] = useState('gst'); // 'gst' or 'manual'
+  const [gstSearchQuery, setGstSearchQuery] = useState('');
+  const [gstLoading, setGstLoading] = useState(false);
+  const [gstVerified, setGstVerified] = useState(false);
+  const [gstError, setGstError] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -54,6 +64,7 @@ export default function CustomersPage() {
     if (cust) {
       setEditingCustomer(cust);
       setFormData(cust);
+      setActiveTab('manual');
     } else {
       setEditingCustomer(null);
       setFormData({
@@ -70,8 +81,54 @@ export default function CustomersPage() {
         category: 'Enterprise',
         notes: ''
       });
+      setActiveTab('gst');
+      setGstSearchQuery('');
+      setGstVerified(false);
+      setGstError('');
     }
     setModalOpen(true);
+  };
+
+  const handleGstSearch = async () => {
+    if (!gstSearchQuery.trim()) {
+      setGstError('Please enter a GSTIN number.');
+      return;
+    }
+    const gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstinRegex.test(gstSearchQuery.trim())) {
+      setGstError('Invalid GST Number');
+      return;
+    }
+
+    setGstLoading(true);
+    setGstError('');
+
+    try {
+      const response = await customersApi.gstSearch(gstSearchQuery.trim());
+      const data = response.data;
+      
+      setFormData({
+        name: data.legalName || data.tradeName || '',
+        contactPerson: data.tradeName || data.legalName || '',
+        email: '',
+        phone: '',
+        gstin: data.gstin,
+        pan: data.gstin.slice(2, 12),
+        address: data.address || `${data.buildingNumber || ''} ${data.street || ''} ${data.locality || ''}`.trim(),
+        city: data.city || data.district || 'Bengaluru',
+        state: data.state || 'Karnataka',
+        pincode: data.pincode || '',
+        category: 'Enterprise',
+        notes: `GST Status: ${data.status}\nConstitution: ${data.constitution}\nReg Date: ${data.registrationDate}`
+      });
+
+      setGstVerified(true);
+      addNotification('GSTIN details retrieved successfully!', 'success');
+    } catch (err) {
+      setGstError(err.message || 'Unable to Fetch Data');
+    } finally {
+      setGstLoading(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -249,81 +306,176 @@ export default function CustomersPage() {
               <button onClick={() => setModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="w-5 h-5" />
               </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Company / Customer Name <span className="text-accent-soft">*</span></label>
-                  <input required type="text" placeholder="e.g. Reliance Retail / Rahul Verma" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs font-bold" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Contact Person (Optional)</label>
-                  <input type="text" placeholder="e.g. Rahul Verma" value={formData.contactPerson} onChange={(e) => setFormData({...formData, contactPerson: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Email Address (Optional)</label>
-                  <input type="email" placeholder="client@company.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Phone Number (Optional)</label>
-                  <input type="text" placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold mb-1">GSTIN Number (Optional)</label>
-                  <input type="text" value={formData.gstin} onChange={(e) => setFormData({...formData, gstin: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs uppercase font-mono" placeholder="29ABCDE1234F1Z5 (or leave blank for URP)" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">PAN Number (Optional)</label>
-                  <input type="text" value={formData.pan} onChange={(e) => setFormData({...formData, pan: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs uppercase font-mono" placeholder="ABCDE1234F" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold mb-1">City</label>
-                  <input type="text" placeholder="Bengaluru" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">State</label>
-                  <select value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs">
-                    <option value="Karnataka">Karnataka (Intrastate)</option>
-                    <option value="Maharashtra">Maharashtra (Interstate)</option>
-                    <option value="Telangana">Telangana (Interstate)</option>
-                    <option value="Tamil Nadu">Tamil Nadu (Interstate)</option>
-                    <option value="Delhi">Delhi (Interstate)</option>
-                    <option value="Gujarat">Gujarat (Interstate)</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold mb-1">Category</label>
-                  <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs">
-                    <option value="Enterprise">Enterprise</option>
-                    <option value="Agency">Agency</option>
-                    <option value="Retailer">Retailer</option>
-                    <option value="Manufacturer">Manufacturer</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold mb-1">Billing Address (Optional)</label>
-                <textarea rows={2} placeholder="Suite/Street address..." value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
-              </div>
-
-              <div className="pt-3 flex items-center justify-end gap-3">
-                <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
-                <button type="submit" className="px-5 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md hover:bg-text">
-                  {editingCustomer ? 'Update Customer' : 'Save Customer'}
+            </div>            {!editingCustomer && (
+              <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('gst');
+                    setGstError('');
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                    activeTab === 'gst'
+                      ? 'bg-accent text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Fetch via GST
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('manual');
+                    setGstError('');
+                  }}
+                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                    activeTab === 'manual'
+                      ? 'bg-accent text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  }`}
+                >
+                  Add Manually
                 </button>
               </div>
-            </form>
+            )}
+
+            {activeTab === 'gst' && !gstVerified && (
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">GSTIN / GST Number</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. 29ABCDE1234F1Z5"
+                      value={gstSearchQuery}
+                      onChange={(e) => setGstSearchQuery(e.target.value.toUpperCase())}
+                      className="flex-1 px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs uppercase font-mono font-bold"
+                    />
+                    <button
+                      type="button"
+                      disabled={gstLoading}
+                      onClick={handleGstSearch}
+                      className="px-5 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+                    >
+                      {gstLoading ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Fetching...
+                        </>
+                      ) : (
+                        'Verify & Fetch'
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {gstError && (
+                  <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-600 dark:text-red-400">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{gstError}</span>
+                  </div>
+                )}
+
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3 mt-4">
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'gst' && gstVerified && (
+              <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl mb-3 text-xs text-emerald-700 dark:text-emerald-400">
+                <span className="flex items-center gap-1.5 font-bold">
+                  <CheckCircle className="w-4 h-4 text-emerald-500" />
+                  ✓ GST Verified ({formData.gstin})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGstVerified(false);
+                    setGstSearchQuery('');
+                  }}
+                  className="px-2 py-1 bg-white dark:bg-slate-800 hover:bg-slate-50 border rounded-lg font-semibold text-[10px]"
+                >
+                  Change GSTIN
+                </button>
+              </div>
+            )}
+
+            {(activeTab === 'manual' || gstVerified) && (
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Company / Customer Name <span className="text-accent-soft">*</span></label>
+                    <input required type="text" placeholder="e.g. Reliance Retail / Rahul Verma" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Contact Person (Optional)</label>
+                    <input type="text" placeholder="e.g. Rahul Verma" value={formData.contactPerson} onChange={(e) => setFormData({...formData, contactPerson: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Email Address (Optional)</label>
+                    <input type="email" placeholder="client@company.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Phone Number (Optional)</label>
+                    <input type="text" placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">GSTIN Number (Optional)</label>
+                    <input type="text" value={formData.gstin} onChange={(e) => setFormData({...formData, gstin: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs uppercase font-mono" placeholder="29ABCDE1234F1Z5 (or leave blank for URP)" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">PAN Number (Optional)</label>
+                    <input type="text" value={formData.pan} onChange={(e) => setFormData({...formData, pan: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs uppercase font-mono" placeholder="ABCDE1234F" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">City</label>
+                    <input type="text" placeholder="Bengaluru" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">State</label>
+                    <select value={formData.state} onChange={(e) => setFormData({...formData, state: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs">
+                      <option value="Karnataka">Karnataka (Intrastate)</option>
+                      <option value="Maharashtra">Maharashtra (Interstate)</option>
+                      <option value="Telangana">Telangana (Interstate)</option>
+                      <option value="Tamil Nadu">Tamil Nadu (Interstate)</option>
+                      <option value="Delhi">Delhi (Interstate)</option>
+                      <option value="Gujarat">Gujarat (Interstate)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1">Category</label>
+                    <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs">
+                      <option value="Enterprise">Enterprise</option>
+                      <option value="Agency">Agency</option>
+                      <option value="Retailer">Retailer</option>
+                      <option value="Manufacturer">Manufacturer</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold mb-1">Billing Address (Optional)</label>
+                  <textarea rows={2} placeholder="Suite/Street address..." value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border rounded-xl text-xs" />
+                </div>
+
+                <div className="pt-3 flex items-center justify-end gap-3">
+                  <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-medium">Cancel</button>
+                  <button type="submit" className="px-5 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md hover:bg-text">
+                    {editingCustomer ? 'Update Customer' : 'Save Customer'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

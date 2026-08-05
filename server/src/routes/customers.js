@@ -7,6 +7,7 @@ const router = Router();
 router.use(authenticate, requireBusiness);
 
 router.get('/', requirePermission('customers', 'read'), ctrl.listCustomers);
+router.post('/gst-search', requirePermission('customers', 'read'), ctrl.gstSearch);
 router.post('/', requirePermission('customers', 'write'), ctrl.createCustomer);
 router.patch('/:id', requirePermission('customers', 'write'), ctrl.updateCustomer);
 router.delete('/:id', requirePermission('customers', 'delete'), ctrl.deleteCustomer);
