@@ -28,6 +28,8 @@ import supportRoutes from './routes/support.js';
 import migrationRoutes from './routes/migration.js';
 import adminRoutes from './routes/admin.js';
 import modulesRoutes from './routes/modules.js';
+import bizzRoutes from './routes/bizz.js';
+import whatsappRoutes from './routes/whatsapp.js';
 
 dotenv.config();
 
@@ -79,6 +81,9 @@ app.use('/api/support', supportRoutes);
 app.use('/api/migration', migrationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/modules', modulesRoutes);
+app.use('/api/bizz', bizzRoutes);
+app.use('/public', express.static('public'));
+app.use('/api', whatsappRoutes);
 
 app.use(errorHandler);
 

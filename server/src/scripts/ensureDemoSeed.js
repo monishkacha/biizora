@@ -89,7 +89,7 @@ export async function ensureDemoSeed() {
   }
   console.log('✓ Demo accounts ready (one business per account)');
   console.log(`  Admin: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
-  console.log('  Industry: *-demo@biizora.com / demo123');
+  console.log('  Industry: retail-demo@biizora.com, salon-demo@biizora.com, restaurant-demo@biizora.com, manufacturing-demo@biizora.com, stationery-demo@biizora.com / demo123');
   return true;
 }
 
@@ -205,11 +205,12 @@ async function ensureAdrianDemo() {
     await business.save();
   }
 
-  const customerCount = await Customer.countDocuments({ businessId: business._id });
-  if (customerCount === 0) {
-    await seedDemoRecords(user, business);
-    console.log('→ Seeded Adrian Hale sample invoices/customers');
-  }
+  await Customer.deleteMany({ businessId: business._id });
+  await Product.deleteMany({ businessId: business._id });
+  await Invoice.deleteMany({ businessId: business._id });
+  await Expense.deleteMany({ businessId: business._id });
+  await seedDemoRecords(user, business);
+  console.log('→ Seeded Adrian Hale sample invoices/customers');
 }
 
 async function ensureIndustryDemoAccount(spec) {
@@ -289,220 +290,251 @@ async function ensureIndustryDemoAccount(spec) {
     await business.save();
   }
 
-  const customerCount = await Customer.countDocuments({ businessId: business._id });
-  if (customerCount === 0) {
-    await seedDemoRecords(user, business);
-    console.log(`→ Seeded sample records for ${spec.email}`);
-  }
+  await Customer.deleteMany({ businessId: business._id });
+  await Product.deleteMany({ businessId: business._id });
+  await Invoice.deleteMany({ businessId: business._id });
+  await Expense.deleteMany({ businessId: business._id });
+  await seedDemoRecords(user, business);
+  console.log(`→ Seeded sample records for ${spec.email}`);
 }
 
 async function seedDemoRecords(user, business) {
-  const customers = await Customer.insertMany([
-    {
-      businessId: business._id,
-      name: 'Apex Global Solutions',
-      contactPerson: 'Rahul Verma',
-      email: 'rahul@apexglobal.com',
-      phone: '+91 98111 22334',
-      gstin: '27AAACA1234A1Z1',
-      isIgst: true,
-      outstandingBalance: 45000,
-      totalSpent: 380000,
-      status: 'active',
-      category: 'Enterprise',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-    },
-    {
-      businessId: business._id,
-      name: 'Zenith Digital Media',
-      contactPerson: 'Priya Sharma',
-      email: 'priya@zenithdigital.in',
-      gstin: '29BBBCB5678B1Z2',
-      isIgst: false,
-      outstandingBalance: 0,
-      totalSpent: 195000,
-      status: 'active',
-      category: 'Agency',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-    },
-    {
-      businessId: business._id,
-      name: 'Nova Retail & Logistics',
-      contactPerson: 'Vikram Malhotra',
-      email: 'accounts@novaretail.co.in',
-      gstin: '36CCCCD9012C1Z3',
-      isIgst: true,
-      outstandingBalance: 112000,
-      totalSpent: 540000,
-      status: 'active',
-      category: 'Retailer',
-      city: 'Hyderabad',
-      state: 'Telangana',
-    },
-    {
-      businessId: business._id,
-      name: 'Kaveri Engineering Works',
-      contactPerson: 'Srinivas Rao',
-      email: 'srinivas@kaverieng.com',
-      gstin: '33DDDDE3456D1Z4',
-      isIgst: true,
-      outstandingBalance: 18500,
-      totalSpent: 92000,
-      status: 'active',
-      category: 'Manufacturer',
-      city: 'Chennai',
-      state: 'Tamil Nadu',
-    },
-  ]);
+  const type = business.businessType || 'retail';
 
-  const products = await Product.insertMany([
-    {
-      businessId: business._id,
-      name: 'SaaS Software Subscription (Annual)',
-      type: 'service',
-      sku: 'BIZ-SAAS-ANN',
-      hsnSac: '998314',
-      sellingPrice: 49999,
-      costPrice: 12000,
-      gstRate: 18,
-      stock: 999,
-      minStockLevel: 10,
-      unit: 'license',
-    },
-    {
-      businessId: business._id,
-      name: 'AI Automation Consulting',
-      type: 'service',
-      sku: 'BIZ-CONS-AI',
-      hsnSac: '998313',
-      sellingPrice: 75000,
-      costPrice: 25000,
-      gstRate: 18,
-      stock: 100,
-      minStockLevel: 5,
-      unit: 'project',
-    },
-    {
-      businessId: business._id,
-      name: 'POS Smart Terminal X1',
-      type: 'product',
-      sku: 'BIZ-HW-POS1',
-      hsnSac: '847130',
-      sellingPrice: 16500,
-      costPrice: 11000,
-      gstRate: 18,
-      stock: 14,
-      minStockLevel: 15,
-      unit: 'unit',
-    },
-    {
-      businessId: business._id,
-      name: 'Thermal Receipt Roll (Box of 50)',
-      type: 'product',
-      sku: 'BIZ-ACC-ROLL50',
-      hsnSac: '481190',
-      sellingPrice: 1250,
-      costPrice: 750,
-      gstRate: 12,
-      stock: 4,
-      minStockLevel: 10,
-      unit: 'box',
-    },
-  ]);
+  let customerSpecs = [];
+  let productSpecs = [];
+  let invoiceSpecs = [];
+  let expenseSpecs = [];
 
-  await Invoice.insertMany([
-    {
-      businessId: business._id,
-      invoiceNumber: 'INV-2026-001',
-      customerId: customers[0]._id,
-      customerName: customers[0].name,
-      customerGstin: customers[0].gstin,
-      issueDate: '2026-07-15',
-      dueDate: '2026-08-14',
-      items: [{ description: products[0].name, hsnSac: '998314', quantity: 2, rate: 49999, gstRate: 18, amount: 99998, taxAmount: 17999.64 }],
-      subtotal: 99998,
-      discount: 5000,
-      taxableAmount: 94998,
-      igst: 17099.64,
-      totalTax: 17099.64,
-      grandTotal: 112097.64,
-      status: 'paid',
-      paidAmount: 112097.64,
-      paymentMethod: 'Razorpay / UPI',
-    },
-    {
-      businessId: business._id,
-      invoiceNumber: 'INV-2026-002',
-      customerId: customers[1]._id,
-      customerName: customers[1].name,
-      customerGstin: customers[1].gstin,
-      issueDate: '2026-07-20',
-      dueDate: '2026-08-04',
-      items: [{ description: products[1].name, hsnSac: '998313', quantity: 1, rate: 75000, gstRate: 18, amount: 75000, taxAmount: 13500 }],
-      subtotal: 75000,
-      taxableAmount: 75000,
-      cgst: 6750,
-      sgst: 6750,
-      totalTax: 13500,
-      grandTotal: 88500,
-      status: 'paid',
-      paidAmount: 88500,
-      paymentMethod: 'Bank Transfer (NEFT)',
-    },
-    {
-      businessId: business._id,
-      invoiceNumber: 'INV-2026-003',
-      customerId: customers[2]._id,
-      customerName: customers[2].name,
-      customerGstin: customers[2].gstin,
-      issueDate: '2026-07-01',
-      dueDate: '2026-07-16',
-      items: [{ description: products[2].name, hsnSac: '847130', quantity: 5, rate: 16500, gstRate: 18, amount: 82500, taxAmount: 14850 }],
-      subtotal: 82500,
-      discount: 2500,
-      taxableAmount: 80000,
-      igst: 14400,
-      totalTax: 14400,
-      shippingCharge: 500,
-      grandTotal: 94900,
-      status: 'overdue',
-      paidAmount: 0,
-    },
-    {
-      businessId: business._id,
-      invoiceNumber: 'INV-2026-004',
-      customerId: customers[3]._id,
-      customerName: customers[3].name,
-      customerGstin: customers[3].gstin,
-      issueDate: '2026-07-28',
-      dueDate: '2026-08-12',
-      items: [{ description: products[3].name, hsnSac: '481190', quantity: 10, rate: 1250, gstRate: 12, amount: 12500, taxAmount: 1500 }],
-      subtotal: 12500,
-      taxableAmount: 12500,
-      igst: 1500,
-      totalTax: 1500,
-      shippingCharge: 350,
-      grandTotal: 14350,
-      status: 'pending',
-      paidAmount: 0,
-    },
-  ]);
+  if (type === 'salon') {
+    customerSpecs = [
+      { name: 'Ananya Sen', contactPerson: 'Ananya Sen', email: 'ananya@gmail.com', phone: '+91 98300 12345', city: 'Kolkata', state: 'West Bengal', outstandingBalance: 0, totalSpent: 25000, category: 'Loyalty Gold' },
+      { name: 'Karan Malhotra', contactPerson: 'Karan Malhotra', email: 'karan@gmail.com', phone: '+91 98100 54321', city: 'Delhi', state: 'Delhi', outstandingBalance: 1200, totalSpent: 12000, category: 'Regular' },
+      { name: 'Rohan Roy', contactPerson: 'Rohan Roy', email: 'rohan@gmail.com', phone: '+91 98400 98765', city: 'Chennai', state: 'Tamil Nadu', outstandingBalance: 0, totalSpent: 8500, category: 'Walk-in' },
+    ];
+    productSpecs = [
+      { name: 'Hair Cut & Styling', type: 'service', sku: 'SAL-SRV-CUT', hsnSac: '999721', sellingPrice: 800, costPrice: 150, gstRate: 18, stock: 999, minStockLevel: 0, unit: 'session' },
+      { name: 'Premium Hair Coloring', type: 'service', sku: 'SAL-SRV-COL', hsnSac: '999721', sellingPrice: 4500, costPrice: 800, gstRate: 18, stock: 999, minStockLevel: 0, unit: 'session' },
+      { name: 'Hydrating Facial', type: 'service', sku: 'SAL-SRV-FAC', hsnSac: '999722', sellingPrice: 1500, costPrice: 300, gstRate: 18, stock: 999, minStockLevel: 0, unit: 'session' },
+      { name: 'Moroccanoil Treatment Cream', type: 'product', sku: 'SAL-PRD-MOR', hsnSac: '330590', sellingPrice: 2800, costPrice: 1800, gstRate: 18, stock: 15, minStockLevel: 5, unit: 'unit' },
+    ];
+  } else if (type === 'restaurant') {
+    customerSpecs = [
+      { name: 'Vikram Seth', contactPerson: 'Vikram Seth', email: 'vikram@gmail.com', phone: '+91 99200 11223', city: 'Mumbai', state: 'Maharashtra', outstandingBalance: 0, totalSpent: 18000, category: 'VIP' },
+      { name: 'Meera Nair', contactPerson: 'Meera Nair', email: 'meera@gmail.com', phone: '+91 99300 44556', city: 'Bengaluru', state: 'Karnataka', outstandingBalance: 450, totalSpent: 9200, category: 'Regular' },
+    ];
+    productSpecs = [
+      { name: 'Paneer Tikka Platter', type: 'product', sku: 'RES-VEG-PT', hsnSac: '210690', sellingPrice: 320, costPrice: 110, gstRate: 5, stock: 500, minStockLevel: 10, unit: 'plate' },
+      { name: 'Butter Chicken Special', type: 'product', sku: 'RES-NVG-BC', hsnSac: '210690', sellingPrice: 450, costPrice: 180, gstRate: 5, stock: 400, minStockLevel: 10, unit: 'plate' },
+      { name: 'Garlic Naan', type: 'product', sku: 'RES-VEG-GN', hsnSac: '190590', sellingPrice: 80, costPrice: 20, gstRate: 5, stock: 1000, minStockLevel: 50, unit: 'piece' },
+      { name: 'Espresso Single', type: 'product', sku: 'RES-BEV-ESP', hsnSac: '210111', sellingPrice: 120, costPrice: 30, gstRate: 5, stock: 800, minStockLevel: 20, unit: 'cup' },
+    ];
+  } else if (type === 'manufacturing') {
+    customerSpecs = [
+      { name: 'TATA Engineering', contactPerson: 'H. R. Tata', email: 'procurement@tataeng.com', phone: '+91 22 66658282', city: 'Pune', state: 'Maharashtra', outstandingBalance: 150000, totalSpent: 1200000, category: 'Corporate' },
+      { name: 'Reliance Industries', contactPerson: 'A. Ambani', email: 'purchasing@ril.com', phone: '+91 22 22785000', city: 'Jamnagar', state: 'Gujarat', outstandingBalance: 0, totalSpent: 950000, category: 'Corporate' },
+    ];
+    productSpecs = [
+      { name: 'Raw Material Steel Sheet (Grade A)', type: 'product', sku: 'MFG-RAW-STEEL', hsnSac: '720810', sellingPrice: 5000, costPrice: 3500, gstRate: 18, stock: 120, minStockLevel: 50, unit: 'ton' },
+      { name: 'Finished Gear Assembly', type: 'product', sku: 'MFG-FIN-GEAR', hsnSac: '848340', sellingPrice: 25000, costPrice: 15000, gstRate: 18, stock: 15, minStockLevel: 5, unit: 'unit' },
+      { name: 'Raw Material Copper Wire (2mm)', type: 'product', sku: 'MFG-RAW-COPPER', hsnSac: '740811', sellingPrice: 8500, costPrice: 6200, gstRate: 18, stock: 8, minStockLevel: 10, unit: 'roll' },
+    ];
+  } else if (type === 'stationery') {
+    customerSpecs = [
+      { name: 'Delhi Public School', contactPerson: 'S. K. Prasad', email: 'store@dps.edu.in', phone: '+91 11 26439871', city: 'Delhi', state: 'Delhi', outstandingBalance: 85000, totalSpent: 450000, category: 'School' },
+      { name: 'Central Book House', contactPerson: 'R. K. Shah', email: 'centralbook@gmail.com', phone: '+91 79 26581122', city: 'Ahmedabad', state: 'Gujarat', outstandingBalance: 0, totalSpent: 180000, category: 'Wholesaler' },
+    ];
+    productSpecs = [
+      { name: 'Deluxe A4 Ruled Notebook (Pack of 6)', type: 'product', sku: 'STA-NOTE-A4', hsnSac: '482010', sellingPrice: 360, costPrice: 210, gstRate: 12, stock: 80, minStockLevel: 200, unit: 'pack' },
+      { name: 'Bulk School Supply Box', type: 'product', sku: 'STA-BOX-SCH', hsnSac: '482020', sellingPrice: 1500, costPrice: 950, gstRate: 12, stock: 50, minStockLevel: 10, unit: 'box' },
+      { name: 'Wholesale Cartridge Paper (Ream)', type: 'product', sku: 'STA-PAP-CART', hsnSac: '480254', sellingPrice: 800, costPrice: 450, gstRate: 12, stock: 120, minStockLevel: 20, unit: 'ream' },
+    ];
+  } else {
+    customerSpecs = [
+      { name: 'Apex Global Solutions', contactPerson: 'Rahul Verma', email: 'rahul@apexglobal.com', phone: '+91 98111 22334', gstin: '27AAACA1234A1Z1', isIgst: true, outstandingBalance: 45000, totalSpent: 380000, category: 'Enterprise', city: 'Mumbai', state: 'Maharashtra' },
+      { name: 'Zenith Digital Media', contactPerson: 'Priya Sharma', email: 'priya@zenithdigital.in', gstin: '29BBBCB5678B1Z2', isIgst: false, outstandingBalance: 0, totalSpent: 195000, category: 'Agency', city: 'Bengaluru', state: 'Karnataka' },
+      { name: 'Nova Retail & Logistics', contactPerson: 'Vikram Malhotra', email: 'accounts@novaretail.co.in', gstin: '36CCCCD9012C1Z3', isIgst: true, outstandingBalance: 112000, totalSpent: 540000, category: 'Retailer', city: 'Hyderabad', state: 'Telangana' },
+    ];
+    productSpecs = [
+      { name: 'SaaS Software Subscription (Annual)', type: 'service', sku: 'BIZ-SAAS-ANN', hsnSac: '998314', sellingPrice: 49999, costPrice: 12000, gstRate: 18, stock: 999, minStockLevel: 10, unit: 'license' },
+      { name: 'AI Automation Consulting', type: 'service', sku: 'BIZ-CONS-AI', hsnSac: '998313', sellingPrice: 75000, costPrice: 25000, gstRate: 18, stock: 100, minStockLevel: 5, unit: 'project' },
+      { name: 'POS Smart Terminal X1', type: 'product', sku: 'BIZ-HW-POS1', hsnSac: '847130', sellingPrice: 16500, costPrice: 11000, gstRate: 18, stock: 14, minStockLevel: 15, unit: 'unit' },
+      { name: 'Thermal Receipt Roll (Box of 50)', type: 'product', sku: 'BIZ-ACC-ROLL50', hsnSac: '481190', sellingPrice: 1250, costPrice: 750, gstRate: 12, stock: 4, minStockLevel: 10, unit: 'box' },
+    ];
+  }
 
-  await Expense.insertMany([
-    { businessId: business._id, title: 'AWS & Cloud Server Hosting', category: 'Office & Tech', amount: 24500, date: '2026-07-05', paymentMode: 'Corporate Card', vendor: 'Amazon Web Services', gstClaimable: true, gstAmount: 3737, status: 'paid' },
-    { businessId: business._id, title: 'Koramangala Office Rent', category: 'Rent', amount: 65000, date: '2026-07-01', paymentMode: 'Bank Transfer', vendor: 'Innovate Park Developers', gstClaimable: true, gstAmount: 9915, status: 'paid' },
-    { businessId: business._id, title: 'Google Workspace & Software Tools', category: 'Office & Tech', amount: 12800, date: '2026-07-10', paymentMode: 'Corporate Card', vendor: 'Google India', gstClaimable: true, gstAmount: 1952, status: 'paid' },
-    { businessId: business._id, title: 'Team Performance Bonus & Stipends', category: 'Salary', amount: 145000, date: '2026-07-31', paymentMode: 'Bank Transfer', vendor: 'Internal Payroll', gstClaimable: false, gstAmount: 0, status: 'paid' },
-    { businessId: business._id, title: 'Digital Marketing & LinkedIn Ads', category: 'Marketing', amount: 32000, date: '2026-07-22', paymentMode: 'Corporate Card', vendor: 'LinkedIn Ireland', gstClaimable: true, gstAmount: 4881, status: 'paid' },
-  ]);
+  const customers = await Customer.insertMany(customerSpecs.map(c => ({
+    businessId: business._id,
+    isIgst: c.isIgst ?? (c.state !== (business.address?.state || 'Karnataka')),
+    status: 'active',
+    ...c
+  })));
+
+  const products = await Product.insertMany(productSpecs.map(p => ({
+    businessId: business._id,
+    ...p
+  })));
+
+  if (type === 'salon') {
+    invoiceSpecs = [
+      {
+        invoiceNumber: 'INV-SAL-001',
+        customerId: customers[0]._id,
+        customerName: customers[0].name,
+        customerGstin: customers[0].gstin || '',
+        issueDate: '2026-08-01',
+        dueDate: '2026-08-01',
+        items: [{ description: products[0].name, hsnSac: products[0].hsnSac, quantity: 1, rate: products[0].sellingPrice, gstRate: products[0].gstRate, amount: products[0].sellingPrice, taxAmount: products[0].sellingPrice * 0.18 }],
+        subtotal: products[0].sellingPrice,
+        taxableAmount: products[0].sellingPrice,
+        cgst: products[0].sellingPrice * 0.09,
+        sgst: products[0].sellingPrice * 0.09,
+        totalTax: products[0].sellingPrice * 0.18,
+        grandTotal: products[0].sellingPrice * 1.18,
+        status: 'paid',
+        paidAmount: products[0].sellingPrice * 1.18,
+        paymentMethod: 'UPI / Card',
+      },
+      {
+        invoiceNumber: 'INV-SAL-002',
+        customerId: customers[1]._id,
+        customerName: customers[1].name,
+        customerGstin: customers[1].gstin || '',
+        issueDate: '2026-08-05',
+        dueDate: '2026-08-15',
+        items: [{ description: products[1].name, hsnSac: products[1].hsnSac, quantity: 1, rate: products[1].sellingPrice, gstRate: products[1].gstRate, amount: products[1].sellingPrice, taxAmount: products[1].sellingPrice * 0.18 }],
+        subtotal: products[1].sellingPrice,
+        taxableAmount: products[1].sellingPrice,
+        cgst: products[1].sellingPrice * 0.09,
+        sgst: products[1].sellingPrice * 0.09,
+        totalTax: products[1].sellingPrice * 0.18,
+        grandTotal: products[1].sellingPrice * 1.18,
+        status: 'pending',
+        paidAmount: 0,
+      }
+    ];
+    expenseSpecs = [
+      { title: 'Stylist Commission & Staff Payroll', category: 'Salary', amount: 48000, date: '2026-08-01', paymentMode: 'Bank Transfer', vendor: 'Internal Staff', gstClaimable: false, status: 'paid' },
+      { title: 'L\'Oreal & Matrix Hair Care Products', category: 'Inventory', amount: 15000, date: '2026-08-03', paymentMode: 'Corporate Card', vendor: 'L\'Oreal India', gstClaimable: true, gstAmount: 2288, status: 'paid' },
+    ];
+  } else if (type === 'restaurant') {
+    invoiceSpecs = [
+      {
+        invoiceNumber: 'INV-RES-001',
+        customerId: customers[0]._id,
+        customerName: customers[0].name,
+        customerGstin: customers[0].gstin || '',
+        issueDate: '2026-08-08',
+        dueDate: '2026-08-08',
+        items: [
+          { description: products[0].name, hsnSac: products[0].hsnSac, quantity: 2, rate: products[0].sellingPrice, gstRate: products[0].gstRate, amount: products[0].sellingPrice * 2, taxAmount: products[0].sellingPrice * 2 * 0.05 },
+          { description: products[2].name, hsnSac: products[2].hsnSac, quantity: 3, rate: products[2].sellingPrice, gstRate: products[2].gstRate, amount: products[2].sellingPrice * 3, taxAmount: products[2].sellingPrice * 3 * 0.05 },
+        ],
+        subtotal: products[0].sellingPrice * 2 + products[2].sellingPrice * 3,
+        taxableAmount: products[0].sellingPrice * 2 + products[2].sellingPrice * 3,
+        cgst: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 0.025,
+        sgst: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 0.025,
+        totalTax: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 0.05,
+        grandTotal: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 1.05,
+        status: 'paid',
+        paidAmount: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 1.05,
+        paymentMethod: 'Razorpay / QR Code',
+      }
+    ];
+    expenseSpecs = [
+      { title: 'Fresh Dairy & Vegetable Supplies', category: 'Inventory', amount: 12500, date: '2026-08-07', paymentMode: 'Cash', vendor: 'Local Veg Market', gstClaimable: false, status: 'paid' },
+      { title: 'Gas Cylinder Refills', category: 'Rent & Utilities', amount: 6200, date: '2026-08-04', paymentMode: 'UPI', vendor: 'Indane Gas', gstClaimable: true, gstAmount: 310, status: 'paid' },
+    ];
+  } else if (type === 'manufacturing') {
+    invoiceSpecs = [
+      {
+        invoiceNumber: 'INV-MFG-001',
+        customerId: customers[0]._id,
+        customerName: customers[0].name,
+        customerGstin: customers[0].gstin || '',
+        issueDate: '2026-08-02',
+        dueDate: '2026-09-02',
+        items: [{ description: products[1].name, hsnSac: products[1].hsnSac, quantity: 5, rate: products[1].sellingPrice, gstRate: products[1].gstRate, amount: products[1].sellingPrice * 5, taxAmount: products[1].sellingPrice * 5 * 0.18 }],
+        subtotal: products[1].sellingPrice * 5,
+        taxableAmount: products[1].sellingPrice * 5,
+        cgst: products[1].sellingPrice * 5 * 0.09,
+        sgst: products[1].sellingPrice * 5 * 0.09,
+        totalTax: products[1].sellingPrice * 5 * 0.18,
+        grandTotal: products[1].sellingPrice * 5 * 1.18,
+        status: 'pending',
+        paidAmount: 0,
+      }
+    ];
+    expenseSpecs = [
+      { title: 'Machine Lubricants & Maintenance', category: 'Repairs', amount: 18000, date: '2026-08-02', paymentMode: 'Corporate Card', vendor: 'Lubricio Corp', gstClaimable: true, gstAmount: 2745, status: 'paid' },
+      { title: 'Steel Sheet Metal Raw Supply', category: 'Inventory', amount: 120000, date: '2026-08-04', paymentMode: 'Bank Transfer', vendor: 'Jindal Steel', gstClaimable: true, gstAmount: 18305, status: 'paid' },
+    ];
+  } else if (type === 'stationery') {
+    invoiceSpecs = [
+      {
+        invoiceNumber: 'INV-STA-001',
+        customerId: customers[0]._id,
+        customerName: customers[0].name,
+        customerGstin: customers[0].gstin || '',
+        issueDate: '2026-08-04',
+        dueDate: '2026-08-24',
+        items: [{ description: products[1].name, hsnSac: products[1].hsnSac, quantity: 40, rate: products[1].sellingPrice, gstRate: products[1].gstRate, amount: products[1].sellingPrice * 40, taxAmount: products[1].sellingPrice * 40 * 0.12 }],
+        subtotal: products[1].sellingPrice * 40,
+        taxableAmount: products[1].sellingPrice * 40,
+        cgst: products[1].sellingPrice * 40 * 0.06,
+        sgst: products[1].sellingPrice * 40 * 0.06,
+        totalTax: products[1].sellingPrice * 40 * 0.12,
+        grandTotal: products[1].sellingPrice * 40 * 1.12,
+        status: 'pending',
+        paidAmount: 0,
+      }
+    ];
+    expenseSpecs = [
+      { title: 'Bulk Paper Reams & Envelopes', category: 'Inventory', amount: 35000, date: '2026-08-03', paymentMode: 'Bank Transfer', vendor: 'Century Paper', gstClaimable: true, gstAmount: 3750, status: 'paid' },
+    ];
+  } else {
+    invoiceSpecs = [
+      {
+        invoiceNumber: 'INV-2026-001',
+        customerId: customers[0]._id,
+        customerName: customers[0].name,
+        customerGstin: customers[0].gstin || '',
+        issueDate: '2026-07-15',
+        dueDate: '2026-08-14',
+        items: [{ description: products[0].name, hsnSac: products[0].hsnSac, quantity: 2, rate: products[0].sellingPrice, gstRate: products[0].gstRate, amount: products[0].sellingPrice * 2, taxAmount: products[0].sellingPrice * 2 * 0.18 }],
+        subtotal: products[0].sellingPrice * 2,
+        discount: 5000,
+        taxableAmount: products[0].sellingPrice * 2 - 5000,
+        cgst: (products[0].sellingPrice * 2 - 5000) * 0.09,
+        sgst: (products[0].sellingPrice * 2 - 5000) * 0.09,
+        totalTax: (products[0].sellingPrice * 2 - 5000) * 0.18,
+        grandTotal: (products[0].sellingPrice * 2 - 5000) * 1.18,
+        status: 'paid',
+        paidAmount: (products[0].sellingPrice * 2 - 5000) * 1.18,
+        paymentMethod: 'Razorpay / UPI',
+      }
+    ];
+    expenseSpecs = [
+      { title: 'AWS & Cloud Server Hosting', category: 'Office & Tech', amount: 24500, date: '2026-07-05', paymentMode: 'Corporate Card', vendor: 'Amazon Web Services', gstClaimable: true, gstAmount: 3737, status: 'paid' },
+    ];
+  }
+
+  await Invoice.insertMany(invoiceSpecs.map(i => ({
+    businessId: business._id,
+    ...i
+  })));
+
+  await Expense.insertMany(expenseSpecs.map(e => ({
+    businessId: business._id,
+    ...e
+  })));
 
   await Notification.create({
     businessId: business._id,
     userId: user._id,
     title: 'Welcome to Biizora',
-    message: 'Your single-business workspace is ready with sample invoices, customers, and dashboard metrics.',
+    message: `Your single-business workspace is ready with sample ${type} products, invoices, and metrics.`,
     type: 'system',
   });
 }
+

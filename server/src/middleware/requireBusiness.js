@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Membership } from '../models/Membership.js';
 import { Business } from '../models/Business.js';
 import { hasPermission, hasPermissionString } from '../services/permissionDefaults.js';
@@ -12,9 +13,13 @@ import { getModule } from '../config/modules/index.js';
  */
 export async function requireBusiness(req, res, next) {
   try {
-    const businessId = req.headers['x-business-id'] || req.params.businessId || req.query.businessId;
+    let businessId = req.headers['x-business-id'] || req.params.businessId || req.query.businessId;
+    if (businessId === 'undefined' || businessId === 'null' || businessId === '') {
+      businessId = null;
+    }
+
     let membership;
-    if (businessId) {
+    if (businessId && mongoose.Types.ObjectId.isValid(businessId)) {
       membership = await Membership.findOne({
         userId: req.userId,
         businessId,
