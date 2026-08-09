@@ -1,0 +1,17 @@
+export const salonModules = [
+  { id: 'appointments', title: 'Appointments', icon: 'Calendar', route: '/app/appointments', permission: 'customers.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Book and manage appointments', category: 'salon' },
+  { id: 'staff-schedule', title: 'Staff Schedule', icon: 'CalendarClock', route: '/app/staff-schedule', permission: 'members.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Stylist schedules', category: 'salon' },
+  { id: 'services', title: 'Services', icon: 'Scissors', route: '/app/services', permission: 'products.read', businessTypes: ['salon'], requiredPlan: 'starter', description: 'Service catalogue', category: 'salon' },
+  { id: 'packages', title: 'Packages', icon: 'Gift', route: '/app/packages', permission: 'products.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Service packages', category: 'salon' },
+  { id: 'memberships', title: 'Memberships', icon: 'BadgeCheck', route: '/app/memberships', permission: 'customers.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Client memberships', category: 'salon' },
+  { id: 'loyalty', title: 'Loyalty', icon: 'Heart', route: '/app/loyalty', permission: 'customers.read', businessTypes: ['salon', 'retail'], requiredPlan: 'growth', description: 'Loyalty points and rewards', category: 'engagement' },
+  { id: 'customer-history', title: 'Customer History', icon: 'History', route: '/app/customer-history', permission: 'customers.read', businessTypes: ['salon'], requiredPlan: 'starter', description: 'Visit and service history', category: 'salon' },
+  { id: 'walk-ins', title: 'Walk-ins', icon: 'Footprints', route: '/app/walk-ins', permission: 'customers.write', businessTypes: ['salon'], requiredPlan: 'starter', description: 'Walk-in clients', category: 'salon' },
+  { id: 'queue', title: 'Queue', icon: 'ListOrdered', route: '/app/queue', permission: 'customers.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Live client queue', category: 'salon' },
+  { id: 'stylist-dashboard', title: 'Stylist Dashboard', icon: 'LayoutDashboard', route: '/app/stylist', permission: 'reports.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Per-stylist overview', category: 'salon' },
+  { id: 'commission', title: 'Commission', icon: 'Percent', route: '/app/commission', permission: 'reports.read', businessTypes: ['salon'], requiredPlan: 'professional', description: 'Staff commission tracking', category: 'salon' },
+  { id: 'product-inventory', title: 'Product Inventory', icon: 'Package', route: '/app/product-inventory', permission: 'products.read', businessTypes: ['salon'], requiredPlan: 'starter', description: 'Retail product stock', category: 'salon' },
+  { id: 'before-after-photos', title: 'Before After Photos', icon: 'Images', route: '/app/before-after', permission: 'customers.write', businessTypes: ['salon'], requiredPlan: 'professional', description: 'Client photo gallery', category: 'salon' },
+  { id: 'revenue-analytics', title: 'Revenue Analytics', icon: 'PieChart', route: '/app/revenue-analytics', permission: 'reports.read', businessTypes: ['salon'], requiredPlan: 'growth', description: 'Salon revenue insights', category: 'salon' },
+  { id: 'ai-hair-recommendation', title: 'AI Hair Recommendation', icon: 'Sparkles', route: '/app/ai-hair', permission: 'customers.read', businessTypes: ['salon'], requiredPlan: 'starter', description: 'AI face shape & haircut recommendations', category: 'salon' },
+];

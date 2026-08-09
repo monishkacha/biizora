@@ -8,6 +8,7 @@ import dotenv from 'dotenv';
 
 import { connectDB } from './config/db.js';
 import { ensureDemoSeed } from './scripts/ensureDemoSeed.js';
+import { ensureTenantDefaults } from './scripts/ensureTenantDefaults.js';
 import { ensureSupportAgents } from './services/supportCenter.js';
 import { closeStaleResolvedFeedback } from './services/feedbackService.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -25,6 +26,8 @@ import activityRoutes from './routes/activity.js';
 import feedbackRoutes from './routes/feedback.js';
 import supportRoutes from './routes/support.js';
 import migrationRoutes from './routes/migration.js';
+import adminRoutes from './routes/admin.js';
+import modulesRoutes from './routes/modules.js';
 
 dotenv.config();
 
@@ -74,11 +77,14 @@ app.use('/api/activity', activityRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/migration', migrationRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/modules', modulesRoutes);
 
 app.use(errorHandler);
 
 async function start() {
   await connectDB();
+  await ensureTenantDefaults();
   await ensureDemoSeed();
   await ensureSupportAgents();
 

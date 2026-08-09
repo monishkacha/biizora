@@ -1,0 +1,11 @@
+export const manufacturingModules = [
+  { id: 'raw-materials', title: 'Raw Materials', icon: 'Boxes', route: '/app/raw-materials', permission: 'products.read', businessTypes: ['manufacturing'], requiredPlan: 'growth', description: 'Raw material inventory', category: 'manufacturing' },
+  { id: 'production-orders', title: 'Production Orders', icon: 'Factory', route: '/app/production-orders', permission: 'products.write', businessTypes: ['manufacturing'], requiredPlan: 'growth', description: 'Production order management', category: 'manufacturing' },
+  { id: 'bill-of-materials', title: 'Bill Of Materials', icon: 'ListTree', route: '/app/bom', permission: 'products.read', businessTypes: ['manufacturing'], requiredPlan: 'professional', description: 'BOM definitions', category: 'manufacturing' },
+  { id: 'machines', title: 'Machines', icon: 'Cog', route: '/app/machines', permission: 'products.read', businessTypes: ['manufacturing'], requiredPlan: 'professional', description: 'Machine registry', category: 'manufacturing' },
+  { id: 'maintenance', title: 'Maintenance', icon: 'Wrench', route: '/app/maintenance', permission: 'products.write', businessTypes: ['manufacturing'], requiredPlan: 'professional', description: 'Machine maintenance', category: 'manufacturing' },
+  { id: 'warehouse', title: 'Warehouse', icon: 'Warehouse', route: '/app/warehouse', permission: 'products.read', businessTypes: ['manufacturing'], requiredPlan: 'growth', description: 'Warehouse locations', category: 'manufacturing' },
+  { id: 'qc', title: 'QC', icon: 'ShieldCheck', route: '/app/qc', permission: 'products.write', businessTypes: ['manufacturing'], requiredPlan: 'professional', description: 'Quality control', category: 'manufacturing' },
+  { id: 'finished-goods', title: 'Finished Goods', icon: 'PackageCheck', route: '/app/finished-goods', permission: 'products.read', businessTypes: ['manufacturing'], requiredPlan: 'growth', description: 'Finished goods stock', category: 'manufacturing' },
+  { id: 'production-reports', title: 'Production Reports', icon: 'FileBarChart', route: '/app/production-reports', permission: 'reports.read', businessTypes: ['manufacturing'], requiredPlan: 'growth', description: 'Production reporting', category: 'manufacturing' },
+];

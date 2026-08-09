@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { businessApi, setActiveBusinessId } from '../api/client';
+import { businessApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useBusiness } from '../context/BusinessContext';
 import { Button } from '../components/ui/Button';
@@ -12,7 +12,7 @@ const steps = ['Business', 'Tax & Address', 'Branding'];
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const { activeBusinessId, refreshBusinesses, switchWorkspace } = useAuth();
+  const { activeBusinessId, refreshBusiness } = useAuth();
   const { company, showToast, reload } = useBusiness();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -42,29 +42,12 @@ export default function OnboardingPage() {
     setLoading(true);
     try {
       await businessApi.onboarding(activeBusinessId, form);
-      await refreshBusinesses();
+      await refreshBusiness();
       await reload();
-      showToast('Welcome to Biizora! Your workspace is ready.');
+      showToast('Welcome to Biizora! Your business is ready.');
       navigate('/app');
     } catch (err) {
       showToast(err.message || 'Onboarding failed', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createAnother = async () => {
-    setLoading(true);
-    try {
-      const data = await businessApi.create({ name: form.name || 'New Business', industry: form.industry });
-      setActiveBusinessId(data.business.id);
-      switchWorkspace(data.business.id);
-      await businessApi.onboarding(data.business.id, { ...form, name: form.name || data.business.name });
-      await refreshBusinesses();
-      showToast('Business created!');
-      navigate('/app');
-    } catch (err) {
-      showToast(err.message || 'Failed to create business', 'error');
     } finally {
       setLoading(false);
     }

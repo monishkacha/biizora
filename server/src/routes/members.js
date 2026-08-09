@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/membersController.js';
 import { authenticate } from '../middleware/auth.js';
-import { requireBusiness, requirePermission } from '../middleware/requireBusiness.js';
+import { requireBusiness, requirePermission, requireActiveSubscription } from '../middleware/requireBusiness.js';
 
 const router = Router();
 
-router.use(authenticate, requireBusiness);
+router.use(authenticate, requireBusiness, requireActiveSubscription);
 
 router.get('/', requirePermission('members', 'read'), ctrl.listMembers);
 router.post('/invite', requirePermission('members', 'write'), ctrl.inviteMember);

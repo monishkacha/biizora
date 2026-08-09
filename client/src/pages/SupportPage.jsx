@@ -71,8 +71,7 @@ export default function SupportPage() {
           </h1>
 
           <p className="text-white/80 text-base sm:text-lg leading-relaxed max-w-2xl font-light">
-            Need immediate help setting up GST, solving an invoice discrepancy, or configuring your workspace?
-            Our support engineers can assist you directly over WhatsApp, Call, or connect remotely via AnyDesk.
+              Need immediate help setting up GST, solving an invoice discrepancy, or configuring your business?
           </p>
 
           <div className="pt-2 flex flex-wrap items-center gap-6 text-xs text-white/70">
@@ -465,6 +464,31 @@ export default function SupportPage() {
     </div>
   );
 
+  const publicContent = (
+    <div className="space-y-10 pb-16 max-w-2xl mx-auto text-center">
+      <div className="rounded-[28px] bg-gradient-to-br from-[#1F2A26] via-[#2F5D50] to-[#1F2A26] text-white p-10 shadow-elev">
+        <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">Business Enquiries</h1>
+        <p className="mt-3 text-white/80 text-sm sm:text-base leading-relaxed font-light">
+          For subscriptions, partnerships, and product questions, email our team. Live phone and remote support are
+          available after you sign in to your Biizora account.
+        </p>
+        <a
+          href="mailto:biizora@gmail.com"
+          className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-butter text-charcoal font-semibold text-sm hover:bg-yellow-honey"
+        >
+          biizora@gmail.com
+        </a>
+      </div>
+      <p className="text-sm text-warm-gray">
+        Already a customer?{' '}
+        <a href="/login" className="text-green-bottle font-medium hover:underline">
+          Sign in
+        </a>{' '}
+        to open the Support center.
+      </p>
+    </div>
+  );
+
   if (isWorkspace) {
     return content;
   }
@@ -474,7 +498,7 @@ export default function SupportPage() {
       <SupportTopBar />
       <Navbar />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-        {content}
+        {publicContent}
       </main>
       <Footer />
     </div>

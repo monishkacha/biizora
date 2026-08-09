@@ -8,8 +8,11 @@ import FloatingAIChat from '../components/FloatingAIChat';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '../components/ui/Badge';
 
+const MEMBERSHIP_PATHS = ['/app/membership', '/app/pending', '/app/billing'];
+
 export default function AppLayout() {
-  const { user, loading, activeWorkspace } = useAuth();
+  const { user, loading, business, activeWorkspace } = useAuth();
+  const biz = business || activeWorkspace;
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -36,12 +39,18 @@ export default function AppLayout() {
     return <Navigate to="/login" replace />;
   }
 
-  if (
-    activeWorkspace &&
-    activeWorkspace.onboardingCompleted === false &&
-    location.pathname !== '/app/onboarding'
-  ) {
-    return <Navigate to="/app/onboarding" replace />;
+  const isDemo = Boolean(biz?.isDemoAccount || user?.isDemoAccount);
+  const subStatus = biz?.subscriptionStatus;
+  const isActive = isDemo || subStatus === 'Active';
+  const onMembershipRoute = MEMBERSHIP_PATHS.some((p) => location.pathname.startsWith(p));
+
+  // Inactive subscription → Membership page only (no dashboard)
+  if (biz && !isActive && !onMembershipRoute && location.pathname !== '/app/support') {
+    return <Navigate to="/app/membership" replace />;
+  }
+
+  if (location.pathname === '/app/pending') {
+    return <Navigate to="/app/membership" replace />;
   }
 
   return (
@@ -62,15 +71,23 @@ export default function AppLayout() {
         setMobileOpen={setMobileOpen}
       />
 
-      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-[220ms] ${collapsed ? 'lg:ml-20' : 'lg:ml-64'}`}>
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-[220ms] ${
+          collapsed ? 'lg:ml-20' : 'lg:ml-64'
+        }`}
+      >
         <Header setMobileOpen={setMobileOpen} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
       </div>
 
-      <CommandPalette />
-      <FloatingAIChat />
+      {isActive && (
+        <>
+          <CommandPalette />
+          <FloatingAIChat />
+        </>
+      )}
       <Toast />
     </div>
   );

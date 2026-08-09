@@ -192,3 +192,27 @@ export const migrationApi = {
   createBackup: () => api('/migration/backup', { method: 'POST' }),
 };
 
+export const modulesApi = {
+  catalogue: () => api('/modules/catalogue'),
+  me: () => api('/modules/me'),
+};
+
+export const adminApi = {
+  config: () => api('/admin/config'),
+  tenants: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return api(`/admin/tenants${qs ? `?${qs}` : ''}`);
+  },
+  tenant: (id) => api(`/admin/tenants/${id}`),
+  activate: (id, body = {}) => api(`/admin/tenants/${id}/activate`, { method: 'POST', body }),
+  suspend: (id, body = {}) => api(`/admin/tenants/${id}/suspend`, { method: 'POST', body }),
+  setStatus: (id, status) => api(`/admin/tenants/${id}/status`, { method: 'PATCH', body: { status } }),
+  assignPlan: (id, plan) => api(`/admin/tenants/${id}/plan`, { method: 'PATCH', body: { plan } }),
+  setModules: (id, enabledModules) =>
+    api(`/admin/tenants/${id}/modules`, { method: 'PATCH', body: { enabledModules } }),
+  setFeatures: (id, customFeatures) =>
+    api(`/admin/tenants/${id}/features`, { method: 'PATCH', body: { customFeatures } }),
+  reset: (id) => api(`/admin/tenants/${id}/reset`, { method: 'POST' }),
+  analytics: () => api('/admin/analytics'),
+};
+

@@ -5,11 +5,19 @@ import { authApi, setAccessToken, setActiveBusinessId } from '../api/client';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
+const BUSINESS_TYPES = [
+  { value: 'salon', label: 'Salon' },
+  { value: 'restaurant', label: 'Restaurant / Cafe' },
+  { value: 'retail', label: 'Retail' },
+  { value: 'manufacturing', label: 'Manufacturing' },
+  { value: 'stationery', label: 'Stationery' },
+];
+
 export default function RegisterPage() {
-  const [fullName, setFullName] = useState('');
+  const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [businessType, setBusinessType] = useState('retail');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -24,14 +32,26 @@ export default function RegisterPage() {
     setError('');
     try {
       if (inviteToken) {
-        const data = await authApi.acceptInvite({ token: inviteToken, name: fullName, password });
+        const data = await authApi.acceptInvite({
+          token: inviteToken,
+          name: ownerName,
+          password,
+        });
         setAccessToken(data.accessToken);
         if (data.activeBusinessId) setActiveBusinessId(data.activeBusinessId);
         window.location.href = '/app';
         return;
       }
-      await register({ fullName, email, companyName, phone, password });
-      navigate('/app/onboarding');
+      await register({
+        ownerName,
+        fullName: ownerName,
+        email,
+        businessName,
+        companyName: businessName,
+        businessType,
+        password,
+      });
+      navigate('/app/membership');
     } catch (err) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -53,41 +73,82 @@ export default function RegisterPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-display font-semibold tracking-tight">
-              {inviteToken ? 'Join your team' : 'Create your workspace'}
+              {inviteToken ? 'Join your team' : 'Create your business'}
             </h1>
-            <p className="mt-1.5 text-sm text-warm-gray">Smarter Invoicing. Better Cash Flow. Powered by AI.</p>
+            <p className="mt-1.5 text-sm text-warm-gray">
+              One account · One business · Built for your industry
+            </p>
           </div>
         </div>
 
         <div className="bz-card p-7 sm:p-8 space-y-4">
           {error ? (
-            <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">{error}</p>
+            <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">
+              {error}
+            </p>
           ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="block space-y-1.5">
-              <span className="text-xs font-medium text-warm-gray">Full name</span>
-              <input required value={fullName} onChange={(e) => setFullName(e.target.value)} className="bz-input" placeholder="Adrian Hale" />
+              <span className="text-xs font-medium text-warm-gray">Owner name</span>
+              <input
+                required
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                className="bz-input"
+                placeholder="John Smith"
+              />
             </label>
             {!inviteToken ? (
               <>
                 <label className="block space-y-1.5">
-                  <span className="text-xs font-medium text-warm-gray">Business email</span>
-                  <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="bz-input" placeholder="adrian.hale@company.com" />
+                  <span className="text-xs font-medium text-warm-gray">Business name</span>
+                  <input
+                    required
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    className="bz-input"
+                    placeholder="John's Salon"
+                  />
                 </label>
                 <label className="block space-y-1.5">
-                  <span className="text-xs font-medium text-warm-gray">Company name</span>
-                  <input required value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="bz-input" placeholder="Hale & Co." />
+                  <span className="text-xs font-medium text-warm-gray">Email</span>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="bz-input"
+                    placeholder="john@gmail.com"
+                  />
                 </label>
                 <label className="block space-y-1.5">
-                  <span className="text-xs font-medium text-warm-gray">Phone</span>
-                  <input required value={phone} onChange={(e) => setPhone(e.target.value)} className="bz-input" placeholder="+91 98765 43210" />
+                  <span className="text-xs font-medium text-warm-gray">Business type</span>
+                  <select
+                    required
+                    value={businessType}
+                    onChange={(e) => setBusinessType(e.target.value)}
+                    className="bz-input"
+                  >
+                    {BUSINESS_TYPES.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </>
             ) : null}
             <label className="block space-y-1.5">
               <span className="text-xs font-medium text-warm-gray">Password</span>
-              <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} className="bz-input" />
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bz-input"
+              />
             </label>
             <Button type="submit" variant="accent" loading={loading} className="w-full" size="lg">
               {inviteToken ? 'Accept invite' : 'Create account'} <ArrowRight className="w-4 h-4" />
@@ -97,7 +158,9 @@ export default function RegisterPage() {
 
         <p className="text-center text-sm text-warm-gray">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-green-bottle hover:underline">Sign in</Link>
+          <Link to="/login" className="font-semibold text-green-bottle hover:underline">
+            Sign in
+          </Link>
         </p>
       </div>
     </div>

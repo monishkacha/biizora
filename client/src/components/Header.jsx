@@ -36,7 +36,8 @@ function timeAgo(date) {
 }
 
 export default function Header({ setMobileOpen }) {
-  const { user, logout } = useAuth();
+  const { user, logout, business, activeWorkspace } = useAuth();
+  const biz = business || activeWorkspace;
   const { metrics, company } = useBusiness();
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const { openPalette } = useCommandPalette();
@@ -74,6 +75,13 @@ export default function Header({ setMobileOpen }) {
             <Command className="w-3 h-3" /> K
           </kbd>
         </button>
+
+        {(biz?.isDemoAccount || user?.isDemoAccount) && (
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-900 rounded-[14px] text-xs font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
+            Demo Workspace
+          </div>
+        )}
 
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-yellow-champagne/60 border border-yellow-butter/40 rounded-[14px]">
           <Sparkles className="w-3.5 h-3.5 text-green-bottle" strokeWidth={1.75} />

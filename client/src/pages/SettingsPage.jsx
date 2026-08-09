@@ -128,7 +128,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Settings"
-        description="Organization, profile, and workspace preferences."
+        description="Organization, profile, and business preferences."
       />
 
       <Tabs

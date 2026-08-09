@@ -1,0 +1,292 @@
+/**
+ * Industry / business-type templates.
+ * Add a new industry by creating one config entry (and optional module file).
+ */
+
+export const BUSINESS_TYPES = {
+  salon: {
+    id: 'salon',
+    title: 'Salon',
+    description: 'Beauty salons, spas, and stylist studios.',
+    defaultModules: [
+      'dashboard',
+      'invoices',
+      'inventory',
+      'customers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'appointments',
+      'memberships',
+      'services',
+      'products',
+      'stylist-dashboard',
+      'revenue-analytics',
+      'expenses',
+      'team',
+      'billing',
+      'membership',
+      'support',
+    ],
+    dashboardWidgets: [
+      'appointments_today',
+      'walk_ins',
+      'staff_utilization',
+      'revenue_today',
+      'loyalty_members',
+    ],
+  },
+  restaurant: {
+    id: 'restaurant',
+    title: 'Restaurant',
+    description: 'Full-service restaurants and fine dining.',
+    defaultModules: [
+      'dashboard',
+      'invoices',
+      'inventory',
+      'customers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'tables',
+      'orders',
+      'kitchen-display',
+      'reservations',
+      'menu',
+      'expenses',
+      'team',
+      'billing',
+      'membership',
+      'support',
+    ],
+    dashboardWidgets: [
+      'open_orders',
+      'kitchen_queue',
+      'table_occupancy',
+      'revenue_today',
+      'peak_hours',
+    ],
+  },
+  cafe: {
+    id: 'cafe',
+    title: 'Cafe',
+    description: 'Cafes, coffee shops, and quick-service outlets.',
+    defaultModules: [
+      'dashboard',
+      'invoices',
+      'inventory',
+      'customers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'tables',
+      'orders',
+      'kitchen-display',
+      'reservations',
+      'menu',
+      'expenses',
+      'team',
+      'billing',
+      'membership',
+      'support',
+    ],
+    dashboardWidgets: [
+      'open_orders',
+      'takeaway_queue',
+      'revenue_today',
+      'top_items',
+      'peak_hours',
+    ],
+  },
+  retail: {
+    id: 'retail',
+    title: 'Retail',
+    description: 'Retail stores, boutiques, and general merchandise.',
+    defaultModules: [
+      'dashboard',
+      'sales',
+      'invoices',
+      'inventory',
+      'customers',
+      'suppliers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'products',
+      'barcode',
+      'expenses',
+      'team',
+      'billing',
+      'membership',
+      'support',
+      'ai-suite',
+      'migration',
+      'payments',
+    ],
+    dashboardWidgets: [
+      'sales_today',
+      'stock_alerts',
+      'top_products',
+      'returns',
+      'pos_sessions',
+    ],
+  },
+  manufacturing: {
+    id: 'manufacturing',
+    title: 'Manufacturing',
+    description: 'Production units, workshops, and factories.',
+    defaultModules: [
+      'dashboard',
+      'invoices',
+      'inventory',
+      'customers',
+      'suppliers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'production-orders',
+      'machines',
+      'warehouse',
+      'raw-materials',
+      'qc',
+      'expenses',
+      'team',
+      'billing',
+      'membership',
+      'support',
+    ],
+    dashboardWidgets: [
+      'open_production',
+      'machine_status',
+      'qc_failures',
+      'raw_material_alerts',
+      'finished_goods',
+    ],
+  },
+  stationery: {
+    id: 'stationery',
+    title: 'Stationery',
+    description: 'Stationery shops, wholesale, and school supply.',
+    defaultModules: [
+      'dashboard',
+      'invoices',
+      'inventory',
+      'customers',
+      'suppliers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'wholesale',
+      'school-orders',
+      'retail-billing',
+      'expenses',
+      'team',
+      'billing',
+      'membership',
+      'support',
+    ],
+    dashboardWidgets: [
+      'sales_today',
+      'school_orders',
+      'wholesale_pipeline',
+      'stock_alerts',
+      'gst_summary',
+    ],
+  },
+  general: {
+    id: 'general',
+    title: 'General Business',
+    description: 'Default template for any business type.',
+    defaultModules: [
+      'dashboard',
+      'sales',
+      'invoices',
+      'inventory',
+      'customers',
+      'suppliers',
+      'employees',
+      'reports',
+      'analytics',
+      'notifications',
+      'profile',
+      'settings',
+      'search',
+      'activity',
+      'expenses',
+      'products',
+      'team',
+      'billing',
+      'membership',
+      'ai-suite',
+      'migration',
+      'payments',
+      'support',
+    ],
+    dashboardWidgets: [
+      'revenue_today',
+      'invoices_due',
+      'customers',
+      'expenses',
+      'activity',
+    ],
+  },
+};
+
+export function getBusinessType(typeId) {
+  const key = String(typeId || 'general').toLowerCase();
+  return BUSINESS_TYPES[key] || BUSINESS_TYPES.general;
+}
+
+export function resolveDefaultModules(businessType) {
+  return [...(getBusinessType(businessType).defaultModules || [])];
+}
+
+export function resolveDashboardWidgets(businessType) {
+  return [...(getBusinessType(businessType).dashboardWidgets || [])];
+}
+
+/** Map legacy free-text industry strings to typed templates */
+export function normalizeBusinessType(industryOrType) {
+  const raw = String(industryOrType || '').toLowerCase().trim();
+  if (!raw) return 'general';
+  if (BUSINESS_TYPES[raw]) return raw;
+  if (raw.includes('salon') || raw.includes('spa') || raw.includes('beauty')) return 'salon';
+  if (raw.includes('restaurant') || raw.includes('dining')) return 'restaurant';
+  if (raw.includes('cafe') || raw.includes('coffee')) return 'cafe';
+  if (raw.includes('retail') || raw.includes('shop') || raw.includes('store')) return 'retail';
+  if (raw.includes('manufactur') || raw.includes('factory') || raw.includes('production')) {
+    return 'manufacturing';
+  }
+  if (raw.includes('stationer')) return 'stationery';
+  return 'general';
+}

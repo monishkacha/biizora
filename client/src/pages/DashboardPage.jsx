@@ -28,8 +28,19 @@ import { Badge, Card } from '../components/ui/Badge';
 
 export default function DashboardPage() {
   const { metrics, invoices, customers, aiInsights, company } = useBusiness();
-  const { user } = useAuth();
+  const { user, activeWorkspace } = useAuth();
   const navigate = useNavigate();
+
+  const businessType = activeWorkspace?.businessType || 'general';
+  const industryHint = {
+    salon: 'Appointments, walk-ins, and stylist utilization are enabled for this salon business.',
+    restaurant: 'Kitchen, tables, and order widgets are available for this restaurant business.',
+    cafe: 'Orders, takeaway, and peak-hour analytics are tailored for this cafe business.',
+    retail: 'POS, stock alerts, and sales widgets are active for this retail business.',
+    manufacturing: 'Production orders, machines, and QC widgets are enabled for this manufacturing business.',
+    stationery: 'Retail billing, wholesale, and school orders are enabled for this stationery business.',
+    general: null,
+  }[businessType];
 
   const monthlyTrendData = [
     { month: 'Mar', revenue: 280000 },
@@ -105,6 +116,53 @@ export default function DashboardPage() {
           </Button>
         </div>
       </motion.div>
+
+      {industryHint && (
+        <div className="rounded-2xl border border-stone bg-white px-4 py-3.5 text-sm text-warm-gray shadow-subtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <span className="font-semibold text-charcoal capitalize">{businessType} Dashboard</span>
+            {' · '}
+            {industryHint}
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {businessType === 'salon' && (
+              <>
+                <button type="button" onClick={() => navigate('/app/appointments')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Appointments</button>
+                <button type="button" onClick={() => navigate('/app/stylist')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Stylist View</button>
+                <button type="button" onClick={() => navigate('/app/memberships')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Memberships</button>
+              </>
+            )}
+            {businessType === 'restaurant' && (
+              <>
+                <button type="button" onClick={() => navigate('/app/tables')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Tables</button>
+                <button type="button" onClick={() => navigate('/app/kitchen')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Kitchen Display</button>
+                <button type="button" onClick={() => navigate('/app/menu')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Menu</button>
+              </>
+            )}
+            {businessType === 'retail' && (
+              <>
+                <button type="button" onClick={() => navigate('/app/pos')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">POS Terminal</button>
+                <button type="button" onClick={() => navigate('/app/barcode')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Barcode</button>
+                <button type="button" onClick={() => navigate('/app/inventory')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Inventory</button>
+              </>
+            )}
+            {businessType === 'manufacturing' && (
+              <>
+                <button type="button" onClick={() => navigate('/app/production-orders')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Production Orders</button>
+                <button type="button" onClick={() => navigate('/app/machines')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Machines</button>
+                <button type="button" onClick={() => navigate('/app/qc')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">QC</button>
+              </>
+            )}
+            {businessType === 'stationery' && (
+              <>
+                <button type="button" onClick={() => navigate('/app/school-orders')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">School Orders</button>
+                <button type="button" onClick={() => navigate('/app/wholesale')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Wholesale</button>
+                <button type="button" onClick={() => navigate('/app/retail-billing')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Billing Counter</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => {

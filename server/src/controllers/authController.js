@@ -55,7 +55,12 @@ export const registerValidators = [
   body('email').isEmail().normalizeEmail(),
   body('password').isLength({ min: 6 }),
   body('name').trim().notEmpty(),
-  body('companyName').optional().trim(),
+  body('companyName').trim().notEmpty().withMessage('Business name is required'),
+  body('businessType')
+    .trim()
+    .notEmpty()
+    .isIn(['salon', 'restaurant', 'cafe', 'retail', 'manufacturing', 'stationery'])
+    .withMessage('Valid business type is required'),
 ];
 
 export const loginValidators = [
@@ -63,14 +68,22 @@ export const loginValidators = [
   body('password').notEmpty(),
 ];
 
+const ALLOWED_SIGNUP_TYPES = ['salon', 'restaurant', 'cafe', 'retail', 'manufacturing', 'stationery'];
+
 export const register = [
   ...registerValidators,
   validate,
   asyncHandler(async (req, res) => {
-    const { email, password, name, companyName, phone } = req.body;
+    const { email, password, name, companyName, phone, businessType } = req.body;
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    let type = String(businessType || '').toLowerCase();
+    if (type === 'restaurant / cafe' || type === 'restaurant_cafe') type = 'restaurant';
+    if (!ALLOWED_SIGNUP_TYPES.includes(type)) {
+      return res.status(400).json({ error: 'Invalid business type' });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
@@ -83,12 +96,18 @@ export const register = [
     });
 
     const business = await Business.create({
-      name: companyName || `${name}'s Business`,
-      tradeName: companyName || name,
+      name: companyName,
+      tradeName: companyName,
+      ownerName: name,
       email,
       phone: phone || '',
+      businessType: type,
+      industry: type,
+      subscriptionStatus: 'Pending',
+      subscriptionPlan: 'starter',
+      isActive: false,
       createdBy: user._id,
-      onboardingCompleted: false,
+      onboardingCompleted: true,
     });
 
     await Membership.create({
@@ -108,18 +127,22 @@ export const register = [
       action: 'user.registered',
       entityType: 'User',
       entityId: user._id,
-      details: `Registered and created business ${business.name}`,
+      details: `Registered ${business.name} (${type})`,
       ip: req.ip,
     });
 
-    const memberships = await getUserMemberships(user._id);
+    const businessPayload = await getPrimaryBusinessPayload(user._id);
 
     res.status(201).json({
       success: true,
       accessToken,
       user: user.toPublicJSON(),
-      businesses: memberships,
-      activeBusinessId: business._id.toString(),
+      business: businessPayload,
+      businesses: businessPayload ? [businessPayload] : [],
+      activeBusinessId: businessPayload?.id || null,
+      subscriptionPending: true,
+      message:
+        'Your account has been created successfully. Your subscription is currently pending activation.',
     });
   }),
 ];
@@ -139,7 +162,7 @@ export const login = [
     }
 
     const accessToken = await issueTokens(user, req, res);
-    const memberships = await getUserMemberships(user._id);
+    const businessPayload = await getPrimaryBusinessPayload(user._id);
 
     await logActivity({
       userId: user._id,
@@ -149,15 +172,16 @@ export const login = [
       entityId: user._id,
       details: 'User logged in',
       ip: req.ip,
-      businessId: memberships[0]?.id,
+      businessId: businessPayload?.id,
     });
 
     res.json({
       success: true,
       accessToken,
       user: user.toPublicJSON(),
-      businesses: memberships,
-      activeBusinessId: memberships[0]?.id || null,
+      business: businessPayload,
+      businesses: businessPayload ? [businessPayload] : [],
+      activeBusinessId: businessPayload?.id || null,
     });
   }),
 ];
@@ -193,13 +217,14 @@ export const refresh = asyncHandler(async (req, res) => {
   await user.save();
 
   const accessToken = await issueTokens(user, req, res);
-  const memberships = await getUserMemberships(user._id);
+  const businessPayload = await getPrimaryBusinessPayload(user._id);
 
   res.json({
     success: true,
     accessToken,
     user: user.toPublicJSON(),
-    businesses: memberships,
+    business: businessPayload,
+    businesses: businessPayload ? [businessPayload] : [],
   });
 });
 
@@ -226,10 +251,11 @@ export const logout = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
-  const memberships = await getUserMemberships(req.userId);
+  const businessPayload = await getPrimaryBusinessPayload(req.userId);
   res.json({
     user: req.user.toPublicJSON(),
-    businesses: memberships,
+    business: businessPayload,
+    businesses: businessPayload ? [businessPayload] : [],
   });
 });
 
@@ -279,6 +305,14 @@ export const acceptInvite = asyncHandler(async (req, res) => {
     });
   }
 
+  // One account → one business. Invited users who already own/belong to a business cannot join another.
+  const existingMembership = await Membership.findOne({ userId: user._id, status: 'active' });
+  if (existingMembership && String(existingMembership.businessId) !== String(invite.businessId)) {
+    return res.status(409).json({
+      error: 'This account already belongs to a business. One account can only access one business.',
+    });
+  }
+
   const existing = await Membership.findOne({ userId: user._id, businessId: invite.businessId });
   if (!existing) {
     await Membership.create({
@@ -302,30 +336,57 @@ export const acceptInvite = asyncHandler(async (req, res) => {
   });
 
   const accessToken = await issueTokens(user, req, res);
-  const memberships = await getUserMemberships(user._id);
+  const businessPayload = await getPrimaryBusinessPayload(user._id);
 
   res.json({
     success: true,
     accessToken,
     user: user.toPublicJSON(),
-    businesses: memberships,
+    business: businessPayload,
+    businesses: businessPayload ? [businessPayload] : [],
     activeBusinessId: invite.businessId.toString(),
   });
 });
 
-async function getUserMemberships(userId) {
+/** One account → one business. Prefer Owner membership if legacy duplicates exist. */
+async function getPrimaryBusinessPayload(userId) {
   const memberships = await Membership.find({ userId, status: 'active' }).populate('businessId');
-  return memberships
-    .filter((m) => m.businessId)
-    .map((m) => ({
-      id: m.businessId._id.toString(),
-      name: m.businessId.name,
-      tradeName: m.businessId.tradeName,
-      logoUrl: m.businessId.logoUrl,
-      role: m.role,
-      permissions: m.permissions,
-      plan: 'Pro',
-      onboardingCompleted: m.businessId.onboardingCompleted,
-      membersCount: 0,
-    }));
+  const valid = memberships.filter((m) => m.businessId);
+  if (!valid.length) return null;
+
+  const primary =
+    valid.find((m) => m.role === 'Owner') ||
+    valid[0];
+
+  const b = primary.businessId;
+  const status = b.subscriptionStatus || 'Pending';
+  return {
+    id: b._id.toString(),
+    name: b.name,
+    businessName: b.name,
+    tradeName: b.tradeName,
+    ownerName: b.ownerName,
+    logoUrl: b.logoUrl || b.logo || '',
+    role: primary.role,
+    permissions: primary.permissions,
+    plan: b.subscriptionPlan || 'starter',
+    subscriptionPlan: b.subscriptionPlan || 'starter',
+    subscriptionStatus: status,
+    subscriptionExpiresAt: b.subscriptionExpiresAt || null,
+    subscriptionActivatedAt: b.subscriptionActivatedAt || null,
+    businessType: b.businessType || 'general',
+    enabledModules: b.enabledModules || [],
+    customFeatures: b.customFeatures || [],
+    isDemoAccount: Boolean(b.isDemoAccount),
+    themeColor: b.themeColor || b.branding?.primaryColor || '#171717',
+    isActive: status === 'Active' && b.isActive !== false,
+    onboardingCompleted: b.onboardingCompleted !== false,
+    membersCount: 0,
+  };
+}
+
+// Kept for internal compatibility; always returns 0–1 business.
+async function getUserMemberships(userId) {
+  const primary = await getPrimaryBusinessPayload(userId);
+  return primary ? [primary] : [];
 }

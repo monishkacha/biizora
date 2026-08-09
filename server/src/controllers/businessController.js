@@ -5,38 +5,64 @@ import { logActivity } from '../services/activityLogger.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const listBusinesses = asyncHandler(async (req, res) => {
-  const memberships = await Membership.find({ userId: req.userId, status: 'active' }).populate('businessId');
-  const result = await Promise.all(
-    memberships
-      .filter((m) => m.businessId)
-      .map(async (m) => {
-        const membersCount = await Membership.countDocuments({
-          businessId: m.businessId._id,
-          status: 'active',
-        });
-        return {
-          ...m.businessId.toPublicJSON(),
-          role: m.role,
-          permissions: m.permissions,
-          plan: 'Pro',
-          membersCount,
-        };
-      })
-  );
-  res.json({ businesses: result });
+  const membership = await Membership.findOne({ userId: req.userId, status: 'active' })
+    .sort({ role: 1 })
+    .populate('businessId');
+
+  if (!membership?.businessId) {
+    return res.json({ businesses: [], business: null });
+  }
+
+  // Prefer Owner if multiple legacy memberships exist
+  const ownerMembership = await Membership.findOne({
+    userId: req.userId,
+    status: 'active',
+    role: 'Owner',
+  }).populate('businessId');
+
+  const m = ownerMembership?.businessId ? ownerMembership : membership;
+  const membersCount = await Membership.countDocuments({
+    businessId: m.businessId._id,
+    status: 'active',
+  });
+  const pub = m.businessId.toPublicJSON();
+  const business = {
+    ...pub,
+    role: m.role,
+    permissions: m.permissions,
+    plan: pub.subscriptionPlan || 'starter',
+    membersCount,
+  };
+
+  res.json({ businesses: [business], business });
 });
 
 export const createBusiness = asyncHandler(async (req, res) => {
-  const { name, tradeName, industry } = req.body;
+  const existing = await Membership.findOne({ userId: req.userId, status: 'active' });
+  if (existing) {
+    return res.status(409).json({
+      error: 'This account already has a business. One account equals one business.',
+      code: 'ONE_BUSINESS_ONLY',
+    });
+  }
+
+  const { name, tradeName, industry, businessType, ownerName } = req.body;
   if (!name) return res.status(400).json({ error: 'Business name is required' });
 
+  const type = businessType || industry || 'general';
   const business = await Business.create({
     name,
     tradeName: tradeName || name,
-    industry: industry || '',
+    ownerName: ownerName || req.user.name,
+    industry: industry || type,
+    businessType: type,
     email: req.user.email,
+    phone: req.user.phone || '',
+    subscriptionStatus: 'Pending',
+    subscriptionPlan: 'starter',
+    isActive: false,
     createdBy: req.userId,
-    onboardingCompleted: false,
+    onboardingCompleted: true,
   });
 
   await Membership.create({
@@ -58,13 +84,15 @@ export const createBusiness = asyncHandler(async (req, res) => {
     ip: req.ip,
   });
 
+  const pub = business.toPublicJSON();
   res.status(201).json({
     success: true,
+    subscriptionPending: true,
     business: {
-      ...business.toPublicJSON(),
+      ...pub,
       role: 'Owner',
       permissions: getPermissionsForRole('Owner'),
-      plan: 'Pro',
+      plan: pub.subscriptionPlan || 'starter',
       membersCount: 1,
     },
   });
@@ -77,11 +105,16 @@ export const getBusiness = asyncHandler(async (req, res) => {
 export const updateBusiness = asyncHandler(async (req, res) => {
   const b = req.business;
   const fields = [
-    'name', 'tradeName', 'industry', 'gstin', 'pan', 'email', 'phone', 'website', 'logoUrl', 'digitalSignatureUrl', 'stampUrl',
+    'name', 'tradeName', 'ownerName', 'industry', 'gstin', 'GSTNumber', 'pan',
+    'email', 'phone', 'website', 'logoUrl', 'logo', 'digitalSignatureUrl', 'stampUrl',
+    'themeColor', 'currency', 'timezone', 'invoicePrefix',
   ];
+  // businessType is permanent for tenants — only Super Admin may change it
   fields.forEach((f) => {
     if (req.body[f] !== undefined) b[f] = req.body[f];
   });
+
+  if (req.body.workingHours) b.workingHours = req.body.workingHours;
 
   // Flat address fields from legacy client shape
   if (req.body.address !== undefined || req.body.city || req.body.state || req.body.pincode) {

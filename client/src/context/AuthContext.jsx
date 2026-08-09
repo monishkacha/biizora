@@ -4,7 +4,6 @@ import {
   setAccessToken,
   getAccessToken,
   setActiveBusinessId,
-  getActiveBusinessId,
   setUnauthorizedHandler,
   clearLegacyStorage,
   businessApi,
@@ -12,28 +11,43 @@ import {
 
 const AuthContext = createContext();
 
+function normalizeBusiness(b) {
+  if (!b) return null;
+  return {
+    id: b.id,
+    name: b.name || b.businessName,
+    businessName: b.businessName || b.name,
+    plan: b.plan || b.subscriptionPlan || 'starter',
+    subscriptionPlan: b.subscriptionPlan || b.plan || 'starter',
+    subscriptionStatus: b.subscriptionStatus || 'Pending',
+    subscriptionExpiresAt: b.subscriptionExpiresAt || null,
+    subscriptionActivatedAt: b.subscriptionActivatedAt || null,
+    businessType: b.businessType || 'general',
+    enabledModules: b.enabledModules || [],
+    customFeatures: b.customFeatures || [],
+    isDemoAccount: Boolean(b.isDemoAccount),
+    themeColor: b.themeColor,
+    role: b.role || 'Owner',
+    permissions: b.permissions,
+    membersCount: b.membersCount || 0,
+    onboardingCompleted: b.onboardingCompleted !== false,
+    isActive: b.isActive !== false && (b.subscriptionStatus || 'Pending') === 'Active',
+    ownerName: b.ownerName,
+  };
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [businesses, setBusinesses] = useState([]);
-  const [activeBusinessId, setActiveBiz] = useState(getActiveBusinessId());
+  const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bootError, setBootError] = useState(null);
 
   const applySession = useCallback((data) => {
     if (data.accessToken) setAccessToken(data.accessToken);
     if (data.user) setUser(data.user);
-    if (data.businesses) {
-      setBusinesses(data.businesses);
-      const preferred =
-        data.activeBusinessId ||
-        getActiveBusinessId() ||
-        data.businesses[0]?.id ||
-        null;
-      if (preferred) {
-        setActiveBusinessId(preferred);
-        setActiveBiz(preferred);
-      }
-    }
+    const biz = normalizeBusiness(data.business || data.businesses?.[0] || null);
+    setBusiness(biz);
+    if (biz?.id) setActiveBusinessId(biz.id);
   }, []);
 
   const logout = useCallback(async () => {
@@ -45,14 +59,13 @@ export const AuthProvider = ({ children }) => {
     setAccessToken(null);
     setActiveBusinessId(null);
     setUser(null);
-    setBusinesses([]);
-    setActiveBiz(null);
+    setBusiness(null);
   }, []);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
       setUser(null);
-      setBusinesses([]);
+      setBusiness(null);
       setAccessToken(null);
     });
 
@@ -62,12 +75,9 @@ export const AuthProvider = ({ children }) => {
         if (getAccessToken()) {
           const data = await authApi.me();
           setUser(data.user);
-          setBusinesses(data.businesses || []);
-          const preferred = getActiveBusinessId() || data.businesses?.[0]?.id;
-          if (preferred) {
-            setActiveBusinessId(preferred);
-            setActiveBiz(preferred);
-          }
+          const biz = normalizeBusiness(data.business || data.businesses?.[0] || null);
+          setBusiness(biz);
+          if (biz?.id) setActiveBusinessId(biz.id);
         } else {
           const refreshed = await authApi.refresh();
           if (refreshed) applySession(refreshed);
@@ -85,20 +95,21 @@ export const AuthProvider = ({ children }) => {
     const data = await authApi.login({ email, password });
     clearLegacyStorage();
     applySession(data);
-    return { success: true, user: data.user };
+    return { success: true, user: data.user, business: data.business };
   };
 
   const register = async (userData) => {
     const data = await authApi.register({
-      name: userData.fullName || userData.name,
+      name: userData.fullName || userData.name || userData.ownerName,
       email: userData.email,
       password: userData.password,
-      companyName: userData.companyName,
+      companyName: userData.companyName || userData.businessName,
       phone: userData.phone,
+      businessType: userData.businessType,
     });
     clearLegacyStorage();
     applySession(data);
-    return { success: true, user: data.user };
+    return { success: true, user: data.user, business: data.business };
   };
 
   const updateProfile = async (updatedFields) => {
@@ -107,46 +118,40 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
-  const refreshBusinesses = async () => {
+  const refreshBusiness = async () => {
     const data = await businessApi.list();
-    setBusinesses(data.businesses || []);
-    return data.businesses;
+    const biz = normalizeBusiness(data.business || data.businesses?.[0] || null);
+    setBusiness(biz);
+    if (biz?.id) setActiveBusinessId(biz.id);
+    return biz;
   };
 
-  const switchWorkspace = (wsId) => {
-    setActiveBusinessId(wsId);
-    setActiveBiz(wsId);
-  };
-
-  const activeWorkspace =
-    businesses.find((b) => b.id === activeBusinessId) || businesses[0] || null;
-
-  const workspaces = businesses.map((b) => ({
-    id: b.id,
-    name: b.name,
-    plan: b.plan || 'Pro',
-    role: b.role,
-    membersCount: b.membersCount || 0,
-    onboardingCompleted: b.onboardingCompleted,
-  }));
+  // Backward-compatible aliases for legacy components.
+  const activeWorkspace = business;
+  const activeBusinessId = business?.id || null;
+  const businesses = business ? [business] : [];
+  const workspaces = businesses;
 
   return (
     <AuthContext.Provider
       value={{
         user,
+        business,
         loading,
         bootError,
         login,
         register,
         logout,
         updateProfile,
+        refreshBusiness,
+        refreshBusinesses: refreshBusiness,
         activeWorkspace,
         activeBusinessId,
-        workspaces,
         businesses,
-        switchWorkspace,
-        refreshBusinesses,
-        setBusinesses,
+        workspaces,
+        // Legacy compatibility only.
+        switchWorkspace: () => {},
+        setBusinesses: () => {},
       }}
     >
       {children}

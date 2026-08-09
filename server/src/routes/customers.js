@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/customersController.js';
 import { authenticate } from '../middleware/auth.js';
-import { requireBusiness, requirePermission } from '../middleware/requireBusiness.js';
+import { requireBusiness, requirePermission, requireActiveSubscription } from '../middleware/requireBusiness.js';
 
 const router = Router();
-router.use(authenticate, requireBusiness);
+router.use(authenticate, requireBusiness, requireActiveSubscription);
 
 router.get('/', requirePermission('customers', 'read'), ctrl.listCustomers);
 router.post('/gst-search', requirePermission('customers', 'read'), ctrl.gstSearch);

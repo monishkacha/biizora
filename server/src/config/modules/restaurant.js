@@ -1,0 +1,14 @@
+export const restaurantModules = [
+  { id: 'tables', title: 'Tables', icon: 'LayoutGrid', route: '/app/tables', permission: 'invoices.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'growth', description: 'Floor and table map', category: 'fnb' },
+  { id: 'reservations', title: 'Reservations', icon: 'CalendarCheck', route: '/app/reservations', permission: 'customers.write', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'growth', description: 'Table reservations', category: 'fnb' },
+  { id: 'kitchen-display', title: 'Kitchen Display', icon: 'Monitor', route: '/app/kitchen', permission: 'invoices.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'professional', description: 'Kitchen display system', category: 'fnb' },
+  { id: 'orders', title: 'Orders', icon: 'ClipboardList', route: '/app/orders', permission: 'invoices.write', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'starter', description: 'Order management', category: 'fnb' },
+  { id: 'takeaway', title: 'Takeaway', icon: 'ShoppingBag', route: '/app/takeaway', permission: 'invoices.write', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'starter', description: 'Takeaway orders', category: 'fnb' },
+  { id: 'delivery', title: 'Delivery', icon: 'Bike', route: '/app/delivery', permission: 'invoices.write', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'growth', description: 'Delivery orders', category: 'fnb' },
+  { id: 'menu', title: 'Menu', icon: 'UtensilsCrossed', route: '/app/menu', permission: 'products.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'starter', description: 'Menu management', category: 'fnb' },
+  { id: 'recipe-costing', title: 'Recipe Costing', icon: 'Calculator', route: '/app/recipe-costing', permission: 'products.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'professional', description: 'Recipe cost analysis', category: 'fnb' },
+  { id: 'ingredients', title: 'Ingredients', icon: 'Leaf', route: '/app/ingredients', permission: 'products.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'growth', description: 'Ingredient inventory', category: 'fnb' },
+  { id: 'waste-tracking', title: 'Waste Tracking', icon: 'Trash2', route: '/app/waste', permission: 'products.write', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'professional', description: 'Food waste logs', category: 'fnb' },
+  { id: 'chef-dashboard', title: 'Chef Dashboard', icon: 'ChefHat', route: '/app/chef', permission: 'reports.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'growth', description: 'Kitchen performance', category: 'fnb' },
+  { id: 'peak-hour-analytics', title: 'Peak Hour Analytics', icon: 'Clock', route: '/app/peak-hours', permission: 'reports.read', businessTypes: ['restaurant', 'cafe'], requiredPlan: 'growth', description: 'Peak hour insights', category: 'fnb' },
+];

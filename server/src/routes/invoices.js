@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import * as ctrl from '../controllers/invoicesController.js';
 import { authenticate } from '../middleware/auth.js';
-import { requireBusiness, requirePermission } from '../middleware/requireBusiness.js';
+import { requireBusiness, requirePermission, requireActiveSubscription } from '../middleware/requireBusiness.js';
 
 const router = Router();
-router.use(authenticate, requireBusiness);
+router.use(authenticate, requireBusiness, requireActiveSubscription);
 
 router.get('/', requirePermission('invoices', 'read'), ctrl.listInvoices);
 router.get('/next-number', requirePermission('invoices', 'read'), ctrl.nextInvoiceNumber);

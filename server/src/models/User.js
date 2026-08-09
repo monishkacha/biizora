@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, default: '' },
     avatar: { type: String, default: '' },
     emailVerified: { type: Boolean, default: true },
+    isSuperAdmin: { type: Boolean, default: false, index: true },
+    isDemoAccount: { type: Boolean, default: false, index: true },
     subscriptionPlan: { type: String, default: 'Pro Plan (14-Day Trial)' },
     subscriptionStatus: { type: String, enum: ['trial', 'active', 'cancelled', 'past_due'], default: 'trial' },
     trialDaysLeft: { type: Number, default: 14 },
@@ -31,6 +33,13 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.methods.toPublicJSON = function toPublicJSON() {
+  const adminEmails = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const isSuperAdmin =
+    Boolean(this.isSuperAdmin) || adminEmails.includes(String(this.email || '').toLowerCase());
+
   return {
     id: this._id.toString(),
     name: this.name,
@@ -38,6 +47,8 @@ userSchema.methods.toPublicJSON = function toPublicJSON() {
     phone: this.phone,
     avatar: this.avatar,
     emailVerified: this.emailVerified,
+    isSuperAdmin,
+    isDemoAccount: Boolean(this.isDemoAccount),
     subscriptionPlan: this.subscriptionPlan,
     subscriptionStatus: this.subscriptionStatus,
     trialDaysLeft: this.trialDaysLeft,

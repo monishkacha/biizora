@@ -1,86 +1,71 @@
-import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { businessApi, setActiveBusinessId } from "../api/client";
-
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { modulesApi } from '../api/client';
 import {
-  LayoutDashboard,
-  FileText,
-  Users,
-  Package,
-  Boxes,
-  CreditCard,
-  BarChart3,
-  TrendingUp,
-  Sparkles,
-  Zap,
-  Sliders,
-  Settings,
-  LogOut,
-  ChevronDown,
-  Building2,
-  Plus,
-  UserPlus,
-  ScrollText,
-  Headphones,
-  Database,
-} from "lucide-react";
+  FALLBACK_NAV,
+  filterModulesForWorkspace,
+  modulesToNavItems,
+} from '../modules/registry';
+import { LogOut, Building2, Shield, BadgeCheck } from 'lucide-react';
 
-export default function Sidebar({
-  collapsed,
-  mobileOpen,
-  setMobileOpen,
-}) {
+export default function Sidebar({ collapsed, mobileOpen }) {
   const location = useLocation();
-  const navigate = useNavigate();
+  const { user, logout, business, activeWorkspace } = useAuth();
+  const biz = business || activeWorkspace;
 
-  const {
-    user,
-    logout,
-    activeWorkspace,
-    workspaces,
-    switchWorkspace,
-    refreshBusinesses,
-  } = useAuth();
+  const [navItems, setNavItems] = useState(() => modulesToNavItems(FALLBACK_NAV));
 
-  const [workspaceMenuOpen, setWorkspaceMenuOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
 
-  const navItems = [
-    { label: "Overview", path: "/app", icon: LayoutDashboard },
-    { label: "Invoices", path: "/app/invoices", icon: FileText },
-    { label: "Customers", path: "/app/customers", icon: Users },
-    { label: "Products", path: "/app/products", icon: Package },
-    { label: "Inventory", path: "/app/inventory", icon: Boxes },
-    { label: "Expenses", path: "/app/expenses", icon: CreditCard },
-    { label: "Reports", path: "/app/reports", icon: BarChart3 },
-    { label: "Analytics", path: "/app/analytics", icon: TrendingUp },
-    { label: "AI Suite", path: "/app/ai-suite", icon: Sparkles },
-    { label: "Data Migration", path: "/app/migration", icon: Database },
-    { label: "Payments", path: "/app/payments", icon: Zap },
-    { label: "Team", path: "/app/team", icon: UserPlus },
-    { label: "Activity", path: "/app/activity", icon: ScrollText },
-    { label: "Billing", path: "/app/billing", icon: Sliders },
-    { label: "Settings", path: "/app/settings", icon: Settings },
-    { label: "Support", path: "/app/support", icon: Headphones },
-  ];
+    async function loadNav() {
+      if (!biz?.id) {
+        setNavItems(modulesToNavItems(FALLBACK_NAV));
+        return;
+      }
 
+      if (biz.subscriptionStatus && biz.subscriptionStatus !== 'Active') {
+        setNavItems(
+          modulesToNavItems([
+            {
+              id: 'membership',
+              title: 'Membership',
+              route: '/app/membership',
+              icon: 'BadgeCheck',
+              category: 'admin',
+            },
+            {
+              id: 'support',
+              title: 'Support',
+              route: '/app/support',
+              icon: 'Headphones',
+              category: 'core',
+            },
+          ])
+        );
+        return;
+      }
 
-  const createBusiness = async () => {
-    setCreating(true);
-    try {
-      const name = window.prompt('New business name');
-      if (!name) return;
-      const data = await businessApi.create({ name });
-      setActiveBusinessId(data.business.id);
-      switchWorkspace(data.business.id);
-      await refreshBusinesses();
-      navigate('/app/onboarding');
-    } finally {
-      setCreating(false);
-      setWorkspaceMenuOpen(false);
+      try {
+        const data = await modulesApi.me();
+        if (cancelled) return;
+        const sidebar = data.sidebar?.length
+          ? data.sidebar
+          : filterModulesForWorkspace(FALLBACK_NAV, { ...biz, ...data.business });
+        setNavItems(modulesToNavItems(sidebar));
+      } catch {
+        if (cancelled) return;
+        const filtered = filterModulesForWorkspace(FALLBACK_NAV, biz);
+        setNavItems(modulesToNavItems(filtered.length ? filtered : FALLBACK_NAV));
+      }
     }
-  };
+
+    loadNav();
+    return () => {
+      cancelled = true;
+    };
+  }, [biz?.id, biz?.subscriptionStatus, biz?.businessType]);
 
   return (
     <aside
@@ -94,101 +79,99 @@ export default function Sidebar({
     >
       <div className="p-4 border-b border-stone">
         {!collapsed ? (
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setWorkspaceMenuOpen(!workspaceMenuOpen)}
-              className="w-full flex items-center justify-between p-2.5 rounded-[14px] bg-white border border-stone hover:bg-ivory transition-colors duration-[220ms] text-left shadow-subtle"
+          <div className="flex items-center gap-2.5 p-2.5 rounded-[14px] bg-white border border-stone shadow-subtle">
+            <div
+              className="w-8 h-8 rounded-[10px] text-white flex items-center justify-center shrink-0 bg-green-bottle"
+              style={biz?.themeColor ? { backgroundColor: biz.themeColor } : undefined}
             >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-[10px] bg-green-soft text-white flex items-center justify-center shrink-0 bg-green-bottle">
-                  <Building2 className="w-4 h-4" />
-                </div>
-                <div className="truncate">
-                  <p className="text-xs font-semibold text-charcoal truncate">{activeWorkspace?.name || 'Biizora'}</p>
-                  <p className="text-[10px] text-green-forest">{activeWorkspace?.role || 'Owner'}</p>
-                </div>
+              <Building2 className="w-4 h-4" />
+            </div>
+            <div className="truncate min-w-0">
+              <div className="flex items-center gap-1.5 truncate">
+                <p className="text-xs font-semibold text-charcoal truncate">{biz?.name || 'Biizora'}</p>
+                {(biz?.isDemoAccount || user?.isDemoAccount) && (
+                  <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-900 px-1.5 py-0.2 rounded-md border border-amber-500/30">
+                    Demo
+                  </span>
+                )}
               </div>
-              <ChevronDown className="w-4 h-4 text-warm-gray shrink-0" />
-            </button>
-
-            {workspaceMenuOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone rounded-[16px] shadow-elev p-2 z-50 space-y-1">
-                <p className="text-[10px] font-semibold text-warm-gray uppercase tracking-wider px-2 py-1">Businesses</p>
-                {workspaces.map((ws) => (
-                  <button
-                    key={ws.id}
-                    type="button"
-                    onClick={() => {
-                      switchWorkspace(ws.id);
-                      setWorkspaceMenuOpen(false);
-                      window.location.reload();
-                    }}
-                    className={`w-full text-left px-2.5 py-2 rounded-[12px] text-xs transition-colors ${ws.id === activeWorkspace?.id
-                      ? 'bg-cream text-charcoal font-semibold'
-                      : 'text-warm-gray hover:bg-ivory'
-                      }`}
-                  >
-                    <span className="truncate block">{ws.name}</span>
-                  </button>
-                ))}
-                <div className="pt-1 border-t border-stone">
-                  <button
-                    type="button"
-                    disabled={creating}
-                    onClick={createBusiness}
-                    className="w-full text-left px-2.5 py-2 rounded-[12px] text-xs text-green-bottle hover:bg-cream flex items-center gap-1.5 font-medium"
-                  >
-                    <Plus className="w-3.5 h-3.5" /> New business
-                  </button>
-                </div>
-              </div>
-            )}
+              <p className="text-[10px] text-green-forest capitalize truncate">
+                {biz?.businessType || 'business'}
+                {biz?.subscriptionStatus ? ` · ${biz.subscriptionStatus}` : ''}
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="w-10 h-10 mx-auto rounded-[12px] bg-green-bottle text-white flex items-center justify-center">
-            <Sparkles className="w-5 h-5" />
+          <div className="flex justify-center">
+            <div className="w-10 h-10 rounded-[12px] bg-green-bottle text-white flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
           </div>
         )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const active =
+            item.path === '/app'
+              ? location.pathname === '/app'
+              : location.pathname.startsWith(item.path);
           return (
             <Link
-              key={item.path}
+              key={item.id || item.path}
               to={item.path}
-              title={collapsed ? item.label : undefined}
-              onClick={() => setMobileOpen?.(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-[14px] text-[13px] font-medium transition-all duration-[220ms] ${isActive
-                ? 'bg-white text-green-bottle shadow-subtle border border-stone'
-                : 'text-warm-gray hover:text-charcoal hover:bg-white/70'
-                }`}
+              className={`
+                flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm transition-colors duration-[220ms]
+                ${active ? 'bg-green-bottle text-white shadow-subtle' : 'text-charcoal/80 hover:bg-white'}
+                ${collapsed ? 'justify-center' : ''}
+              `}
+              title={item.label}
             >
-              <Icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              <Icon className="w-4 h-4 shrink-0" />
+              {!collapsed && <span className="truncate font-medium">{item.label}</span>}
             </Link>
           );
         })}
+
+        {!navItems.some((n) => n.path === '/app/membership') && (
+          <Link
+            to="/app/membership"
+            className={`
+              flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm
+              ${location.pathname.startsWith('/app/membership') ? 'bg-green-bottle text-white' : 'text-charcoal/80 hover:bg-white'}
+              ${collapsed ? 'justify-center' : ''}
+            `}
+          >
+            <BadgeCheck className="w-4 h-4 shrink-0" />
+            {!collapsed && <span className="font-medium">Membership</span>}
+          </Link>
+        )}
+
+        {user?.isSuperAdmin && (
+          <Link
+            to="/app/admin"
+            className={`
+              flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm mt-2
+              ${location.pathname.startsWith('/app/admin') ? 'bg-charcoal text-white' : 'text-charcoal/80 hover:bg-white'}
+              ${collapsed ? 'justify-center' : ''}
+            `}
+          >
+            <Shield className="w-4 h-4 shrink-0" />
+            {!collapsed && <span className="font-medium">Super Admin</span>}
+          </Link>
+        )}
       </nav>
 
-      <div className="p-3 border-t border-stone space-y-2">
-        {!collapsed && user && (
-          <div className="p-2 bg-white border border-stone rounded-[14px] flex items-center justify-between shadow-subtle">
-            <div className="flex items-center gap-2 min-w-0">
-              <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover bg-cream border border-stone" />
-              <div className="truncate">
-                <p className="text-xs font-medium text-charcoal truncate">{user.name}</p>
-                <p className="text-[10px] text-warm-gray truncate">{user.email}</p>
-              </div>
-            </div>
-            <button type="button" onClick={logout} className="p-1.5 text-warm-gray hover:text-charcoal hover:bg-cream rounded-[10px]" title="Sign out">
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+      <div className="p-3 border-t border-stone">
+        <button
+          type="button"
+          onClick={logout}
+          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm text-warm-gray hover:bg-white hover:text-charcoal ${collapsed ? 'justify-center' : ''}`}
+        >
+          <LogOut className="w-4 h-4" />
+          {!collapsed && <span>Sign out</span>}
+        </button>
       </div>
     </aside>
   );

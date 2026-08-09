@@ -40,7 +40,7 @@ export default function PricingPage() {
       price: annualBilling ? "₹3,999" : "₹4,999",
       period: "per month",
       desc: "For multi-firm businesses & large teams.",
-      features: ["Multiple Companies / Workspaces", "Unlimited Team Seats", "Dedicated AI Business Advisor", "Custom API & Webhooks", "Dedicated Account Manager", "99.9% Uptime SLA"],
+      features: ["Unlimited Team Seats", "Dedicated AI Business Advisor", "Custom API & Webhooks", "Dedicated Account Manager", "99.9% Uptime SLA"],
       cta: "Contact Sales",
       popular: false
     }

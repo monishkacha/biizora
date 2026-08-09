@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Monitor, Copy, Check, Headphones, ExternalLink, X } from 'lucide-react';
+import { Mail, Headphones, ExternalLink, X } from 'lucide-react';
 
 export function WhatsAppIcon({ className = "w-4 h-4" }) {
   return (
@@ -19,101 +19,36 @@ export function AnyDeskIcon({ className = "w-4 h-4" }) {
   );
 }
 
+/** Public marketing bar — business enquiries only (no phones / AnyDesk) */
 export default function SupportTopBar({ dismissable = false }) {
-  const [copiedId, setCopiedId] = useState(null);
   const [dismissed, setDismissed] = useState(false);
-
-  const copyToClipboard = (text, label) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(label);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
 
   if (dismissed) return null;
 
   return (
     <div className="bg-gradient-to-r from-[#1F2A26] via-[#2F5D50] to-[#1F2A26] text-white text-xs py-2 px-3 sm:px-4 border-b border-white/10 shadow-subtle relative z-30">
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
-        {/* Support Numbers & WhatsApp */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <div className="flex items-center gap-1.5 font-semibold text-yellow-butter">
             <Headphones className="w-3.5 h-3.5 text-yellow-butter shrink-0" />
-            <span className="tracking-wide">Customer Support:</span>
+            <span className="tracking-wide">Business Enquiries:</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <a
-              href="https://wa.me/919904914513"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 hover:text-yellow-butter transition-colors font-mono font-medium"
-              title="Chat on WhatsApp"
-            >
-              <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
-              <span>+91 9904914513</span>
-            </a>
-
-            <span className="text-white/30 hidden sm:inline">•</span>
-
-            <a
-              href="https://wa.me/919081051240"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 hover:text-yellow-butter transition-colors font-mono font-medium"
-              title="Chat on WhatsApp"
-            >
-              <WhatsAppIcon className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
-              <span>+91 9081051240</span>
-            </a>
-          </div>
+          <a
+            href="mailto:biizora@gmail.com"
+            className="inline-flex items-center gap-1.5 hover:text-yellow-butter transition-colors font-medium"
+          >
+            <Mail className="w-3.5 h-3.5 shrink-0" />
+            biizora@gmail.com
+          </a>
         </div>
 
-        {/* AnyDesk Remote Assistance */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <div className="hidden lg:flex items-center gap-1.5 text-white/80">
-            <Monitor className="w-3.5 h-3.5 text-terracotta shrink-0" />
-            <span className="font-medium">AnyDesk Remote Assistance:</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => copyToClipboard('1452019780', 'anydesk1')}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/15 font-mono text-[11px] transition-colors"
-              title="Click to copy AnyDesk Desk ID"
-            >
-              <span className="text-white/60">ID:</span>
-              <strong className="text-white font-bold">1452019780</strong>
-              {copiedId === 'anydesk1' ? (
-                <Check className="w-3 h-3 text-[#25D366]" />
-              ) : (
-                <Copy className="w-3 h-3 text-white/50 hover:text-white" />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => copyToClipboard('1439051108', 'anydesk2')}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 hover:bg-white/20 border border-white/15 font-mono text-[11px] transition-colors"
-              title="Click to copy AnyDesk Desk ID"
-            >
-              <span className="text-white/60">ID:</span>
-              <strong className="text-white font-bold">1439051108</strong>
-              {copiedId === 'anydesk2' ? (
-                <Check className="w-3 h-3 text-[#25D366]" />
-              ) : (
-                <Copy className="w-3 h-3 text-white/50 hover:text-white" />
-              )}
-            </button>
-          </div>
-
+        <div className="flex items-center gap-2">
           <Link
-            to="/support"
-            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-yellow-butter hover:bg-yellow-honey text-charcoal font-semibold text-[11px] transition-all ml-1 shadow-subtle"
+            to="/contact"
+            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-yellow-butter hover:bg-yellow-honey text-charcoal font-semibold text-[11px] transition-all shadow-subtle"
           >
-            Support Center <ExternalLink className="w-3 h-3" />
+            Contact us <ExternalLink className="w-3 h-3" />
           </Link>
-
           {dismissable && (
             <button
               type="button"

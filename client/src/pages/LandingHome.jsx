@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import SupportTopBar, { WhatsAppIcon, AnyDeskIcon } from '../components/SupportTopBar';
+import SupportTopBar from '../components/SupportTopBar';
 import {
   ArrowRight,
   CheckCircle2,
@@ -16,11 +16,7 @@ import {
   BarChart3,
   Zap,
   Building2,
-  Phone,
-  Monitor,
   Headphones,
-  Copy,
-  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -68,10 +64,10 @@ const showcaseModules = [
   {
     id: 'teams',
     icon: Building2,
-    label: 'Teams & Workspaces',
-    title: 'Multi-business, one login',
-    body: 'Switch companies, invite teammates with roles, and keep every ledger cleanly isolated.',
-    points: ['Role-based access', 'Activity log', 'Workspace switcher'],
+    label: 'Teams & Business',
+    title: 'One business, one account',
+    body: 'Invite teammates, assign roles, and keep every ledger cleanly isolated.',
+    points: ['Role-based access', 'Activity log', 'Single business access'],
   },
 ];
 
@@ -237,14 +233,6 @@ function FeatureShowcase() {
 }
 
 export default function LandingHome() {
-  const [copiedId, setCopiedId] = useState(null);
-
-  const copyToClipboard = (text, label) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(label);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   return (
     <div className="min-h-screen flex flex-col text-charcoal">
       <SupportTopBar />
@@ -300,7 +288,7 @@ export default function LandingHome() {
                 to="/login"
                 className="w-full sm:w-auto px-6 py-3.5 rounded-[16px] bg-white border border-stone hover:bg-cream text-charcoal text-sm font-semibold transition-all duration-[220ms] inline-flex items-center justify-center"
               >
-                Explore demo workspace
+                Explore demo account
               </Link>
             </motion.div>
 
@@ -310,7 +298,7 @@ export default function LandingHome() {
               transition={{ delay: 0.28 }}
               className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-warm-gray pt-1"
             >
-              {['GST ready', 'Multi-business', 'No credit card'].map((t) => (
+              {['GST ready', 'Single business access', 'No credit card'].map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-green-forest" strokeWidth={1.75} /> {t}
                 </span>
@@ -427,120 +415,34 @@ export default function LandingHome() {
         </div>
       </section>
 
-      {/* Customer Support & AnyDesk Remote Assistance Section */}
+      {/* Business Enquiries */}
       <section className="py-20 sm:py-24 border-t border-stone bg-gradient-to-b from-white via-cream/40 to-ivory">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="max-w-3xl mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-bottle/10 text-green-bottle text-xs font-semibold mb-3">
-              <Headphones className="w-3.5 h-3.5" /> 100% Live Customer Resolution
+          <div className="max-w-2xl mx-auto text-center space-y-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-bottle/10 text-green-bottle text-xs font-semibold">
+              <Headphones className="w-3.5 h-3.5" /> Business Enquiries
             </div>
             <h2 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight text-charcoal">
-              Need help? Direct Call, WhatsApp & AnyDesk Remote Support
+              Talk to Biizora
             </h2>
-            <p className="mt-3 text-warm-gray text-sm sm:text-base leading-relaxed">
-              We don&apos;t leave you hanging. Connect with our dedicated support team via phone or WhatsApp, or let our engineers connect to your desktop via AnyDesk to solve any issue remotely.
+            <p className="text-warm-gray text-sm sm:text-base leading-relaxed">
+              For subscriptions, partnerships, and product questions, email our team. Signed-in customers can access
+              remote support and live assistance from the in-app Support center.
             </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Phone & WhatsApp Card */}
-            <div className="bg-white rounded-[24px] border border-stone p-7 shadow-card space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-[14px] bg-[#25D366]/10 text-[#25D366] flex items-center justify-center border border-[#25D366]/20">
-                  <WhatsAppIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-charcoal">Call & WhatsApp Lines</h3>
-                  <p className="text-xs text-warm-gray">Instant chat and phone support for Indian SMEs</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <Phone className="w-4 h-4 text-green-bottle" />
-                    <span className="font-mono text-sm font-bold text-charcoal">+91 9904914513</span>
-                  </div>
-                  <a
-                    href="https://wa.me/919904914513"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold transition-all shadow-subtle"
-                  >
-                    <WhatsAppIcon className="w-3.5 h-3.5" /> WhatsApp
-                  </a>
-                </div>
-
-                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <Phone className="w-4 h-4 text-green-bottle" />
-                    <span className="font-mono text-sm font-bold text-charcoal">+91 9081051240</span>
-                  </div>
-                  <a
-                    href="https://wa.me/919081051240"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold transition-all shadow-subtle"
-                  >
-                    <WhatsAppIcon className="w-3.5 h-3.5" /> WhatsApp
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* AnyDesk Remote Assistance Card */}
-            <div className="bg-white rounded-[24px] border border-stone p-7 shadow-card space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-[14px] bg-terracotta/10 text-terracotta flex items-center justify-center border border-terracotta/20">
-                  <Monitor className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-charcoal">AnyDesk Remote Help</h3>
-                  <p className="text-xs text-warm-gray">Hands-on remote desktop troubleshooting</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-warm-gray block">Desk ID 1</span>
-                    <span className="font-mono text-sm font-bold text-charcoal tracking-wide">1452019780</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard('1452019780', 'land_any1')}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] bg-white border border-stone text-xs font-semibold text-charcoal hover:bg-ivory transition-all shadow-subtle"
-                  >
-                    {copiedId === 'land_any1' ? <Check className="w-3.5 h-3.5 text-green-forest" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copiedId === 'land_any1' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-
-                <div className="p-3.5 rounded-[16px] bg-cream/70 border border-stone flex items-center justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold text-warm-gray block">Desk ID 2</span>
-                    <span className="font-mono text-sm font-bold text-charcoal tracking-wide">1439051108</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => copyToClipboard('1439051108', 'land_any2')}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-[10px] bg-white border border-stone text-xs font-semibold text-charcoal hover:bg-ivory transition-all shadow-subtle"
-                  >
-                    {copiedId === 'land_any2' ? <Check className="w-3.5 h-3.5 text-green-forest" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copiedId === 'land_any2' ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 text-center">
-            <Link
-              to="/support"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-[14px] bg-green-bottle hover:bg-[#264A41] text-white text-xs font-semibold shadow-card transition-all"
+            <a
+              href="mailto:biizora@gmail.com"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-green-bottle text-white font-semibold text-sm hover:opacity-90 shadow-subtle"
             >
-              Visit Full Customer Support Center &rarr;
-            </Link>
+              biizora@gmail.com
+            </a>
+            <div className="pt-2">
+              <Link
+                to="/contact"
+                className="text-sm font-medium text-green-bottle hover:underline inline-flex items-center gap-1"
+              >
+                Contact form <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -551,7 +453,7 @@ export default function LandingHome() {
           <div className="rounded-[28px] border border-stone bg-gradient-to-br from-white via-cream/80 to-yellow-champagne/30 px-8 py-12 sm:px-14 sm:py-16">
             <div className="max-w-xl">
               <h2 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-                Open a workspace in minutes
+                Open your business in minutes
               </h2>
               <p className="mt-3 text-warm-gray text-sm sm:text-base leading-relaxed">
                 Try the Adrian Hale demo to see a live sample business, or start your own trial. Plans and billing
@@ -562,7 +464,7 @@ export default function LandingHome() {
                   to="/register"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-[16px] bg-green-bottle hover:bg-[#264A41] text-white text-sm font-semibold transition-all duration-[220ms]"
                 >
-                  Create your workspace <ArrowRight className="w-4 h-4" />
+                  Create your business <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   to="/pricing"

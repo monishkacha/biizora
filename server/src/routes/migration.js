@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth.js';
-import { requireBusiness } from '../middleware/requireBusiness.js';
+import { requireBusiness, requireActiveSubscription } from '../middleware/requireBusiness.js';
 import multer from 'multer';
 
 import {
@@ -17,7 +17,7 @@ const router = Router();
 const upload = multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
 
 router.use(authenticate);
-router.use(requireBusiness);
+router.use(requireBusiness, requireActiveSubscription);
 
 router.post('/parse', upload.single('file'), parseImportFile);
 router.post('/process', processImport);

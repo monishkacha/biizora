@@ -4,12 +4,42 @@ import { useAuth } from '../context/AuthContext';
 import { Sparkles, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
-const DEMO_EMAIL = 'adrian.hale@biizora.demo';
-const DEMO_PASSWORD = 'demo1234';
+const DEMO_ACCOUNTS = [
+  {
+    label: 'Retail demo',
+    email: 'retail-demo@biizora.com',
+    password: 'demo123',
+  },
+  {
+    label: 'Salon demo',
+    email: 'salon-demo@biizora.com',
+    password: 'demo123',
+  },
+  {
+    label: 'Restaurant demo',
+    email: 'restaurant-demo@biizora.com',
+    password: 'demo123',
+  },
+  {
+    label: 'Manufacturing demo',
+    email: 'manufacturing-demo@biizora.com',
+    password: 'demo123',
+  },
+  {
+    label: 'Stationery demo',
+    email: 'stationery-demo@biizora.com',
+    password: 'demo123',
+  },
+  {
+    label: 'Adrian Hale demo',
+    email: 'adrian.hale@biizora.demo',
+    password: 'demo1234',
+  },
+];
 
 export default function LoginPage() {
-  const [email, setEmail] = useState(DEMO_EMAIL);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [email, setEmail] = useState(DEMO_ACCOUNTS[0].email);
+  const [password, setPassword] = useState(DEMO_ACCOUNTS[0].password);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,10 +64,10 @@ export default function LoginPage() {
     await signIn(email, password);
   };
 
-  const handleDemoLogin = async () => {
-    setEmail(DEMO_EMAIL);
-    setPassword(DEMO_PASSWORD);
-    await signIn(DEMO_EMAIL, DEMO_PASSWORD);
+  const handleDemoLogin = async (account) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    await signIn(account.email, account.password);
   };
 
   return (
@@ -59,14 +89,19 @@ export default function LoginPage() {
         </div>
 
         <div className="bz-card p-7 sm:p-8 space-y-5">
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleDemoLogin}
-            className="w-full py-2.5 rounded-[14px] bg-cream border border-stone text-warm-gray text-xs font-medium hover:bg-bg-hover transition-colors disabled:opacity-60"
-          >
-            {loading ? 'Opening demo workspace…' : 'Try demo workspace (Adrian Hale)'}
-          </button>
+          <div className="grid grid-cols-1 gap-2">
+            {DEMO_ACCOUNTS.map((account) => (
+              <button
+                key={account.email}
+                type="button"
+                disabled={loading}
+                onClick={() => handleDemoLogin(account)}
+                className="w-full py-2.5 rounded-[14px] bg-cream border border-stone text-warm-gray text-xs font-medium hover:bg-bg-hover transition-colors disabled:opacity-60"
+              >
+                {loading ? `Opening ${account.label}…` : `Try ${account.label}`}
+              </button>
+            ))}
+          </div>
 
           {error ? (
             <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">{error}</p>

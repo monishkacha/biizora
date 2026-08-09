@@ -8,34 +8,106 @@ import { Invoice } from '../models/Invoice.js';
 import { Expense } from '../models/Expense.js';
 import { Notification } from '../models/Notification.js';
 import { getPermissionsForRole } from '../services/permissionDefaults.js';
+import { resolveDefaultModules } from '../config/businessTypes.js';
 
+/** Legacy admin demo (single business only) */
 export const DEMO_EMAIL = 'adrian.hale@biizora.demo';
 export const DEMO_PASSWORD = 'demo1234';
 
+/** Industry demos — each is a separate account with exactly one business */
+export const INDUSTRY_DEMOS = [
+  {
+    email: 'retail-demo@biizora.com',
+    password: 'demo123',
+    name: 'Retail Demo',
+    businessName: 'Apex Retail Outlet',
+    businessType: 'retail',
+    customFeatures: ['BarcodeScanner', 'SalesForecast', 'InventoryPrediction'],
+    plan: 'enterprise',
+    isDemoAccount: true,
+  },
+  {
+    email: 'salon-demo@biizora.com',
+    password: 'demo123',
+    name: 'Salon Demo',
+    businessName: 'Glow Salon Studio',
+    businessType: 'salon',
+    customFeatures: ['AIAppointmentSuggestions', 'CustomerLoyalty', 'SmartScheduling'],
+    plan: 'enterprise',
+    isDemoAccount: true,
+  },
+  {
+    email: 'restaurant-demo@biizora.com',
+    password: 'demo123',
+    name: 'Restaurant Demo',
+    businessName: 'Spice Route Kitchen',
+    businessType: 'restaurant',
+    customFeatures: ['KitchenAnalytics', 'PeakHourPrediction', 'TableReservationAI'],
+    plan: 'enterprise',
+    isDemoAccount: true,
+  },
+  {
+    email: 'manufacturing-demo@biizora.com',
+    password: 'demo123',
+    name: 'Manufacturing Demo',
+    businessName: 'Precision Works MFG',
+    businessType: 'manufacturing',
+    customFeatures: ['ProductionDashboard', 'MachineMonitoring', 'QualityReports'],
+    plan: 'enterprise',
+    isDemoAccount: true,
+  },
+  {
+    email: 'stationery-demo@biizora.com',
+    password: 'demo123',
+    name: 'Stationery Demo',
+    businessName: 'PageCraft Stationery',
+    businessType: 'stationery',
+    customFeatures: ['BulkSchoolOrders', 'WholesalePricing', 'InventoryAlerts'],
+    plan: 'enterprise',
+    isDemoAccount: true,
+  },
+  {
+    email: 'fleet-demo@biizora.com',
+    password: 'demo123',
+    name: 'Fleet Demo',
+    businessName: 'FleetFirst Logistics',
+    businessType: 'retail',
+    customFeatures: ['vehicleTracking', 'SalesForecast'],
+    plan: 'enterprise',
+    isDemoAccount: true,
+  },
+];
+
 /**
- * Always ensure the Adrian Hale demo account exists with a known password
- * and a fully populated sample business — even if other users already exist.
+ * Ensure one-account-one-business demo users exist.
  * Safe to call on every server start.
  */
 export async function ensureDemoSeed() {
+  await ensureAdrianDemo();
+  for (const spec of INDUSTRY_DEMOS) {
+    await ensureIndustryDemoAccount(spec);
+  }
+  console.log('✓ Demo accounts ready (one business per account)');
+  console.log(`  Admin: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
+  console.log('  Industry: *-demo@biizora.com / demo123');
+  return true;
+}
+
+async function ensureAdrianDemo() {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
-  // Migrate legacy demo identity if present
   const legacy = await User.findOne({ email: 'kpatel3360@gmail.com' });
   const existingDemo = await User.findOne({ email: DEMO_EMAIL });
   if (legacy && !existingDemo) {
     legacy.name = 'Adrian Hale';
     legacy.email = DEMO_EMAIL;
     legacy.passwordHash = passwordHash;
-    legacy.phone = '+91 98765 43210';
-    legacy.avatar = 'https://api.dicebear.com/7.x/initials/svg?seed=Adrian%20Hale';
     await legacy.save();
   } else if (legacy && existingDemo) {
     await User.deleteOne({ _id: legacy._id });
   }
 
   let user = await User.findOne({ email: DEMO_EMAIL });
-
   if (!user) {
     user = await User.create({
       name: 'Adrian Hale',
@@ -43,117 +115,185 @@ export async function ensureDemoSeed() {
       passwordHash,
       phone: '+91 98765 43210',
       avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Adrian%20Hale',
-      subscriptionPlan: 'Pro Plan',
-      subscriptionStatus: 'active',
-      trialDaysLeft: 14,
+      isSuperAdmin: true,
+      isDemoAccount: true,
       preferences: { theme: 'light', timezone: 'Asia/Kolkata', language: 'en', bgStyle: 'ivory-cream' },
     });
-    console.log('→ Created demo user Adrian Hale');
   } else {
-    user.name = 'Adrian Hale';
     user.passwordHash = passwordHash;
-    user.phone = '+91 98765 43210';
-    user.avatar = 'https://api.dicebear.com/7.x/initials/svg?seed=Adrian%20Hale';
-    user.subscriptionPlan = user.subscriptionPlan || 'Pro Plan';
-    user.subscriptionStatus = user.subscriptionStatus || 'active';
-    user.preferences = {
-      theme: 'light',
-      timezone: user.preferences?.timezone || 'Asia/Kolkata',
-      language: user.preferences?.language || 'en',
-      bgStyle: user.preferences?.bgStyle || 'ivory-cream',
-    };
+    user.isSuperAdmin = true;
+    user.isDemoAccount = true;
     await user.save();
   }
 
-  let membership = await Membership.findOne({ userId: user._id, status: 'active' });
-  let business = membership ? await Business.findById(membership.businessId) : null;
+  // Strip legacy multi-business memberships — keep exactly one (Owner preferred)
+  const memberships = await Membership.find({ userId: user._id, status: 'active' }).populate('businessId');
+  let primary = memberships.find((m) => m.role === 'Owner' && m.businessId) || memberships.find((m) => m.businessId);
+
+  if (memberships.length > 1 && primary) {
+    const keepId = primary._id.toString();
+    await Membership.deleteMany({
+      userId: user._id,
+      _id: { $ne: primary._id },
+    });
+    console.log(`→ Trimmed Adrian Hale to one business (removed ${memberships.length - 1} extras)`);
+  }
+
+  let business = primary?.businessId || null;
 
   if (!business) {
-    business = await createDemoBusinesses(user);
-    membership = await Membership.findOne({ userId: user._id, businessId: business._id });
-  }
-
-  const customerCount = await Customer.countDocuments({ businessId: business._id });
-  if (customerCount === 0) {
-    await seedDemoRecords(user, business);
-    console.log('→ Seeded demo business analytics data');
-  }
-
-  console.log(`✓ Demo ready (${DEMO_EMAIL} / ${DEMO_PASSWORD})`);
-  return true;
-}
-
-async function createDemoBusinesses(user) {
-  const business = await Business.create({
-    name: 'Hale Analytics Group',
-    tradeName: 'Hale Analytics',
-    industry: 'Software & SaaS',
-    gstin: '29ABCDE1234F1Z5',
-    pan: 'ABCDE1234F',
-    email: DEMO_EMAIL,
-    phone: '+91 98765 43210',
-    website: 'https://biizora.in',
-    address: {
-      line1: 'Suite 402, Innovate Tech Park, Koramangala',
-      city: 'Bengaluru',
-      state: 'Karnataka',
-      pincode: '560095',
-      country: 'India',
-    },
-    bankDetails: {
-      bankName: 'HDFC Bank Ltd',
-      accountName: 'Hale Analytics Group',
-      accountNumber: '50200012345678',
-      ifscCode: 'HDFC0001234',
-      branch: 'Koramangala 4th Block',
-      upiId: 'hale@hdfcbank',
-    },
-    taxSettings: {
+    business = await Business.create({
+      name: 'Hale Analytics Group',
+      tradeName: 'Hale Analytics',
+      ownerName: 'Adrian Hale',
+      industry: 'Retail',
+      businessType: 'retail',
+      gstin: '29ABCDE1234F1Z5',
+      GSTNumber: '29ABCDE1234F1Z5',
+      pan: 'ABCDE1234F',
+      email: DEMO_EMAIL,
+      phone: '+91 98765 43210',
+      website: 'https://biizora.in',
+      subscriptionStatus: 'Active',
+      subscriptionPlan: 'enterprise',
+      subscriptionActivatedAt: new Date(),
+      isActive: true,
+      isDemoAccount: true,
+      enabledModules: resolveDefaultModules('retail'),
+      customFeatures: ['BarcodeScanner', 'SalesForecast', 'InventoryPrediction'],
+      address: {
+        line1: 'Suite 402, Innovate Tech Park, Koramangala',
+        city: 'Bengaluru',
+        state: 'Karnataka',
+        pincode: '560095',
+        country: 'India',
+      },
+      taxSettings: {
+        currency: 'INR',
+        currencySymbol: '₹',
+        defaultTaxRate: 18,
+        invoicePrefix: 'INV-2026-',
+        invoiceTheme: 'modern',
+      },
       currency: 'INR',
-      currencySymbol: '₹',
-      defaultTaxRate: 18,
+      timezone: 'Asia/Kolkata',
       invoicePrefix: 'INV-2026-',
-      invoiceTheme: 'modern',
-    },
-    branding: { brandColor: '#2F5D50', invoiceTheme: 'modern' },
-    onboardingCompleted: true,
-    createdBy: user._id,
-  });
+      themeColor: '#2F5D50',
+      branding: { brandColor: '#2F5D50', primaryColor: '#2F5D50', invoiceTheme: 'modern' },
+      onboardingCompleted: true,
+      createdBy: user._id,
+    });
 
-  const retail = await Business.create({
-    name: 'Apex Retail Outlet',
-    tradeName: 'Apex Retail',
-    industry: 'Retail',
-    email: DEMO_EMAIL,
-    createdBy: user._id,
-    onboardingCompleted: true,
-    taxSettings: {
-      currency: 'INR',
-      currencySymbol: '₹',
-      defaultTaxRate: 18,
-      invoicePrefix: 'AR-',
-      invoiceTheme: 'modern',
-    },
-  });
-
-  await Membership.insertMany([
-    {
+    await Membership.create({
       userId: user._id,
       businessId: business._id,
       role: 'Owner',
       permissions: getPermissionsForRole('Owner'),
       status: 'active',
-    },
-    {
+    });
+  } else {
+    business.subscriptionStatus = 'Active';
+    business.isActive = true;
+    business.isDemoAccount = true;
+    business.businessType = business.businessType || 'retail';
+    business.subscriptionPlan = 'enterprise';
+    business.customFeatures = ['BarcodeScanner', 'SalesForecast', 'InventoryPrediction'];
+    business.onboardingCompleted = true;
+    if (!business.enabledModules?.length) {
+      business.enabledModules = resolveDefaultModules(business.businessType);
+    }
+    await business.save();
+  }
+
+  const customerCount = await Customer.countDocuments({ businessId: business._id });
+  if (customerCount === 0) {
+    await seedDemoRecords(user, business);
+    console.log('→ Seeded Adrian Hale sample invoices/customers');
+  }
+}
+
+async function ensureIndustryDemoAccount(spec) {
+  const passwordHash = await bcrypt.hash(spec.password, 12);
+  let user = await User.findOne({ email: spec.email });
+
+  if (!user) {
+    user = await User.create({
+      name: spec.name,
+      email: spec.email,
+      passwordHash,
+      phone: '+91 90000 00000',
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(spec.name)}`,
+      isDemoAccount: true,
+      preferences: { theme: 'light', timezone: 'Asia/Kolkata', language: 'en' },
+    });
+    console.log(`→ Created demo account ${spec.email}`);
+  } else {
+    user.passwordHash = passwordHash;
+    user.name = spec.name;
+    user.isDemoAccount = true;
+    await user.save();
+  }
+
+  // Enforce one membership
+  const memberships = await Membership.find({ userId: user._id, status: 'active' });
+  let membership = memberships[0] || null;
+  if (memberships.length > 1) {
+    await Membership.deleteMany({
       userId: user._id,
-      businessId: retail._id,
+      _id: { $ne: membership._id },
+    });
+  }
+
+  let business = membership ? await Business.findById(membership.businessId) : null;
+
+  if (!business) {
+    business = await Business.create({
+      name: spec.businessName,
+      tradeName: spec.businessName,
+      ownerName: spec.name,
+      email: spec.email,
+      businessType: spec.businessType,
+      industry: spec.businessType,
+      subscriptionStatus: 'Active',
+      subscriptionPlan: 'enterprise',
+      subscriptionActivatedAt: new Date(),
+      isActive: true,
+      isDemoAccount: true,
+      customFeatures: spec.customFeatures || [],
+      enabledModules: resolveDefaultModules(spec.businessType),
+      currency: 'INR',
+      timezone: 'Asia/Kolkata',
+      themeColor: '#2F5D50',
+      branding: { brandColor: '#2F5D50', primaryColor: '#2F5D50', invoiceTheme: 'modern' },
+      onboardingCompleted: true,
+      createdBy: user._id,
+    });
+
+    await Membership.create({
+      userId: user._id,
+      businessId: business._id,
       role: 'Owner',
       permissions: getPermissionsForRole('Owner'),
       status: 'active',
-    },
-  ]);
+    });
+  } else {
+    business.name = spec.businessName;
+    business.businessType = spec.businessType;
+    business.subscriptionStatus = 'Active';
+    business.isActive = true;
+    business.isDemoAccount = true;
+    business.subscriptionPlan = 'enterprise';
+    business.customFeatures = spec.customFeatures || [];
+    business.enabledModules = resolveDefaultModules(spec.businessType);
+    business.onboardingCompleted = true;
+    await business.save();
+  }
 
-  return business;
+  const customerCount = await Customer.countDocuments({ businessId: business._id });
+  if (customerCount === 0) {
+    await seedDemoRecords(user, business);
+    console.log(`→ Seeded sample records for ${spec.email}`);
+  }
 }
 
 async function seedDemoRecords(user, business) {
@@ -362,7 +502,7 @@ async function seedDemoRecords(user, business) {
     businessId: business._id,
     userId: user._id,
     title: 'Welcome to Biizora',
-    message: 'Explore Hale Analytics Group — a sample workspace with invoices, customers, expenses, and live dashboard metrics.',
+    message: 'Your single-business workspace is ready with sample invoices, customers, and dashboard metrics.',
     type: 'system',
   });
 }
