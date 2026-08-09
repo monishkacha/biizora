@@ -44,6 +44,15 @@ import MigrationCenterPage from './pages/MigrationCenterPage';
 import MembershipPage from './pages/MembershipPage';
 import SuperAdminPage from './pages/admin/SuperAdminPage';
 import ModulePlaceholderPage from './pages/ModulePlaceholderPage';
+import SalonCalendarPage from './pages/salon/SalonCalendarPage';
+import SalonAppointmentsPage from './pages/salon/SalonAppointmentsPage';
+import SalonStylistsPage from './pages/salon/SalonStylistsPage';
+import SalonServicesPage from './pages/salon/SalonServicesPage';
+import SalonBillingPage from './pages/salon/SalonBillingPage';
+import SalonMembershipsPage from './pages/salon/SalonMembershipsPage';
+import SalonReviewsPage from './pages/salon/SalonReviewsPage';
+import SalonReportsPage from './pages/salon/SalonReportsPage';
+import PublicBookingPage from './pages/salon/PublicBookingPage';
 
 export default function App() {
   return (
@@ -70,6 +79,7 @@ export default function App() {
                   <Route path="/register" element={<RegisterPage />} />
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/book" element={<PublicBookingPage />} />
 
                   <Route path="/app" element={<AppLayout />}>
                     <Route index element={<DashboardPage />} />
@@ -94,11 +104,14 @@ export default function App() {
                     <Route path="settings" element={<SettingsPage />} />
                     <Route path="support" element={<SupportPage />} />
                     {/* Industry / plugin module shells — configuration-driven */}
-                    <Route path="appointments" element={<ModulePlaceholderPage title="Appointments" />} />
+                    <Route path="appointments" element={<SalonAppointmentsPage />} />
+                    <Route path="calendar" element={<SalonCalendarPage />} />
+                    <Route path="stylists" element={<SalonStylistsPage />} />
+                    <Route path="services" element={<SalonServicesPage />} />
+                    <Route path="memberships" element={<SalonMembershipsPage />} />
+                    <Route path="reviews" element={<SalonReviewsPage />} />
                     <Route path="staff-schedule" element={<ModulePlaceholderPage title="Staff Schedule" />} />
-                    <Route path="services" element={<ModulePlaceholderPage title="Services" />} />
                     <Route path="packages" element={<ModulePlaceholderPage title="Packages" />} />
-                    <Route path="memberships" element={<ModulePlaceholderPage title="Memberships" />} />
                     <Route path="loyalty" element={<ModulePlaceholderPage title="Loyalty" />} />
                     <Route path="customer-history" element={<ModulePlaceholderPage title="Customer History" />} />
                     <Route path="walk-ins" element={<ModulePlaceholderPage title="Walk-ins" />} />

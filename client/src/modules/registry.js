@@ -33,10 +33,14 @@ import {
   Store,
   GraduationCap,
   BadgeCheck,
+  Star,
+  Clock,
 } from 'lucide-react';
 
 const ICON_MAP = {
   LayoutDashboard,
+  Clock,
+  Star,
   FileText,
   Users,
   Package,

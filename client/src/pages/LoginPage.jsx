@@ -1,8 +1,48 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Sparkles, Eye, EyeOff, ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+
+function DemoWorkspaceDropdown({ onSelect, disabled }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState("");
+
+  const handleSelect = (account) => {
+    setSelectedLabel(account.label);
+    setIsOpen(false);
+    onSelect(account);
+  };
+
+  return (
+    <div className="relative w-full">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full h-[52px] px-4 rounded-[16px] bg-[#F5F4F0] border border-[#E5E3DD] text-warm-gray text-xs font-semibold flex items-center justify-between hover:bg-[#EAE8E2] focus:border-green-bottle transition-all duration-[220ms] focus:outline-none disabled:opacity-60"
+      >
+        <span className="text-charcoal font-sans">{selectedLabel || "Choose a demo workspace"}</span>
+        <ChevronDown className={`w-4 h-4 text-warm-gray transition-transform duration-220 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-2 bg-white border border-[#E5E3DD] rounded-[16px] shadow-elev z-20 overflow-hidden">
+          {DEMO_ACCOUNTS.map((account) => (
+            <button
+              key={account.email}
+              type="button"
+              onClick={() => handleSelect(account)}
+              className="w-full text-left px-4 py-3 text-xs text-charcoal hover:bg-cream transition-colors border-b border-stone/50 last:border-0 font-medium"
+            >
+              {account.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 const DEMO_ACCOUNTS = [
   {
@@ -89,18 +129,14 @@ export default function LoginPage() {
         </div>
 
         <div className="bz-card p-7 sm:p-8 space-y-5">
-          <div className="grid grid-cols-1 gap-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <button
-                key={account.email}
-                type="button"
-                disabled={loading}
-                onClick={() => handleDemoLogin(account)}
-                className="w-full py-2.5 rounded-[14px] bg-cream border border-stone text-warm-gray text-xs font-medium hover:bg-bg-hover transition-colors disabled:opacity-60"
-              >
-                {loading ? `Opening ${account.label}…` : `Try ${account.label}`}
-              </button>
-            ))}
+          <div className="relative w-full">
+            <label className="block space-y-1.5 mb-2">
+              <span className="text-xs font-medium text-warm-gray font-sans">Quick Demo Access</span>
+            </label>
+            <DemoWorkspaceDropdown
+              disabled={loading}
+              onSelect={handleDemoLogin}
+            />
           </div>
 
           {error ? (

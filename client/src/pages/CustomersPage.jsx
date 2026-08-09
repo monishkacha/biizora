@@ -21,8 +21,16 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+import { useAuth } from '../context/AuthContext';
+import SalonCustomersPage from './salon/SalonCustomersPage';
+
 export default function CustomersPage() {
+  const { activeWorkspace } = useAuth();
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useBusiness();
+
+  if (activeWorkspace?.businessType === 'salon') {
+    return <SalonCustomersPage />;
+  }
   const { addNotification } = useNotification();
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');

@@ -7,7 +7,17 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Input, Select } from '../components/ui/Input';
 import { Tabs, Card } from '../components/ui/Badge';
-import { Building2, User, Sliders, Palette } from 'lucide-react';
+import {
+  Building2,
+  User,
+  Sliders,
+  Palette,
+  Globe,
+  Copy,
+  ExternalLink,
+  QrCode,
+  Share2,
+} from 'lucide-react';
 
 export default function SettingsPage() {
   const { company, updateCompany, showToast } = useBusiness();
@@ -15,6 +25,16 @@ export default function SettingsPage() {
   const { bgStyle } = useTheme();
   const [activeTab, setActiveTab] = useState('organization');
   const [saving, setSaving] = useState(false);
+
+  const [bookingEnabled, setBookingEnabled] = useState(() => {
+    return localStorage.getItem('salon_booking_enabled') !== 'false';
+  });
+  const bookingUrl = `${window.location.origin}/book`;
+
+  const copyBookingLink = () => {
+    navigator.clipboard.writeText(bookingUrl);
+    showToast('Booking link copied to clipboard!');
+  };
 
   const [companyForm, setCompanyForm] = useState(company);
   const [bankForm, setBankForm] = useState(company?.bankDetails || {});
@@ -137,6 +157,7 @@ export default function SettingsPage() {
           { id: 'profile', label: 'Profile' },
           { id: 'preferences', label: 'Preferences' },
           { id: 'themes', label: 'Invoice theme' },
+          ...(company?.businessType === 'salon' ? [{ id: 'booking', label: 'Online Booking' }] : []),
         ]}
         active={activeTab}
         onChange={setActiveTab}
@@ -289,6 +310,104 @@ export default function SettingsPage() {
                   <p className="text-xs text-ink-muted mt-1">Applies to PDF / print invoices</p>
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'booking' && (
+          <div className="space-y-6 max-w-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Globe className="w-4 h-4 text-ink-muted" />
+              <h3 className="text-sm font-semibold text-ink">Online Booking Portal</h3>
+            </div>
+            
+            <div className="p-4 bg-cream/30 border border-stone rounded-2xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-xs font-bold text-charcoal">Online Booking Status</h4>
+                  <p className="text-[10px] text-warm-gray">Enable or disable public appointment scheduling</p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={bookingEnabled}
+                    onChange={(e) => {
+                      setBookingEnabled(e.target.checked);
+                      localStorage.setItem('salon_booking_enabled', e.target.checked ? 'true' : 'false');
+                      showToast('Online booking status updated!');
+                    }}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-stone peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-bottle" />
+                </label>
+              </div>
+
+              {bookingEnabled && (
+                <div className="space-y-3 pt-3 border-t border-stone/50">
+                  <div className="space-y-1.5 text-xs">
+                    <label className="font-semibold text-charcoal block">Public Booking URL</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={bookingUrl}
+                        className="flex-1 px-3.5 py-2.5 bg-ivory/55 border border-stone rounded-xl outline-none text-[11px] font-mono text-warm-gray"
+                      />
+                      <button
+                        type="button"
+                        onClick={copyBookingLink}
+                        className="px-3.5 bg-ivory hover:bg-cream border border-stone rounded-xl text-charcoal font-bold flex items-center justify-center gap-1.5"
+                        title="Copy Link"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <a
+                        href="/book"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3.5 bg-[#2F6B59] hover:bg-[#1C4337] text-white rounded-xl font-bold flex items-center justify-center"
+                        title="Open Booking Page"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center gap-4 pt-3">
+                    <div className="p-3 bg-white border border-stone rounded-2xl shadow-subtle shrink-0">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(bookingUrl)}`}
+                        alt="Booking QR Code"
+                        className="w-[120px] h-[120px]"
+                      />
+                    </div>
+                    <div className="text-xs space-y-2">
+                      <h5 className="font-bold text-charcoal">Scan QR Code</h5>
+                      <p className="text-[10px] text-warm-gray leading-relaxed">
+                        Download or print this QR Code and place it at your salon counter or marketing brochures to let clients book instantly from their phones.
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(bookingUrl)}`, '_blank');
+                          }}
+                          className="px-3 py-1.5 bg-ivory hover:bg-cream border border-stone rounded-lg font-bold text-[10px] flex items-center gap-1"
+                        >
+                          <QrCode className="w-3.5 h-3.5" /> View Enlarged
+                        </button>
+                        <button
+                          type="button"
+                          onClick={copyBookingLink}
+                          className="px-3 py-1.5 bg-ivory hover:bg-cream border border-stone rounded-lg font-bold text-[10px] flex items-center gap-1"
+                        >
+                          <Share2 className="w-3.5 h-3.5" /> Share URL
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

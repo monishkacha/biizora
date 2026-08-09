@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useBusiness } from '../context/BusinessContext';
 import { modulesApi } from '../api/client';
 import {
   FALLBACK_NAV,
   filterModulesForWorkspace,
   modulesToNavItems,
+  resolveIcon,
 } from '../modules/registry';
-import { LogOut, Building2, Shield, BadgeCheck } from 'lucide-react';
+import { PoweredByBizora } from './ui/PoweredByBizora';
+import { LogOut, Building2, Shield, BadgeCheck, Headphones } from 'lucide-react';
 
 export default function Sidebar({ collapsed, mobileOpen }) {
   const location = useLocation();
@@ -22,6 +25,24 @@ export default function Sidebar({ collapsed, mobileOpen }) {
     async function loadNav() {
       if (!biz?.id) {
         setNavItems(modulesToNavItems(FALLBACK_NAV));
+        return;
+      }
+
+      if (biz?.businessType === 'salon') {
+        const salonModules = [
+          { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'calendar', title: 'Calendar', route: '/app/calendar', icon: 'Calendar' },
+          { id: 'appointments', title: 'Appointments', route: '/app/appointments', icon: 'Clock' },
+          { id: 'customers', title: 'Customers', route: '/app/customers', icon: 'Users' },
+          { id: 'stylists', title: 'Stylists', route: '/app/stylists', icon: 'Sparkles' },
+          { id: 'services', title: 'Services', route: '/app/services', icon: 'Scissors' },
+          { id: 'billing', title: 'Billing', route: '/app/billing', icon: 'Receipt' },
+          { id: 'memberships', title: 'Memberships', route: '/app/memberships', icon: 'Shield' },
+          { id: 'reviews', title: 'Reviews', route: '/app/reviews', icon: 'Star' },
+          { id: 'reports', title: 'Reports', route: '/app/reports', icon: 'BarChart3' },
+          { id: 'settings', title: 'Settings', route: '/app/settings', icon: 'Settings' },
+        ];
+        setNavItems(modulesToNavItems(salonModules));
         return;
       }
 
@@ -134,7 +155,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           );
         })}
 
-        {!navItems.some((n) => n.path === '/app/membership') && (
+        {!navItems.some((n) => n.path === '/app/membership') && biz?.businessType !== 'salon' && (
           <Link
             to="/app/membership"
             className={`
@@ -163,7 +184,14 @@ export default function Sidebar({ collapsed, mobileOpen }) {
         )}
       </nav>
 
-      <div className="p-3 border-t border-stone">
+      <div className="p-3 border-t border-stone space-y-1">
+        <Link
+          to="/app/support"
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm text-warm-gray hover:bg-white hover:text-charcoal ${collapsed ? 'justify-center' : ''}`}
+        >
+          <Headphones className="w-4 h-4" />
+          {!collapsed && <span>Help & Support</span>}
+        </Link>
         <button
           type="button"
           onClick={logout}
@@ -172,6 +200,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           <LogOut className="w-4 h-4" />
           {!collapsed && <span>Sign out</span>}
         </button>
+        {!collapsed && <PoweredByBizora className="pt-2 border-t border-stone/30" />}
       </div>
     </aside>
   );

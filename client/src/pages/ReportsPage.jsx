@@ -12,8 +12,16 @@ import {
   DollarSign
 } from 'lucide-react';
 
+import { useAuth } from '../context/AuthContext';
+import SalonReportsPage from './salon/SalonReportsPage';
+
 export default function ReportsPage() {
+  const { activeWorkspace } = useAuth();
   const { metrics, invoices, expenses, company } = useBusiness();
+
+  if (activeWorkspace?.businessType === 'salon') {
+    return <SalonReportsPage />;
+  }
   const [activeTab, setActiveTab] = useState('pnl');
 
   const totalGstOutput = invoices.reduce((sum, i) => sum + (i.status === 'paid' ? (i.totalTax || 0) : 0), 0);

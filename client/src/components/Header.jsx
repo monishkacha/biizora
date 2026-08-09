@@ -92,14 +92,16 @@ export default function Header({ setMobileOpen }) {
       </div>
 
       <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => navigate('/app/invoices/new')}
-          className="flex items-center gap-1.5 px-3.5 py-2 bg-yellow-butter hover:bg-yellow-honey text-charcoal rounded-[14px] text-xs font-semibold shadow-yellow transition-all duration-[220ms]"
-        >
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">New invoice</span>
-        </button>
+        {biz?.businessType !== 'salon' && (
+          <button
+            type="button"
+            onClick={() => navigate('/app/invoices/new')}
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-yellow-butter hover:bg-yellow-honey text-charcoal rounded-[14px] text-xs font-semibold shadow-yellow transition-all duration-[220ms]"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">New invoice</span>
+          </button>
+        )}
 
         <div className="relative">
           <button
