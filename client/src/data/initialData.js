@@ -5,7 +5,7 @@ export const defaultCompany = {
   tradeName: "Biizora Tech",
   gstin: "29ABCDE1234F1Z5",
   pan: "ABCDE1234F",
-  email: "adrian.hale@biizora.demo",
+  email: "manufacturing@biizora.demo",
   phone: "+91 98765 43210",
   address: "Suite 402, Innovate Tech Park, Koramangala",
   city: "Bengaluru",

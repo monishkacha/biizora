@@ -31,11 +31,11 @@ async function seed() {
 
   const passwordHash = await bcrypt.hash('demo1234', 12);
   const user = await User.create({
-    name: 'Adrian Hale',
-    email: 'adrian.hale@biizora.demo',
+    name: 'Manufacturing Lead',
+    email: 'manufacturing@biizora.demo',
     passwordHash,
     phone: '+91 98765 43210',
-    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Adrian%20Hale',
+    avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Manufacturing%20Demo',
     subscriptionPlan: 'Pro Plan',
     subscriptionStatus: 'active',
     trialDaysLeft: 14,
@@ -43,35 +43,36 @@ async function seed() {
   });
 
   const business = await Business.create({
-    name: 'Hale Analytics Group',
-    tradeName: 'Hale Analytics',
-    industry: 'Software & SaaS',
+    name: 'Apex Manufacturing Works',
+    tradeName: 'Apex Manufacturing',
+    industry: 'Manufacturing',
+    businessType: 'manufacturing',
     gstin: '29ABCDE1234F1Z5',
     pan: 'ABCDE1234F',
-    email: 'adrian.hale@biizora.demo',
+    email: 'manufacturing@biizora.demo',
     phone: '+91 98765 43210',
     website: 'https://biizora.in',
     logoUrl: '',
     address: {
-      line1: 'Suite 402, Innovate Tech Park, Koramangala',
+      line1: 'Plot 45, Peenya Industrial Area Zone 2',
       city: 'Bengaluru',
       state: 'Karnataka',
-      pincode: '560095',
+      pincode: '560058',
       country: 'India',
     },
     bankDetails: {
       bankName: 'HDFC Bank Ltd',
-      accountName: 'Hale Analytics Group',
+      accountName: 'Apex Manufacturing Works',
       accountNumber: '50200012345678',
       ifscCode: 'HDFC0001234',
-      branch: 'Koramangala 4th Block',
-      upiId: 'hale@hdfcbank',
+      branch: 'Peenya 1st Stage',
+      upiId: 'apexmanufacturing@hdfcbank',
     },
     taxSettings: {
       currency: 'INR',
       currencySymbol: '₹',
       defaultTaxRate: 18,
-      invoicePrefix: 'INV-2026-',
+      invoicePrefix: 'MFG-2026-',
       invoiceTheme: 'modern',
     },
     branding: { brandColor: '#171717', invoiceTheme: 'modern' },
@@ -83,7 +84,8 @@ async function seed() {
     name: 'Apex Retail Outlet',
     tradeName: 'Apex Retail',
     industry: 'Retail',
-    email: 'adrian.hale@biizora.demo',
+    businessType: 'retail',
+    email: 'manufacturing@biizora.demo',
     createdBy: user._id,
     onboardingCompleted: true,
     taxSettings: {
@@ -479,7 +481,7 @@ async function seed() {
   });
 
   console.log('✓ Biizora seed complete');
-  console.log('  Email:    adrian.hale@biizora.demo');
+  console.log('  Email:    manufacturing@biizora.demo');
   console.log('  Password: demo1234');
   console.log(`  Business: ${business.name} (${business._id})`);
   process.exit(0);

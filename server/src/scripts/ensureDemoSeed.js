@@ -17,8 +17,8 @@ import { Offer } from '../models/Offer.js';
 import { getPermissionsForRole } from '../services/permissionDefaults.js';
 import { resolveDefaultModules } from '../config/businessTypes.js';
 
-/** Legacy admin demo (single business only) */
-export const DEMO_EMAIL = 'adrian.hale@biizora.demo';
+/** Legacy manufacturing admin demo (single business only) */
+export const DEMO_EMAIL = 'manufacturing@biizora.demo';
 export const DEMO_PASSWORD = 'demo1234';
 
 /** Industry demos — each is a separate account with exactly one business */
@@ -90,7 +90,7 @@ export const INDUSTRY_DEMOS = [
  * Safe to call on every server start.
  */
 export async function ensureDemoSeed() {
-  await ensureAdrianDemo();
+  await ensureManufacturingDemo();
   for (const spec of INDUSTRY_DEMOS) {
     await ensureIndustryDemoAccount(spec);
   }
@@ -100,28 +100,26 @@ export async function ensureDemoSeed() {
   return true;
 }
 
-async function ensureAdrianDemo() {
+async function ensureManufacturingDemo() {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 12);
 
-  const legacy = await User.findOne({ email: 'kpatel3360@gmail.com' });
+  const legacyAdrian = await User.findOne({ email: 'adrian.hale@biizora.demo' });
   const existingDemo = await User.findOne({ email: DEMO_EMAIL });
-  if (legacy && !existingDemo) {
-    legacy.name = 'Adrian Hale';
-    legacy.email = DEMO_EMAIL;
-    legacy.passwordHash = passwordHash;
-    await legacy.save();
-  } else if (legacy && existingDemo) {
-    await User.deleteOne({ _id: legacy._id });
+  if (legacyAdrian && !existingDemo) {
+    legacyAdrian.name = 'Manufacturing Lead';
+    legacyAdrian.email = DEMO_EMAIL;
+    legacyAdrian.passwordHash = passwordHash;
+    await legacyAdrian.save();
   }
 
   let user = await User.findOne({ email: DEMO_EMAIL });
   if (!user) {
     user = await User.create({
-      name: 'Adrian Hale',
+      name: 'Manufacturing Lead',
       email: DEMO_EMAIL,
       passwordHash,
       phone: '+91 98765 43210',
-      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Adrian%20Hale',
+      avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Manufacturing%20Demo',
       isSuperAdmin: true,
       isDemoAccount: true,
       preferences: { theme: 'light', timezone: 'Asia/Kolkata', language: 'en', bgStyle: 'ivory-cream' },
@@ -143,7 +141,7 @@ async function ensureAdrianDemo() {
       userId: user._id,
       _id: { $ne: primary._id },
     });
-    console.log(`→ Trimmed Adrian Hale to one business (removed ${memberships.length - 1} extras)`);
+    console.log(`→ Trimmed Manufacturing Demo to one business (removed ${memberships.length - 1} extras)`);
   }
 
   let business = primary?.businessId || null;
@@ -153,11 +151,11 @@ async function ensureAdrianDemo() {
 
   if (!business) {
     business = await Business.create({
-      name: 'Hale Analytics Group',
-      tradeName: 'Hale Analytics',
-      ownerName: 'Adrian Hale',
-      industry: 'Retail',
-      businessType: 'retail',
+      name: 'Apex Manufacturing Works',
+      tradeName: 'Apex Manufacturing',
+      ownerName: 'Manufacturing Lead',
+      industry: 'Manufacturing',
+      businessType: 'manufacturing',
       gstin: '29ABCDE1234F1Z5',
       GSTNumber: '29ABCDE1234F1Z5',
       pan: 'ABCDE1234F',
@@ -169,27 +167,27 @@ async function ensureAdrianDemo() {
       subscriptionActivatedAt: new Date(),
       isActive: true,
       isDemoAccount: true,
-      enabledModules: resolveDefaultModules('retail'),
-      customFeatures: ['BarcodeScanner', 'SalesForecast', 'InventoryPrediction'],
+      enabledModules: resolveDefaultModules('manufacturing'),
+      customFeatures: ['ProductionDashboard', 'MachineMonitoring', 'QualityReports'],
       address: {
-        line1: 'Suite 402, Innovate Tech Park, Koramangala',
+        line1: 'Plot 45, Peenya Industrial Area Zone 2',
         city: 'Bengaluru',
         state: 'Karnataka',
-        pincode: '560095',
+        pincode: '560058',
         country: 'India',
       },
       taxSettings: {
         currency: 'INR',
         currencySymbol: '₹',
         defaultTaxRate: 18,
-        invoicePrefix: 'INV-2026-',
+        invoicePrefix: 'MFG-2026-',
         invoiceTheme: 'modern',
       },
       currency: 'INR',
       timezone: 'Asia/Kolkata',
-      invoicePrefix: 'INV-2026-',
-      themeColor: '#2F5D50',
-      branding: { brandColor: '#2F5D50', primaryColor: '#2F5D50', invoiceTheme: 'modern' },
+      invoicePrefix: 'MFG-2026-',
+      themeColor: '#171717',
+      branding: { brandColor: '#171717', primaryColor: '#171717', invoiceTheme: 'modern' },
       onboardingCompleted: true,
       createdBy: user._id,
     });
@@ -202,16 +200,15 @@ async function ensureAdrianDemo() {
       status: 'active',
     });
   } else {
+    business.name = 'Apex Manufacturing Works';
     business.subscriptionStatus = 'Active';
     business.isActive = true;
     business.isDemoAccount = true;
-    business.businessType = business.businessType || 'retail';
+    business.businessType = 'manufacturing';
     business.subscriptionPlan = 'enterprise';
-    business.customFeatures = ['BarcodeScanner', 'SalesForecast', 'InventoryPrediction'];
+    business.customFeatures = ['ProductionDashboard', 'MachineMonitoring', 'QualityReports'];
     business.onboardingCompleted = true;
-    if (!business.enabledModules?.length) {
-      business.enabledModules = resolveDefaultModules(business.businessType);
-    }
+    business.enabledModules = resolveDefaultModules('manufacturing');
     await business.save();
   }
 
@@ -220,7 +217,7 @@ async function ensureAdrianDemo() {
   await Invoice.deleteMany({ businessId: business._id });
   await Expense.deleteMany({ businessId: business._id });
   await seedDemoRecords(user, business);
-  console.log('→ Seeded Adrian Hale sample invoices/customers');
+  console.log('→ Seeded Manufacturing sample invoices/customers');
 }
 
 async function ensureIndustryDemoAccount(spec) {

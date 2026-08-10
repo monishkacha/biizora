@@ -43,7 +43,8 @@ import ActivityLogPage from './pages/ActivityLogPage';
 import MigrationCenterPage from './pages/MigrationCenterPage';
 import MembershipPage from './pages/MembershipPage';
 import SuperAdminPage from './pages/admin/SuperAdminPage';
-import ModulePlaceholderPage from './pages/ModulePlaceholderPage';
+
+// Salon Modules
 import SalonCalendarPage from './pages/salon/SalonCalendarPage';
 import SalonAppointmentsPage from './pages/salon/SalonAppointmentsPage';
 import SalonStylistsPage from './pages/salon/SalonStylistsPage';
@@ -52,9 +53,11 @@ import SalonBillingPage from './pages/salon/SalonBillingPage';
 import SalonMembershipsPage from './pages/salon/SalonMembershipsPage';
 import SalonReviewsPage from './pages/salon/SalonReviewsPage';
 import SalonReportsPage from './pages/salon/SalonReportsPage';
+import SalonCustomersPage from './pages/salon/SalonCustomersPage';
+
+// Restaurant Modules
 import PublicBookingPage from './pages/restaurant/PublicBookingPage';
 import PublicOrderingPage from './pages/restaurant/PublicOrderingPage';
-
 import RestaurantTablesPage from './pages/restaurant/TablesPage';
 import RestaurantReservationsPage from './pages/restaurant/ReservationsPage';
 import RestaurantOrdersPOSPage from './pages/restaurant/OrdersPOSPage';
@@ -63,6 +66,7 @@ import RestaurantMenuPage from './pages/restaurant/MenuPage';
 import RestaurantOffersPage from './pages/restaurant/OffersPage';
 import RestaurantBillingPage from './pages/restaurant/BillingPage';
 
+// Stationery Modules
 import StationeryPOSBillingPage from './pages/stationery/StationeryPOSBillingPage';
 import StationeryBillsPage from './pages/stationery/StationeryBillsPage';
 import StationeryProductsPage from './pages/stationery/StationeryProductsPage';
@@ -73,6 +77,31 @@ import StationerySchoolOrdersPage from './pages/stationery/StationerySchoolOrder
 import StationeryPrintXeroxPage from './pages/stationery/StationeryPrintXeroxPage';
 import StationeryReportsPage from './pages/stationery/StationeryReportsPage';
 import StationerySettingsPage from './pages/stationery/StationerySettingsPage';
+
+// Manufacturing Modules
+import {
+  ManufacturingProductionOrdersPage,
+  BillOfMaterialsPage,
+  MachinesStatusPage,
+  RawMaterialsPage,
+  QualityControlPage
+} from './pages/demoModules/ManufacturingPages';
+
+// Retail Modules
+import {
+  RetailBillingPage,
+  StockAlertsPage,
+  SuppliersPage
+} from './pages/demoModules/RetailPages';
+
+// AI & Integration Feature Modules
+import {
+  AIHairRecommendationPage,
+  AIForecastingPage,
+  TableReservationAIPage,
+  GSTBillingPage,
+  IntegrationsHubPage
+} from './pages/demoModules/AIFeaturePages';
 
 export default function App() {
   return (
@@ -128,6 +157,19 @@ export default function App() {
                     <Route path="settings" element={<SettingsPage />} />
                     <Route path="support" element={<SupportPage />} />
 
+                    {/* Salon Dedicated Routes */}
+                    <Route path="appointments" element={<SalonAppointmentsPage />} />
+                    <Route path="calendar" element={<SalonCalendarPage />} />
+                    <Route path="stylists" element={<SalonStylistsPage />} />
+                    <Route path="services" element={<SalonServicesPage />} />
+                    <Route path="memberships" element={<SalonMembershipsPage />} />
+                    <Route path="reviews" element={<SalonReviewsPage />} />
+                    <Route path="customer-history" element={<SalonCustomersPage />} />
+                    <Route path="walk-ins" element={<SalonAppointmentsPage />} />
+                    <Route path="queue" element={<SalonAppointmentsPage />} />
+                    <Route path="stylist" element={<SalonStylistsPage />} />
+                    <Route path="commission" element={<SalonStylistsPage />} />
+
                     {/* Stationery Dedicated Routes */}
                     <Route path="stationery/billing" element={<StationeryPOSBillingPage />} />
                     <Route path="stationery/bills" element={<StationeryBillsPage />} />
@@ -148,32 +190,38 @@ export default function App() {
                     <Route path="pos" element={<RestaurantOrdersPOSPage />} />
                     <Route path="menu" element={<RestaurantMenuPage />} />
                     <Route path="offers" element={<RestaurantOffersPage />} />
-                    <Route path="gst-billing" element={<ModulePlaceholderPage title="GST Billing" />} />
-                    <Route path="stock-alerts" element={<ModulePlaceholderPage title="Stock Alerts" />} />
-                    <Route path="raw-materials" element={<ModulePlaceholderPage title="Raw Materials" />} />
-                    <Route path="production-orders" element={<ModulePlaceholderPage title="Production Orders" />} />
-                    <Route path="bom" element={<ModulePlaceholderPage title="Bill Of Materials" />} />
-                    <Route path="machines" element={<ModulePlaceholderPage title="Machines" />} />
-                    <Route path="maintenance" element={<ModulePlaceholderPage title="Maintenance" />} />
-                    <Route path="warehouse" element={<ModulePlaceholderPage title="Warehouse" />} />
-                    <Route path="qc" element={<ModulePlaceholderPage title="QC" />} />
-                    <Route path="finished-goods" element={<ModulePlaceholderPage title="Finished Goods" />} />
-                    <Route path="production-reports" element={<ModulePlaceholderPage title="Production Reports" />} />
-                    <Route path="retail-billing" element={<ModulePlaceholderPage title="Retail Billing" />} />
-                    <Route path="wholesale" element={<ModulePlaceholderPage title="Wholesale" />} />
-                    <Route path="school-orders" element={<ModulePlaceholderPage title="School Orders" />} />
-                    <Route path="bulk-pricing" element={<ModulePlaceholderPage title="Bulk Pricing" />} />
-                    <Route path="sales-reports" element={<ModulePlaceholderPage title="Sales Reports" />} />
-                    <Route path="suppliers" element={<ModulePlaceholderPage title="Suppliers" />} />
-                    <Route path="sales" element={<ModulePlaceholderPage title="Sales" />} />
-                    <Route path="vehicle-tracking" element={<ModulePlaceholderPage title="Vehicle Tracking" description="Custom feature enabled for this tenant only." />} />
-                    <Route path="repair-center" element={<ModulePlaceholderPage title="Repair Center" />} />
-                    <Route path="medicine-expiry" element={<ModulePlaceholderPage title="Medicine Expiry" />} />
-                    <Route path="purchase-approval" element={<ModulePlaceholderPage title="Purchase Approval" />} />
-                    <Route path="ai-forecasting" element={<ModulePlaceholderPage title="AI Forecasting" />} />
-                    <Route path="ai-hair" element={<ModulePlaceholderPage title="AI Hair Recommendation" />} />
-                    <Route path="reservation-ai" element={<ModulePlaceholderPage title="Table Reservation AI" />} />
-                    <Route path="amazon-sync" element={<ModulePlaceholderPage title="Amazon Sync" />} />
+
+                    {/* Manufacturing Routes */}
+                    <Route path="production-orders" element={<ManufacturingProductionOrdersPage />} />
+                    <Route path="bom" element={<BillOfMaterialsPage />} />
+                    <Route path="machines" element={<MachinesStatusPage />} />
+                    <Route path="maintenance" element={<MachinesStatusPage />} />
+                    <Route path="warehouse" element={<RawMaterialsPage />} />
+                    <Route path="qc" element={<QualityControlPage />} />
+                    <Route path="raw-materials" element={<RawMaterialsPage />} />
+                    <Route path="finished-goods" element={<ManufacturingProductionOrdersPage />} />
+                    <Route path="production-reports" element={<ManufacturingProductionOrdersPage />} />
+
+                    {/* Retail Routes */}
+                    <Route path="retail-billing" element={<RetailBillingPage />} />
+                    <Route path="stock-alerts" element={<StockAlertsPage />} />
+                    <Route path="suppliers" element={<SuppliersPage />} />
+                    <Route path="sales" element={<RetailBillingPage />} />
+                    <Route path="sales-reports" element={<ReportsPage />} />
+                    <Route path="wholesale" element={<RetailBillingPage />} />
+                    <Route path="school-orders" element={<StationerySchoolOrdersPage />} />
+                    <Route path="bulk-pricing" element={<RetailBillingPage />} />
+
+                    {/* AI & Integration Features */}
+                    <Route path="gst-billing" element={<GSTBillingPage />} />
+                    <Route path="vehicle-tracking" element={<IntegrationsHubPage />} />
+                    <Route path="repair-center" element={<IntegrationsHubPage />} />
+                    <Route path="medicine-expiry" element={<StockAlertsPage />} />
+                    <Route path="purchase-approval" element={<SuppliersPage />} />
+                    <Route path="ai-forecasting" element={<AIForecastingPage />} />
+                    <Route path="ai-hair" element={<AIHairRecommendationPage />} />
+                    <Route path="reservation-ai" element={<TableReservationAIPage />} />
+                    <Route path="amazon-sync" element={<IntegrationsHubPage />} />
                   </Route>
                 </Routes>
               </BrowserRouter>

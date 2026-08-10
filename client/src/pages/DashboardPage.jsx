@@ -914,36 +914,59 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Bizz Daily Briefing Card */}
-      {briefing && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[20px] border border-stone bg-gradient-to-r from-cream/40 via-white to-cream/20 p-5 sm:p-6 shadow-subtle flex flex-col md:flex-row gap-5 items-start"
-        >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-yellow-butter/20 rounded-full blur-2xl pointer-events-none" />
-          <div className="w-12 h-12 rounded-[16px] bg-green-bottle/10 border border-green-bottle/20 flex items-center justify-center shrink-0">
-            <Brain className="w-6 h-6 text-green-bottle animate-pulse" />
-          </div>
-          <div className="space-y-3 flex-1">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-green-bottle">Bizz AI Briefing</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-green-forest" />
-                <span className="text-[11px] text-warm-gray">Daily snapshot generated</span>
+      {/* Bizz AI Co-Pilot Welcome Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-[24px] border border-stone bg-gradient-to-r from-stone-900 via-charcoal to-stone-900 text-white p-6 sm:p-7 shadow-elev"
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-green-bottle/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            {/* Visual Bizz Co-Pilot Character Badge */}
+            <div className="relative shrink-0">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-green-bottle to-emerald-500 flex items-center justify-center text-white shadow-lg border border-emerald-400/30">
+                <Brain className="w-7 h-7 animate-pulse text-white" />
               </div>
-              <p className="text-sm font-medium text-charcoal mt-1 leading-relaxed">
-                {briefing.message}
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-stone-900 rounded-full" />
+            </div>
+
+            <div className="space-y-1.5 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider bg-green-bottle/80 text-emerald-200 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                  Bizz AI Co-Pilot
+                </span>
+                <span className="text-xs text-stone-400">EN | ગુજરાતી</span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-display font-semibold text-white tracking-tight">
+                "Hi! I'm Bizz, your business pilot. I'll help you understand your business, spot opportunities, and guide you toward smarter decisions."
+              </h2>
+              <p className="text-xs text-stone-300 leading-relaxed pt-1">
+                {briefing?.message || (
+                  businessType === 'manufacturing'
+                    ? `Production dashboard is active for ${company?.name || 'Apex Manufacturing'}. Track production orders, machine uptime, and raw material safety stock.`
+                    : businessType === 'salon'
+                    ? `Staff utilization and appointment schedules are online. Monitor stylist commissions and client loyalty.`
+                    : businessType === 'restaurant'
+                    ? `Floor occupancy, kitchen queue, and peak hour analytics are tracking live orders.`
+                    : businessType === 'retail'
+                    ? `Sales today and barcode inventory alerts are synchronized with your POS terminals.`
+                    : `Your financials, invoices, and debtor balances are being continuously analyzed.`
+                )}
               </p>
             </div>
-            {briefing.keyInsight && (
-              <p className="text-xs text-warm-gray italic border-l-2 border-green-bottle/35 pl-3 leading-relaxed">
-                💡 {briefing.keyInsight}
-              </p>
-            )}
           </div>
-        </motion.div>
-      )}
+
+          <div className="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto">
+            <button
+              onClick={() => navigate('/app/ai-suite')}
+              className="px-4 py-2.5 rounded-xl bg-green-bottle hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-300" /> Open Bizz AI Suite
+            </button>
+          </div>
+        </div>
+      </motion.div>
 
       {industryHint && (
         <div className="rounded-2xl border border-stone bg-white px-4 py-3.5 text-sm text-warm-gray shadow-subtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

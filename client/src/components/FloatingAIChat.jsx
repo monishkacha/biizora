@@ -1,26 +1,40 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useBusiness } from '../context/BusinessContext';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Send, X, Bot, User, Globe } from 'lucide-react';
+import { Sparkles, Send, X, Bot, User, Globe, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FloatingAIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [language, setLanguage] = useState('en'); // 'en' | 'gu'
+  const [language, setLanguage] = useState(() => localStorage.getItem('bizz_lang') || 'en'); // 'en' | 'gu'
   const { metrics, invoices, customers, expenses, products, company } = useBusiness();
   const { user } = useAuth();
   const messagesEndRef = useRef(null);
   const firstName = user?.name?.split(' ')[0] || 'there';
 
+  const initialGreeting = language === 'gu'
+    ? `નમસ્તે ${firstName}! હું **Bizz (બીઝ)** છું — ${company?.name || 'તમારા ધંધા'} નો તમારો સ્માર્ટ AI બિઝનેસ પાઇલટ. 🚀\n\nતમે મને તમારા વેચાણ, ચોખ્ખો નફો, બાકી લેણી રકમ, GST નિયમો અથવા સ્ટોકની માહિતી વિશે કંઈ પણ પૂછી શકો છો!`
+    : `Hi ${firstName}! I'm **Bizz**, your intelligent business co-pilot for ${company?.name || 'your business'}. 🚀\n\nAsk me about live revenue, profit margins, pending customer invoices, inventory levels, or GST tax calculations — in English or Gujarati!`;
+
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'ai',
-      text: `Hello! I am **Biizora AI**, your financial co-pilot for ${company?.name || 'your business'}.\n\nYou can ask me about customers, revenue, GST rules, or business growth — in English or Gujarati.`
+      text: initialGreeting
     }
   ]);
+
+  const toggleLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('bizz_lang', lang);
+    const switchMsg = lang === 'gu'
+      ? `🌐 **ભાષા બદલાઈ**: Bizz હવે તમને **ગુજરાતી** માં ઉત્તર આપશે. તમને શી મદદ કરી શકું?`
+      : `🌐 **Language Switched**: Bizz will now respond in **English**. How can I help your business today?`;
+    
+    setMessages(prev => [...prev, { id: Date.now(), sender: 'ai', text: switchMsg }]);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -31,18 +45,18 @@ export default function FloatingAIChat() {
   }, [messages, isTyping, isOpen]);
 
   const quickQuestionsEn = [
-    "How much profit did I make?",
-    "Tell me about Nova Retail",
-    "Which customers haven't paid?",
-    "Explain CGST vs IGST",
-    "How to create a GST invoice?",
-    "How to download PDF in theme?"
+    "What is my net profit today?",
+    "Which customers have overdue payments?",
+    "Show low stock inventory alerts",
+    "Explain CGST vs IGST rules",
+    "How to issue a GST invoice?",
+    "Give business growth advice"
   ];
 
   const quickQuestionsGu = [
     "મને કેટલો ચોખ્ખો નફો થયો?",
-    "નોવા રીટેલ વિશે માહિતી આપો",
     "કયા ગ્રાહકોની ચુકવણી બાકી છે?",
+    "ઓછા સ્ટોકની ચેતવણીઓ બતાવો",
     "CGST અને IGST સમજાવો",
     "જીએસટી ઇનવોઇસ કેવી રીતે બનાવવું?",
     "ધંધાનો વિકાસ કરવાની સલાહ આપો"
@@ -50,11 +64,11 @@ export default function FloatingAIChat() {
 
   const activeQuickQuestions = language === 'gu' ? quickQuestionsGu : quickQuestionsEn;
 
-  // Dynamic AI Intelligence & Context Engine with Gujarati & English Support
+  // Dynamic AI Intelligence Engine (English & Gujarati)
   const generateAIAnswer = (userQuery, targetLang = language) => {
     const q = userQuery.toLowerCase().trim();
     const isGujaratiScript = /[\u0A80-\u0AFF]/.test(userQuery);
-    const isGujaratiTranslit = /\b(nafo|nafa|baki|hisaab|vyapar|dhandho|ketlo|ketli|chokkho|jama|aapo|karo)\b/i.test(q);
+    const isGujaratiTranslit = /\b(nafo|nafa|baki|hisaab|vyapar|dhandho|ketlo|ketli|chokkho|jama|aapo|karo|batao)\b/i.test(q);
     const isGu = targetLang === 'gu' || isGujaratiScript || isGujaratiTranslit;
 
     // 1. Specific Customer Lookup
@@ -68,392 +82,290 @@ export default function FloatingAIChat() {
       const pendingInvs = customerInvoices.filter(i => i.status === 'pending' || i.status === 'overdue');
 
       if (isGu) {
-        return `🏢 **ગ્રાહક ફાઇલ: ${matchedCustomer.name}**\n\n` +
-               `• **સંપર્ક વ્યક્તિ**: ${matchedCustomer.contactPerson} (${matchedCustomer.phone})\n` +
-               `• **GSTIN**: ${matchedCustomer.gstin}\n` +
-               `• **શહેર / રાજ્ય**: ${matchedCustomer.city}, ${matchedCustomer.state}\n` +
-               `• **કુલ ખરીદી (Lifetime Spent)**: ₹${matchedCustomer.totalSpent.toLocaleString('en-IN')}\n` +
-               `• **બાકી રકમ (Outstanding Balance)**: ₹${matchedCustomer.outstandingBalance.toLocaleString('en-IN')}\n` +
-               `• **કુલ ઇનવોઇસ**: ${customerInvoices.length} (${pendingInvs.length} બાકી)\n\n` +
-               (matchedCustomer.outstandingBalance > 0
-                 ? `💡 *કાર્યવાહી*: ઇનવોઇસ વિભાગમાં જઇને વોટ્સએપ પર ₹${matchedCustomer.outstandingBalance.toLocaleString('en-IN')} ની યાદી મોકલો.`
-                 : `✅ *સ્થિતિ*: ${matchedCustomer.name} ની તમામ ચુકવણીઓ પૂર્ણ છે, કોઇ જ બાકી રકમ નથી!`);
+        return `🏢 **ગ્રાહક વિગત: ${matchedCustomer.name}**\n\n` +
+               `• **સંપર્ક વ્યક્તિ**: ${matchedCustomer.contactPerson || 'N/A'} (${matchedCustomer.phone || ''})\n` +
+               `• **GSTIN**: ${matchedCustomer.gstin || 'અનરજિસ્ટર્ડ'}\n` +
+               `• **કુલ ખરીદી**: ₹${(matchedCustomer.totalSpent || 0).toLocaleString('en-IN')}\n` +
+               `• **બાકી ચુકવણી (Outstanding)**: ₹${(matchedCustomer.outstandingBalance || 0).toLocaleString('en-IN')}\n` +
+               `• **ઇનવોઇસ સંખ્યા**: ${customerInvoices.length} (${pendingInvs.length} બાકી)\n\n` +
+               ((matchedCustomer.outstandingBalance || 0) > 0
+                 ? `💡 *Bizz સલાહ*: ઇનવોઇસ વિભાગમાંથી વોટ્સએપ પર ₹${(matchedCustomer.outstandingBalance).toLocaleString('en-IN')} માટે રિમાઇન્ડર મોકલો.`
+                 : `✅ *સ્થિતિ*: ગ્રાહકની તમામ ચુકવણીઓ પૂર્ણ થયેલ છે.`);
       }
 
-      return `🏢 **Client File: ${matchedCustomer.name}**\n\n` +
-             `• **Contact Person**: ${matchedCustomer.contactPerson} (${matchedCustomer.phone})\n` +
-             `• **GSTIN**: ${matchedCustomer.gstin}\n` +
-             `• **Location**: ${matchedCustomer.city}, ${matchedCustomer.state}\n` +
-             `• **Lifetime Spent**: ₹${matchedCustomer.totalSpent.toLocaleString('en-IN')}\n` +
-             `• **Outstanding Balance**: ₹${matchedCustomer.outstandingBalance.toLocaleString('en-IN')}\n` +
-             `• **Total Invoices Issued**: ${customerInvoices.length} (${pendingInvs.length} Unpaid)\n\n` +
-             (matchedCustomer.outstandingBalance > 0
-               ? `💡 *Action Item*: Click **Invoices** -> Share on WhatsApp to remind ${matchedCustomer.contactPerson} about their ₹${matchedCustomer.outstandingBalance.toLocaleString('en-IN')} pending balance.`
-               : `✅ *Status*: ${matchedCustomer.name} is in good standing with zero overdue payments!`);
+      return `🏢 **Customer File: ${matchedCustomer.name}**\n\n` +
+             `• **Contact Person**: ${matchedCustomer.contactPerson || 'N/A'} (${matchedCustomer.phone || ''})\n` +
+             `• **GSTIN**: ${matchedCustomer.gstin || 'Unregistered'}\n` +
+             `• **Lifetime Spent**: ₹${(matchedCustomer.totalSpent || 0).toLocaleString('en-IN')}\n` +
+             `• **Outstanding Balance**: ₹${(matchedCustomer.outstandingBalance || 0).toLocaleString('en-IN')}\n` +
+             `• **Invoices Issued**: ${customerInvoices.length} (${pendingInvs.length} unpaid)\n\n` +
+             ((matchedCustomer.outstandingBalance || 0) > 0
+               ? `💡 *Bizz Tip*: Click Invoices -> WhatsApp Share to remind them about ₹${(matchedCustomer.outstandingBalance).toLocaleString('en-IN')} overdue balance.`
+               : `✅ *Status*: Account in good standing with zero overdue balance.`);
     }
 
-    // 2. Specific Invoice Lookup
-    const invoiceMatch = invoices.find(i => 
-      q.includes(i.invoiceNumber.toLowerCase()) || 
-      q.includes(i.invoiceNumber.replace(/[^0-9]/g, ''))
-    );
+    // 2. Overdue & Receivables
+    if (q.includes('unpaid') || q.includes('overdue') || q.includes('baki') || q.includes('pending') || q.includes('debtor')) {
+      const overdueList = customers.filter(c => (c.outstandingBalance || 0) > 0);
+      const totalOverdue = overdueList.reduce((sum, c) => sum + (c.outstandingBalance || 0), 0);
 
-    if (invoiceMatch) {
       if (isGu) {
-        return `📄 **ઇનવોઇસ વિગતો: ${invoiceMatch.invoiceNumber}**\n\n` +
-               `• **ગ્રાહક**: ${invoiceMatch.customerName}\n` +
-               `• **કુલ રકમ**: ₹${invoiceMatch.grandTotal.toLocaleString('en-IN')}\n` +
-               `• **ઇશ્યૂ તારીખ**: ${invoiceMatch.issueDate}\n` +
-               `• **ચુકવણી તારીખ**: ${invoiceMatch.dueDate}\n` +
-               `• **સ્થિતિ**: **${invoiceMatch.status === 'paid' ? 'ચૂકવેલ (PAID)' : 'બાકી (PENDING)'}**\n` +
-               `• **વસ્તુઓ**: ${invoiceMatch.items.map(it => `${it.description} (x${it.quantity})`).join(', ')}\n\n` +
-               `તમે આ ઇનવોઇસ PDF 'Invoices' મેનૂમાંથી ગમે ત્યારે ડાઉનલોડ કરી શકો છો.`;
+        if (overdueList.length === 0) return `🎉 **ઉત્તમ સમાચાર!** તમારા ધંધામાં હાલમાં કોઈ જ ગ્રાહકની રકમ બાકી નથી. તમામ ચુકવણીઓ પૂર્ણ છે!`;
+        return `⚠️ **બાકી લેણી રકમનો અહેવાલ (Total Overdue: ₹${totalOverdue.toLocaleString('en-IN')})**\n\n` +
+               overdueList.map(c => `• **${c.name}**: ₹${(c.outstandingBalance || 0).toLocaleString('en-IN')} (${c.phone || 'No phone'})`).join('\n') +
+               `\n\n💡 *Bizz ભલામણ*: ઓટોમેટેડ WhatsApp ઇનવોઇસ લિંક મોકલીને આ રકમ ઝડપથી વસૂલ કરો.`;
       }
 
-      return `📄 **Invoice Details: ${invoiceMatch.invoiceNumber}**\n\n` +
-             `• **Client**: ${invoiceMatch.customerName}\n` +
-             `• **Grand Total**: ₹${invoiceMatch.grandTotal.toLocaleString('en-IN')}\n` +
-             `• **Issue Date**: ${invoiceMatch.issueDate}\n` +
-             `• **Due Date**: ${invoiceMatch.dueDate}\n` +
-             `• **Status**: **${invoiceMatch.status.toUpperCase()}**\n` +
-             `• **Line Items**: ${invoiceMatch.items.map(it => `${it.description} (x${it.quantity})`).join(', ')}\n\n` +
-             `You can view, print, or download this invoice PDF anytime under the **Invoices** menu.`;
+      if (overdueList.length === 0) return `🎉 **Great news!** You have zero overdue receivables across all clients!`;
+      return `⚠️ **Outstanding Receivables (Total Overdue: ₹${totalOverdue.toLocaleString('en-IN')})**\n\n` +
+             overdueList.map(c => `• **${c.name}**: ₹${(c.outstandingBalance || 0).toLocaleString('en-IN')} (${c.phone || 'No phone'})`).join('\n') +
+             `\n\n💡 *Bizz Recommendation*: Send instant WhatsApp reminders to collect pending payments.`;
     }
 
-    // 3. Greetings & Owner Meta
-    if (/^(hi|hello|hey|greetings|namaste|kem cho|kemcho|નમસ્તે|કેમ છો)/i.test(q)) {
+    // 3. Profit / Revenue / Cashflow
+    if (q.includes('profit') || q.includes('revenue') || q.includes('nafo') || q.includes('sales') || q.includes('income') || q.includes('earning')) {
+      const rev = metrics.totalRevenue || 0;
+      const netProf = metrics.netProfit || 0;
+      const margin = rev > 0 ? ((netProf / rev) * 100).toFixed(1) : '0';
+
       if (isGu) {
-        return `નમસ્તે ${firstName}! હું **Biizora AI**, ${company.name} નો તમારો નાણાકીય સહાયક છું.\n\nતમે મને તમારા ₹${metrics.totalRevenue.toLocaleString('en-IN')} ના વેચાણ, નફો, બાકી ચુકવણીઓ, GST નિયમો અથવા બિઝનેસ ગ્રોથ વિશે કંઈ પણ પૂછી શકો છો!`;
+        return `📊 **નાણાકીય ઓવરવ્યૂ (${company?.name || 'તમારો બિઝનેસ'})**\n\n` +
+               `• **કુલ વેચાણ (Revenue)**: ₹${rev.toLocaleString('en-IN')}\n` +
+               `• **ચોખ્ખો નફો (Net Profit)**: ₹${netProf.toLocaleString('en-IN')} (${margin}% માર્જિન)\n` +
+               `• **કુલ ઓપરેટિંગ ખર્ચ**: ₹${(metrics.totalExpenses || 0).toLocaleString('en-IN')}\n` +
+               `• **બાકી ચુકવણીઓ**: ₹${(metrics.pendingReceivables || 0).toLocaleString('en-IN')}\n\n` +
+               `💡 *Bizz સૂચન*: ઓપરેટિંગ માર્જિન વધારે મજબૂત બનાવવા માટે ઉત્પાદનોના વેચાણ પર ડિસ્કાઉન્ટ ઓછું કરો.`;
       }
-      return `Hello ${firstName}! How can I assist you and **${company.name}** right now?\n\nAsk me about your ₹${metrics.totalRevenue.toLocaleString('en-IN')} revenue, unpaid client balances, GST calculations, or any business query!`;
+
+      return `📊 **Live Business Performance (${company?.name || 'Your Business'})**\n\n` +
+             `• **Total Revenue**: ₹${rev.toLocaleString('en-IN')}\n` +
+             `• **Net Profit**: ₹${netProf.toLocaleString('en-IN')} (${margin}% Margin)\n` +
+             `• **Operating Expenses**: ₹${(metrics.totalExpenses || 0).toLocaleString('en-IN')}\n` +
+             `• **Pending Receivables**: ₹${(metrics.pendingReceivables || 0).toLocaleString('en-IN')}\n\n` +
+             `💡 *Bizz Insight*: Your gross profit margin is healthy. Focus on clearing pending receivables to boost cash reserves.`;
     }
 
-    if (q.includes('owner') || q.includes('created') || q.includes('માલિક')) {
+    // 4. Low Stock & Inventory
+    if (q.includes('stock') || q.includes('inventory') || q.includes('product') || q.includes('mal')) {
+      const lowItems = products.filter(p => (p.stock || 0) <= (p.minStockLevel || 10));
+
       if (isGu) {
-        return `👤 **માલિક પ્રોફાઇલ**: **${user?.name || 'Adrian Hale'}** (${company.name})\n• **ઇમેઇલ**: ${user?.email || 'adrian.hale@biizora.demo'}\n• **મોબાઇલ**: ${user?.phone || '+91 98765 43210'}\n• **ભૂમિકા**: બિઝનેસ ઓનર અને એડમિનિસ્ટ્રેટર`;
+        if (lowItems.length === 0) return `✅ **સ્ટોકની સ્થિતિ ઉત્તમ છે!** તમામ સામાન અને પ્રોડક્ટ્સ સુરક્ષિત સ્તર પર છે.`;
+        return `📦 **ઓછા સ્ટોકની ચેતવણી (${lowItems.length} પ્રોડક્ટ્સ)**\n\n` +
+               lowItems.map(p => `• **${p.name}**: બાકી સ્ટોક ${p.stock || 0} ${p.unit || 'units'} (ન્યૂનતમ સ્તર: ${p.minStockLevel || 10})`).join('\n') +
+               `\n\n💡 *Bizz ભલામણ*: સપ્લાયર્સ સાથે સંપર્ક કરી નવો ઓર્ડર પ્લેસ કરો.`;
       }
-      return `👤 **Owner Account**: **${user?.name || 'Adrian Hale'}** (${company.name})\n• **Email**: ${user?.email || 'adrian.hale@biizora.demo'}\n• **Phone**: ${user?.phone || '+91 98765 43210'}\n• **Role**: Account Owner & Administrator`;
+
+      if (lowItems.length === 0) return `✅ **Inventory status healthy!** All items are stocked safely above safety thresholds.`;
+      return `📦 **Low Stock Alerts (${lowItems.length} Products)**\n\n` +
+             lowItems.map(p => `• **${p.name}**: ${p.stock || 0} ${p.unit || 'units'} left (Reorder threshold: ${p.minStockLevel || 10})`).join('\n') +
+             `\n\n💡 *Bizz Recommendation*: Create purchase orders for these items to avoid stockout delays.`;
     }
 
-    if (q.includes('who are you') || q.includes('what can you do') || q.includes('your name') || q.includes('કોણ છ') || q.includes('શું કરી શ')) {
+    // 5. GST Rules Explanation
+    if (q.includes('gst') || q.includes('cgst') || q.includes('igst') || q.includes('tax')) {
       if (isGu) {
-        return `હું **અમેક્ષોરા AI (Biizora AI)** છું, તમારો ફાયનાન્સિયલ ઓપરેટિંગ એસિસ્ટન્ટ.\n\nhું તમને આ બાબતોમાં સંપૂર્ણ સહાય આપી શકું છું:\n• **લાઇવ બિઝનેસ હિસાબ**: વેચાણ, ચોખ્ખો નફો, ઓપરેટિંગ ખર્ચ અને કેશ ફ્લો.\n• **ગ્રાહક ઓડિટ**: Apex, Zenith, કે Nova ની બાકી ચુકવણીઓ.\n• **GST કરવેરા નિયમો**: CGST, SGST અને IGST ની ગણતરી.\n• **ઇનવોઇસ ગાઇડ**: નવું બિલ બનાવવું અને સ્માર્ટ PDF ડાઉનલોડ.`;
+        return `🏛️ **GST કરવેરા માર્ગદર્શિકા (Bizz Tax Engine)**\n\n` +
+               `• **CGST + SGST (રાજ્યની અંદરનું વેચાણ)**: જો ગ્રાહક તમારા જ રાજ્યમાં હોય, તો કુક ટેક્સ અડધો CGST અને અડધો SGST તરીકે ગણાય છે (દા.ત. 18% = 9% CGST + 9% SGST).\n` +
+               `• **IGST (અન્ય રાજ્યમાં વેચાણ)**: જો ગ્રાહક બીજા રાજ્યમાં હોય, તો પૂરો 18% IGST લાગુ પડે છે.\n\n` +
+               `Biizora દરેક ઇનવોઇસ બનાવતી વખતે આ ગણતરી આપોઆપ ઓટો-ડિટેક્ટ કરી લે છે!`;
       }
-      return `I am **Biizora AI**, your autonomous financial operating assistant.\n\nHere is what I can answer specifically for you:\n• **Live Business Analytics**: Revenue, profits, expenses, cash forecasts.\n• **Debtor Audits**: Instant status on clients like Apex, Zenith, or Nova.\n• **GST Compliance**: Intrastate (CGST+SGST) vs Interstate (IGST), HSN codes.\n• **App Navigation**: Guidance on invoice creation, customer directory, or theme PDF export.\n• **Custom Business Strategy**: Answers to any tailored question!`;
+
+      return `🏛️ **GST Tax Rules Breakdown (Bizz Tax Engine)**\n\n` +
+             `• **CGST + SGST (Intrastate Sales)**: Applied when selling to a client within your same state. Tax is split equally (e.g., 18% = 9% Central GST + 9% State GST).\n` +
+             `• **IGST (Interstate Sales)**: Applied when selling across state borders. The full 18% IGST goes directly to Integrated GST.\n\n` +
+             `Biizora automatically calculates the exact split based on your business state vs client state!`;
     }
 
-    // 4. Financial Metrics & Live Data (Profit, Receivables, Cash flow, Expenses)
-    if (q.includes('profit') || q.includes('income') || q.includes('margin') || q.includes('earnings') || q.includes('નફો') || q.includes('કમાણી') || q.includes('આવક')) {
-      const margin = ((metrics.netProfit / (metrics.totalRevenue || 1)) * 100).toFixed(1);
-      if (isGu) {
-        return `💰 **નાણાકીય નફાકારકતાનો હિસાબ**:\n\n` +
-               `• **કુલ વેચાણ (Gross Sales)**: ₹${metrics.totalRevenue.toLocaleString('en-IN')}\n` +
-               `• **કુલ ઓપરેટિંગ ખર્ચ**: ₹${metrics.totalExpenses.toLocaleString('en-IN')}\n` +
-               `• **ચોખ્ખો ઓપરેટિંગ નફો (Net Profit)**: ₹${metrics.netProfit.toLocaleString('en-IN')}\n` +
-               `• **ચોખ્ખા નફાનું માર્જિન**: **${margin}%**\n` +
-               `• **ઉપલબ્ધ કેશ બેલેન્સ**: ₹${metrics.cashBalance.toLocaleString('en-IN')}\n\n` +
-               `તમારો વેપાર અત્યારે **${margin}% ચોખ્ખા નફા સાથે** ખૂબ જ મજબૂત ચાલી રહ્યો છે!`;
-      }
-      return `💰 **Financial Profitability Breakdown**:\n\n` +
-             `• **Total Gross Sales**: ₹${metrics.totalRevenue.toLocaleString('en-IN')}\n` +
-             `• **Total Operating Expenses**: ₹${metrics.totalExpenses.toLocaleString('en-IN')}\n` +
-             `• **Net Operating Profit**: ₹${metrics.netProfit.toLocaleString('en-IN')}\n` +
-             `• **Net Profit Margin**: **${margin}%**\n` +
-             `• **Available Cash Balance**: ₹${metrics.cashBalance.toLocaleString('en-IN')}\n\n` +
-             `Your business is operating at a solid **${margin}% net margin**!`;
-    }
-
-    if (q.includes("haven't paid") || q.includes('unpaid') || q.includes('overdue') || q.includes('pending') || q.includes('debtor') || q.includes('receivable') || q.includes('બાકી') || q.includes('લેણાં') || q.includes('ચુકવણી')) {
-      const unpaid = invoices.filter(i => i.status === 'pending' || i.status === 'overdue');
-      if (unpaid.length === 0) {
-        return isGu 
-          ? `🎉 **અભિનંદન!** તમારા બધા ગ્રાહકોની ચુકવણી ૧૦૦% પૂર્ણ થઈ ગઈ છે. કોઈ જ બાકી લેણાં નથી!` 
-          : `🎉 **Great news!** All customer invoices are 100% paid up. Zero outstanding receivables!`;
-      }
-      
-      if (isGu) {
-        const listGu = unpaid.map(i => `• **${i.customerName}** (${i.invoiceNumber}): ₹${i.grandTotal.toLocaleString('en-IN')} [તારીખ: ${i.dueDate}]`).join('\n');
-        return `⚠️ **બાકી લેણાં (${unpaid.length} બાકી ઇનવોઇસ)**:\n\n${listGu}\n\n**કુલ બાકી રકમ**: ₹${metrics.pendingRevenue.toLocaleString('en-IN')}\n\n💡 *સલાહ*: Invoices વિભાગમાં જઇને WhatsApp દ્વારા UPI લિંક સાથે ઝડપી ચુકવણી યાદી મોકલો!`;
-      }
-
-      const list = unpaid.map(i => `• **${i.customerName}** (${i.invoiceNumber}): ₹${i.grandTotal.toLocaleString('en-IN')} [Due: ${i.dueDate}]`).join('\n');
-      return `⚠️ **Outstanding Receivables (${unpaid.length} Pending Invoices)**:\n\n${list}\n\n**Total Pending**: ₹${metrics.pendingRevenue.toLocaleString('en-IN')}\n\n💡 *Tip*: Click the **Share on WhatsApp** button under Invoices to request instant UPI payment!`;
-    }
-
-    if (q.includes('predict') || q.includes('forecast') || q.includes('future') || q.includes('next month') || q.includes('cash flow') || q.includes('અનુમાન') || q.includes('ભવિષ્ય')) {
-      const nextMonthForecast = Math.round(metrics.totalRevenue * 1.15);
-      if (isGu) {
-        return `📈 **૩૦-દિવસનું AI કેશ ફ્લો અનુમાન**:\n\n` +
-               `• **આવતા મહિનાની અપેક્ષિત આવક**: ₹${nextMonthForecast.toLocaleString('en-IN')}\n` +
-               `• **અંદાજિત કેશ અનામત**: ₹${(metrics.cashBalance + 120000).toLocaleString('en-IN')}\n` +
-               `• **AI કોન્ફિડન્સ લેવલ**: 94%\n\n` +
-               `આ અનુમાન હાલના ગ્રાહક રેટેનર અને બિલિંગ ચક્ર પર આધારિત છે.`;
-      }
-      return `📈 **30-Day AI Cash Flow Projection**:\n\n` +
-             `• **Projected Monthly Inflow**: ₹${nextMonthForecast.toLocaleString('en-IN')}\n` +
-             `• **Estimated Cash Reserve**: ₹${(metrics.cashBalance + 120000).toLocaleString('en-IN')}\n` +
-             `• **AI Confidence Level**: 94%\n\n` +
-             `Forecast is driven by active client retainer renewals and expected payment of open invoices.`;
-    }
-
-    if (q.includes('expense') || q.includes('cost') || q.includes('spending') || q.includes('vendor') || q.includes('ખર્ચ')) {
-      const topExp = expenses.length > 0 ? expenses[0] : null;
-      if (isGu) {
-        return `📊 **ઓપરેટિંગ ખર્ચનું વિશ્લેષણ**:\n\n` +
-               `• **કુલ ઓપરેટિંગ ખર્ચ**: ₹${metrics.totalExpenses.toLocaleString('en-IN')}\n` +
-               `• **મુખ્ય ખર્ચ શ્રેણી**: ${topExp ? topExp.category : 'ઓપરેશન્સ'} (₹${topExp ? topExp.amount.toLocaleString('en-IN') : 0})\n` +
-               `• **ક્લેમ કરી શકાય તેવું GST ITC**: ₹${expenses.reduce((s, e) => s + (e.gstAmount || 0), 0).toLocaleString('en-IN')}\n\n` +
-               `માસિક સબ્સ્ક્રિપ્શન ને બદલે વાર્ષિક પેમેન્ટ કરવાથી ૧૫-૨૦% ટેક્સ અને ખર્ચ બચાવી શકાય છે!`;
-      }
-      return `📊 **Operating Cost Breakdown**:\n\n` +
-             `• **Total Expenses**: ₹${metrics.totalExpenses.toLocaleString('en-IN')}\n` +
-             `• **Largest Category**: ${topExp ? topExp.category : 'Operations'} (₹${topExp ? topExp.amount.toLocaleString('en-IN') : 0})\n` +
-             `• **Claimable Input Tax Credit (ITC)**: ₹${expenses.reduce((s, e) => s + (e.gstAmount || 0), 0).toLocaleString('en-IN')}\n\n` +
-             `Converting monthly software/server billing to annual upfront subscriptions saves ~15-20% per year!`;
-    }
-
-    if (q.includes('health') || q.includes('score') || q.includes('હેલ્થ')) {
-      if (isGu) {
-        return `🛡️ **અમેક્ષોરા નાણાકીય હેલ્થ સ્કોર: ${metrics.healthScore} / 100**\n\n` +
-               `• **કેશ લિક્વિડિટી**: ઉત્તમ (₹${metrics.cashBalance.toLocaleString('en-IN')})\n` +
-               `• **નફાકારકતા**: મજબૂત (${((metrics.netProfit / (metrics.totalRevenue || 1)) * 100).toFixed(0)}% નેટ માર્જિન)\n` +
-               `• **લેણાંનું જોખમ**: મધ્યમ (₹${metrics.pendingRevenue.toLocaleString('en-IN')} બાકી)\n\n` +
-               `બાકી બિલ વસૂલ કરીને તમારો સ્કોર 95 થી ઉપર લઈ જઈ શકો છો!`;
-      }
-      return `🛡️ **Biizora Financial Health Score: ${metrics.healthScore} / 100**\n\n` +
-             `• **Cash Liquidity**: High (₹${metrics.cashBalance.toLocaleString('en-IN')})\n` +
-             `• **Profitability**: Strong (${((metrics.netProfit / (metrics.totalRevenue || 1)) * 100).toFixed(0)}% Net Margin)\n` +
-             `• **Receivables Risk**: Moderate (₹${metrics.pendingRevenue.toLocaleString('en-IN')} pending)\n\n` +
-             `Clear overdue invoices to raise your score above 95!`;
-    }
-
-    // 5. Tax & Legal GST Knowledge
-    if (q.includes('cgst') || q.includes('sgst') || q.includes('igst') || q.includes('gst')) {
-      if (isGu) {
-        return `🏛️ **GST કરવેરા નિયમો અને માર્ગદર્શન**:\n\n` +
-               `• **રાજ્યની અંદર વેચાણ (Intrastate - Same State)**:\n` +
-               `  - સરખા ભાગે **CGST (9%)** + **SGST (9%)** = 18% કુલ ટેક્સ.\n\n` +
-               `• **બીજા રાજ્યમાં વેચાણ (Interstate - Different State)**:\n` +
-               `  - સીધું **IGST (18%)** ગણાય છે.\n\n` +
-               `અમેક્ષોરા આપમેળે ગ્રાહકના રાજ્ય પ્રમાણે CGST/SGST કે IGST ની ગણતરી કરે છે!`;
-      }
-      return `🏛️ **GST Tax Guidance**:\n\n` +
-             `• **Intrastate Sales (Same State, e.g. Karnataka to Karnataka)**:\n` +
-             `  - Split equally into **CGST (9%)** + **SGST (9%)** = 18% Total Tax.\n\n` +
-             `• **Interstate Sales (Different States, e.g. Karnataka to Maharashtra)**:\n` +
-             `  - Billed as **IGST (18%)** Total Tax.\n\n` +
-             `Biizora automatically calculates CGST/SGST vs IGST based on client state!`;
-    }
-
-    // 6. Platform How-To & Navigation
-    if (q.includes('invoice') || q.includes('create') || q.includes('bill') || q.includes('બિલ') || q.includes('ઇનવોઇસ')) {
-      if (isGu) {
-        return `📝 **નવું GST ઇનવોઇસ બનાવવાની રીત**:\n\n` +
-               `1. **Invoices** -> **+ Create New Invoice** પર ક્લિક કરો (અથવા **Ctrl+K** દબાવો).\n` +
-               `2. ગ્રાહકની પસંદગી કરો અથવા **+ Quick Add Customer** નો ઉપયોગ કરો.\n` +
-               `3. પ્રોડક્ટની વિગત અને ભાવ ભરો.\n` +
-               `4. **Generate & Save Invoice** દબાવી બિલ સેવ કરો!`;
-      }
-      return `📝 **Creating a GST Invoice**:\n\n` +
-             `1. Click **Invoices** -> **+ Create New Invoice** (or press **Ctrl+K**).\n` +
-             `2. Select your client or use **+ Quick Add Customer** inline.\n` +
-             `3. Choose items from your catalog or enter custom rates.\n` +
-             `4. Click **Generate & Save Invoice**!`;
-    }
-
-    // 7. Business Strategy Engine
-    if (q.includes('grow') || q.includes('sales') || q.includes('marketing') || q.includes('વિકાસ') || q.includes('વેપાર')) {
-      if (isGu) {
-        return `🚀 **${company.name} નો વેપાર વધારવા માટે AI સલાહ**:\n\n` +
-               `1. **વાર્ષિક પેકેજ ઓફર કરો**: જૂના ગ્રાહકોને ૧ વર્ષનું સપોર્ટ પેકેજ ઓફર કરો.\n` +
-               `2. **ઝડપી ચૂકવણી વળતર**: ૭ દિવસમાં પેમેન્ટ ચૂકવવા બદલ ૨% છૂટ આપો.\n` +
-               `3. **વોટ્સએપ ઓટોમેશન**: બિલ ડ્યુ થાય તે પહેલા જ UPI QR લિંક સાથે મેસેજ મોકલો.`;
-      }
-      return `🚀 **Business Growth Strategy for ${company.name}**:\n\n` +
-             `1. **Upsell Existing Clients**: Offer bundled support or annual software maintenance to your top clients.\n` +
-             `2. **Offer Early Payment Incentives**: 2% discount for payments made within 7 days accelerates cash flow.\n` +
-             `3. **Automate Payment Follow-ups**: Send instant WhatsApp invoice links before due dates.`;
-    }
-
-    // 8. Custom AI Conversational Synthesizer (Fallback)
-    const keywords = q.split(/\s+/).filter(w => w.length > 3);
-    const topic = keywords.slice(0, 3).join(' ');
-
+    // Default Bizz Co-Pilot Response
     if (isGu) {
-      return `🤖 **અમેક્ષોરા AI ઉત્તર**: Re: "${userQuery}"\n\n` +
-             `**${company.name}** ના પ્રશ્ન અંગે:\n\n` +
-             `• **હાલની નાણાકીય સ્થિતિ**: તમારી પાસે **₹${metrics.cashBalance.toLocaleString('en-IN')}** ની કેશ બેલેન્સ અને **₹${metrics.totalRevenue.toLocaleString('en-IN')}** નું વેચાણ છે. તમારો હેલ્થ સ્કોર **${metrics.healthScore}/100** છે.\n` +
-             `• **સલાહ**: તમામ બિઝનેસ ખર્ચાઓના GST બિલ સાચવીને રાખો જેથી પૂરેપૂરું Input Tax Credit (ITC) ક્લેમ કરી શકાય.\n\n` +
-             `તમારા વેપાર માટે વધુ કઈ મદદ કરી શકું?`;
+      return `હું **Bizz**, તમારો બિઝનેસ કો-પાઇલટ. 🤖\n\nહું તમને આ બાબતોમાં મદદ કરી શકું છું:\n` +
+             `• **લાઇવ વેચાણ અને નફો**: વેચાણ, નફો અને ઓપરેટિંગ ખર્ચ.\n` +
+             `• **ગ્રાહક અહેવાલ**: બાકી ચુકવણીઓ અને ઓવરડ્યુ હિસાબ.\n` +
+             `• **સ્ટોક અને ઇન્વેન્ટરી**: ઓછા સ્ટોકની ચેતવણીઓ.\n` +
+             `• **GST કરવેરા**: CGST, SGST અને IGST ની ગણતરી.\n\n` +
+             `કોઈપણ સવાલ હિન્દી, ઈંગ્લીશ કે ગુજરાતીમાં પૂછો!`;
     }
 
-    return `🤖 **Biizora Business AI**: Re: "${userQuery}"\n\n` +
-           `Regarding **${topic ? topic.toUpperCase() : 'your request'}** for **${company.name}**:\n\n` +
-           `• **Current Standing**: Your cash balance is **₹${metrics.cashBalance.toLocaleString('en-IN')}** with **₹${metrics.totalRevenue.toLocaleString('en-IN')}** in sales and a Health Score of **${metrics.healthScore}/100**.\n` +
-           `• **Recommendation**: Ensure your invoice payment terms are clearly stated, and keep tracking expenses to maximize your claimable GST Input Tax Credit (ITC).\n\n` +
-           `How else can I assist your business growth today?`;
+    return `I am **Bizz**, your intelligent business co-pilot. 🤖\n\nI can directly answer:\n` +
+           `• **Financial Performance**: Sales, profit margins, and monthly expenses\n` +
+           `• **Client Receivables**: Unpaid invoices and debtor payment links\n` +
+           `• **Stock Inventory**: Low-stock alerts and purchase request recommendations\n` +
+           `• **GST Tax Calculations**: Intrastate (CGST+SGST) vs Interstate (IGST)\n\n` +
+           `Feel free to ask me anything about ${company?.name || 'your business'} in English or Gujarati!`;
   };
 
-  const handleSend = (questionText) => {
-    const query = questionText || input;
-    if (!query.trim()) return;
+  const handleSend = (e) => {
+    e?.preventDefault();
+    if (!input.trim()) return;
 
-    // Detect script or transliteration to set active language if user types in Gujarati
-    const isGuInput = /[\u0A80-\u0AFF]/.test(query) || /\b(kemcho|kem cho|kem|nafo|baki|hisaab)\b/i.test(query);
-    const effectiveLang = isGuInput ? 'gu' : language;
-    if (isGuInput && language !== 'gu') {
-      setLanguage('gu');
-    }
-
-    // Add User Message
-    const userMsg = { id: Date.now(), sender: 'user', text: query };
+    const userMsg = { id: Date.now(), sender: 'user', text: input.trim() };
     setMessages(prev => [...prev, userMsg]);
-    if (!questionText) setInput('');
+    setInput('');
     setIsTyping(true);
 
-    // Simulate AI thinking and generate response
     setTimeout(() => {
-      const responseText = generateAIAnswer(query, effectiveLang);
-      setMessages(prev => [...prev, { id: Date.now() + 1, sender: 'ai', text: responseText }]);
+      const aiResponseText = generateAIAnswer(userMsg.text, language);
+      const aiMsg = { id: Date.now() + 1, sender: 'ai', text: aiResponseText };
+      setMessages(prev => [...prev, aiMsg]);
       setIsTyping(false);
-    }, 450);
+    }, 600);
+  };
+
+  const handleQuickQuestion = (questionText) => {
+    setInput(questionText);
+    const userMsg = { id: Date.now(), sender: 'user', text: questionText };
+    setMessages(prev => [...prev, userMsg]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const aiResponseText = generateAIAnswer(questionText, language);
+      const aiMsg = { id: Date.now() + 1, sender: 'ai', text: aiResponseText };
+      setMessages(prev => [...prev, aiMsg]);
+      setIsTyping(false);
+    }, 600);
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-40">
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.button
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            onClick={() => setIsOpen(true)}
-            className="flex items-center gap-2.5 px-4 py-3 bg-green-bottle hover:bg-[#264A41] text-white rounded-[16px] shadow-elev transition-all duration-[220ms] text-xs sm:text-sm font-semibold"
-          >
-            <Sparkles className="w-4 h-4" strokeWidth={1.75} />
-            <span>Ask Biizora AI</span>
-          </motion.button>
-        )}
-      </AnimatePresence>
+    <>
+      {/* Floating Trigger Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-green-bottle text-white shadow-xl hover:bg-emerald-900 transition-all font-medium text-sm"
+        >
+          <div className="relative">
+            <Bot className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping" />
+          </div>
+          <span>Ask Bizz AI</span>
+        </motion.button>
+      </div>
 
+      {/* Floating Chat Modal */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            className="w-[360px] sm:w-[420px] h-[560px] bg-white rounded-[20px] shadow-elev border border-stone flex flex-col overflow-hidden"
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-24 right-6 z-50 w-full max-w-sm sm:max-w-md h-[560px] bg-white rounded-2xl shadow-2xl border border-stone/30 flex flex-col overflow-hidden"
           >
-            <div className="px-4 py-3 border-b border-stone bg-cream/60 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-[12px] bg-white border border-stone text-green-bottle">
-                  <Bot className="w-4 h-4" strokeWidth={1.75} />
+            {/* Header */}
+            <div className="p-4 bg-stone-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-green-bottle flex items-center justify-center text-white font-bold">
+                  <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm text-charcoal flex items-center gap-1.5">
-                    Biizora AI
-                    <span className="text-[9px] px-1.5 py-0.5 bg-yellow-champagne text-green-bottle rounded-md border border-yellow-butter/50 font-medium">Online</span>
+                  <h3 className="font-semibold text-sm flex items-center gap-1.5">
+                    Bizz AI <span className="text-[10px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-normal">Co-Pilot</span>
                   </h3>
-                  <p className="text-[11px] text-warm-gray truncate max-w-[160px]">{company?.name}</p>
+                  <p className="text-[11px] text-stone-400">{company?.name || 'Biizora Business Pilot'}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-0.5 bg-ivory p-0.5 rounded-[10px] border border-stone">
+                {/* Language Switcher */}
+                <div className="flex items-center bg-stone-800 p-0.5 rounded-lg border border-stone-700">
                   <button
                     type="button"
-                    onClick={() => setLanguage('en')}
-                    className={`px-2 py-1 text-[10px] font-semibold rounded-[8px] transition-all ${
-                      language === 'en' ? 'bg-white text-charcoal shadow-subtle border border-stone' : 'text-warm-gray'
+                    onClick={() => toggleLanguage('en')}
+                    className={`px-2 py-1 text-[11px] font-semibold rounded-md transition-all ${
+                      language === 'en' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
                     }`}
                   >
                     EN
                   </button>
                   <button
                     type="button"
-                    onClick={() => setLanguage('gu')}
-                    className={`px-2 py-1 text-[10px] font-semibold rounded-[8px] transition-all ${
-                      language === 'gu' ? 'bg-white text-charcoal shadow-subtle border border-stone' : 'text-warm-gray'
+                    onClick={() => toggleLanguage('gu')}
+                    className={`px-2 py-1 text-[11px] font-semibold rounded-md transition-all ${
+                      language === 'gu' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    ગુ
+                    ગુજરાતી
                   </button>
                 </div>
-                <button type="button" onClick={() => setIsOpen(false)} className="text-warm-gray hover:text-charcoal p-1 rounded-[8px] hover:bg-cream">
-                  <X className="w-4 h-4" />
+
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 rounded-lg hover:bg-stone-800 text-stone-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            <div className="px-4 py-1.5 bg-ivory border-b border-stone text-[11px] flex items-center gap-1.5 text-warm-gray">
-              <Globe className="w-3.5 h-3.5" strokeWidth={1.75} />
-              Output: <strong className="text-charcoal">{language === 'gu' ? 'Gujarati' : 'English'}</strong>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-ivory">
+            {/* Messages Area */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3.5 bg-cream/30 text-xs">
               {messages.map((msg) => (
-                <div key={msg.id} className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  key={msg.id}
+                  className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
                   {msg.sender === 'ai' && (
-                    <div className="w-7 h-7 rounded-[10px] bg-green-bottle text-white flex items-center justify-center shrink-0 mt-1">
-                      <Sparkles className="w-3.5 h-3.5" />
+                    <div className="w-7 h-7 rounded-lg bg-green-bottle text-white flex items-center justify-center shrink-0 mt-0.5">
+                      <Bot className="w-4 h-4" />
                     </div>
                   )}
+
                   <div
-                    className={`max-w-[85%] px-3.5 py-2.5 rounded-[16px] text-xs sm:text-sm whitespace-pre-line leading-relaxed ${
+                    className={`max-w-[82%] p-3 rounded-2xl whitespace-pre-wrap leading-relaxed shadow-sm ${
                       msg.sender === 'user'
-                        ? 'bg-green-bottle text-white rounded-br-md'
-                        : 'bg-white text-charcoal border border-stone rounded-bl-md'
+                        ? 'bg-green-bottle text-white rounded-br-none'
+                        : 'bg-white border border-stone/20 text-charcoal rounded-bl-none'
                     }`}
                   >
                     {msg.text}
                   </div>
+
                   {msg.sender === 'user' && (
-                    <div className="w-7 h-7 rounded-[10px] bg-green-forest text-white flex items-center justify-center shrink-0 mt-1">
-                      <User className="w-3.5 h-3.5" />
+                    <div className="w-7 h-7 rounded-lg bg-stone-200 text-charcoal flex items-center justify-center shrink-0 mt-0.5 font-bold">
+                      <User className="w-4 h-4" />
                     </div>
                   )}
                 </div>
               ))}
 
               {isTyping && (
-                <div className="flex gap-2.5 items-center text-xs text-warm-gray italic">
-                  <div className="w-7 h-7 rounded-[10px] bg-green-bottle text-white flex items-center justify-center shrink-0">
-                    <Sparkles className="w-3.5 h-3.5 animate-spin" />
-                  </div>
-                  <span>{language === 'gu' ? 'Biizora AI જવાબ તૈયાર કરી રહ્યું છે…' : 'Biizora AI is thinking…'}</span>
+                <div className="flex items-center gap-2 text-warm-gray text-xs">
+                  <Bot className="w-4 h-4 animate-bounce text-green-bottle" />
+                  <span>{language === 'gu' ? 'Bizz AI જવાબ વિચારી રહ્યું છે…' : 'Bizz AI is thinking…'}</span>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="px-3 py-2 bg-white border-t border-stone overflow-x-auto flex gap-1.5">
-              {activeQuickQuestions.map((q, idx) => (
+            {/* Quick Questions Suggestions */}
+            <div className="p-2.5 bg-stone-50 border-t border-stone-200/60 overflow-x-auto whitespace-nowrap flex gap-1.5 text-[11px]">
+              {activeQuickQuestions.slice(0, 3).map((q, idx) => (
                 <button
                   key={idx}
-                  type="button"
-                  onClick={() => handleSend(q)}
-                  className="px-2.5 py-1 text-[11px] font-medium bg-cream text-warm-gray hover:bg-yellow-champagne hover:text-charcoal rounded-full shrink-0 transition-all border border-stone"
+                  onClick={() => handleQuickQuestion(q)}
+                  className="px-2.5 py-1 bg-white border border-stone-200 rounded-full text-warm-gray hover:text-green-bottle hover:border-green-bottle transition-colors shrink-0"
                 >
                   {q}
                 </button>
               ))}
             </div>
 
-            <form
-              onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-              className="p-3 bg-white border-t border-stone flex items-center gap-2"
-            >
+            {/* Input Form */}
+            <form onSubmit={handleSend} className="p-3 bg-white border-t border-stone-200 flex items-center gap-2">
               <input
                 type="text"
-                placeholder={language === 'gu' ? 'નફો, બાકી બિલ, GST વિશે પૂછો…' : 'Ask about invoices, profit, GST…'}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                className="flex-1 px-3.5 py-2.5 bg-ivory border border-stone text-charcoal placeholder-text-disabled text-xs sm:text-sm rounded-[14px] focus:outline-none focus:border-green-bottle/35 focus:shadow-focus"
+                placeholder={language === 'gu' ? 'Bizz AI ને અહીં પૂછો…' : 'Ask Bizz AI about your business…'}
+                className="flex-1 px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-green-bottle"
               />
               <button
                 type="submit"
                 disabled={!input.trim()}
-                className="p-2.5 bg-yellow-butter hover:bg-yellow-honey disabled:opacity-40 text-charcoal rounded-[14px] transition-all duration-[220ms]"
+                className="p-2 bg-green-bottle text-white rounded-xl hover:bg-emerald-900 disabled:opacity-40 transition-all"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -461,7 +373,6 @@ export default function FloatingAIChat() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
-

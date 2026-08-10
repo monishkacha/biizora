@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Eye, EyeOff, ArrowRight, ChevronDown } from 'lucide-react';
+import { Sparkles, Eye, EyeOff, ArrowRight, ChevronDown, Mail, KeyRound, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
 function DemoWorkspaceDropdown({ onSelect, disabled }) {
@@ -46,6 +46,11 @@ function DemoWorkspaceDropdown({ onSelect, disabled }) {
 
 const DEMO_ACCOUNTS = [
   {
+    label: 'Manufacturing (Primary Demo)',
+    email: 'manufacturing@biizora.demo',
+    password: 'demo1234',
+  },
+  {
     label: 'Retail demo',
     email: 'retail-demo@biizora.com',
     password: 'demo123',
@@ -61,27 +66,21 @@ const DEMO_ACCOUNTS = [
     password: 'demo123',
   },
   {
-    label: 'Manufacturing demo',
-    email: 'manufacturing-demo@biizora.com',
-    password: 'demo123',
-  },
-  {
     label: 'Stationery demo',
     email: 'stationery-demo@biizora.com',
     password: 'demo123',
   },
-  {
-    label: 'Adrian Hale demo',
-    email: 'adrian.hale@biizora.demo',
-    password: 'demo1234',
-  },
 ];
 
 export default function LoginPage() {
+  const [loginMode, setLoginMode] = useState('password'); // 'password' | 'otp'
   const [email, setEmail] = useState(DEMO_ACCOUNTS[0].email);
   const [password, setPassword] = useState(DEMO_ACCOUNTS[0].password);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [infoMsg, setInfoMsg] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -101,12 +100,76 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await signIn(email, password);
+    if (loginMode === 'password') {
+      await signIn(email, password);
+    } else {
+      if (!otpSent) {
+        await handleSendLoginOTP();
+      } else {
+        await handleVerifyLoginOTP();
+      }
+    }
+  };
+
+  const handleSendLoginOTP = async () => {
+    if (!email) {
+      setError('Please enter your work email.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setInfoMsg('');
+    try {
+      const res = await fetch('/api/auth/login-otp/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send OTP code');
+      setOtpSent(true);
+      setInfoMsg(data.message || 'Verification code sent to your email.');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyLoginOTP = async () => {
+    if (!otpCode || otpCode.trim().length !== 6) {
+      setError('Please enter the 6-digit OTP code sent to your email.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/auth/login-otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp: otpCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'OTP verification failed');
+      
+      // Store token & refresh user state via login or manual reload
+      if (data.accessToken) {
+        localStorage.setItem('biizora_token', data.accessToken);
+        window.location.href = '/app';
+      } else {
+        navigate('/app');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDemoLogin = async (account) => {
     setEmail(account.email);
     setPassword(account.password);
+    setLoginMode('password');
     await signIn(account.email, account.password);
   };
 
@@ -139,6 +202,35 @@ export default function LoginPage() {
             />
           </div>
 
+          {/* Auth Method Switcher */}
+          <div className="flex bg-[#F5F4F0] p-1 rounded-xl gap-1">
+            <button
+              type="button"
+              onClick={() => { setLoginMode('password'); setError(''); setInfoMsg(''); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                loginMode === 'password' ? 'bg-white text-charcoal shadow-sm' : 'text-warm-gray hover:text-charcoal'
+              }`}
+            >
+              Password Login
+            </button>
+            <button
+              type="button"
+              onClick={() => { setLoginMode('otp'); setError(''); setInfoMsg(''); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                loginMode === 'otp' ? 'bg-white text-charcoal shadow-sm' : 'text-warm-gray hover:text-charcoal'
+              }`}
+            >
+              Email OTP Login
+            </button>
+          </div>
+
+          {infoMsg ? (
+            <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-[14px] px-3 py-2.5 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-green-600" />
+              {infoMsg}
+            </p>
+          ) : null}
+
           {error ? (
             <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">{error}</p>
           ) : null}
@@ -146,30 +238,79 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="block space-y-1.5">
               <span className="text-xs font-medium text-warm-gray">Work email</span>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="bz-input" placeholder="you@company.com" />
-            </label>
-
-            <label className="block space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-warm-gray">Password</span>
-                <Link to="/forgot-password" className="text-xs text-warm-gray hover:text-green-bottle">Forgot?</Link>
-              </div>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type="email"
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bz-input pr-10"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bz-input pl-10"
+                  placeholder="you@company.com"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-disabled hover:text-warm-gray">
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+                <Mail className="w-4 h-4 text-warm-gray absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
             </label>
 
+            {loginMode === 'password' ? (
+              <label className="block space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-warm-gray">Password</span>
+                  <Link to="/forgot-password" className="text-xs text-warm-gray hover:text-green-bottle">Forgot?</Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bz-input pr-10"
+                  />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-text-disabled hover:text-warm-gray">
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </label>
+            ) : (
+              <div>
+                {otpSent ? (
+                  <label className="block space-y-1.5">
+                    <span className="text-xs font-medium text-warm-gray">6-Digit Verification Code</span>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        maxLength={6}
+                        required
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value.trim())}
+                        className="bz-input pl-10 font-mono tracking-widest text-base font-bold text-center"
+                        placeholder="123456"
+                      />
+                      <KeyRound className="w-4 h-4 text-warm-gray absolute left-3 top-1/2 -translate-y-1/2" />
+                    </div>
+                    <div className="flex justify-between items-center text-xs mt-1">
+                      <span className="text-warm-gray">Code expires in 10 minutes</span>
+                      <button
+                        type="button"
+                        onClick={handleSendLoginOTP}
+                        disabled={loading}
+                        className="text-green-bottle font-semibold hover:underline"
+                      >
+                        Resend Code
+                      </button>
+                    </div>
+                  </label>
+                ) : null}
+              </div>
+            )}
+
             <Button type="submit" loading={loading} className="w-full" size="lg">
-              Sign in <ArrowRight className="w-4 h-4" />
+              {loginMode === 'password' ? (
+                <>Sign in <ArrowRight className="w-4 h-4" /></>
+              ) : otpSent ? (
+                <>Verify OTP & Sign in <ArrowRight className="w-4 h-4" /></>
+              ) : (
+                <>Send Verification Code <Mail className="w-4 h-4" /></>
+              )}
             </Button>
           </form>
         </div>

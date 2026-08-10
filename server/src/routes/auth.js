@@ -5,7 +5,11 @@ import { authenticate } from '../middleware/auth.js';
 const router = Router();
 
 router.post('/register', auth.register);
+router.post('/signup-otp/request', auth.requestSignupOTP);
+router.post('/signup-otp/verify', auth.verifySignupOTP);
 router.post('/login', auth.login);
+router.post('/login-otp/request', auth.requestLoginOTP);
+router.post('/login-otp/verify', auth.verifyLoginOTP);
 router.post('/refresh', auth.refresh);
 router.post('/accept-invite', auth.acceptInvite);
 router.post('/logout', authenticate, auth.logout);

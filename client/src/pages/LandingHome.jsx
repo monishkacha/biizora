@@ -456,7 +456,7 @@ export default function LandingHome() {
                 Open your business in minutes
               </h2>
               <p className="mt-3 text-warm-gray text-sm sm:text-base leading-relaxed">
-                Try the Adrian Hale demo to see a live sample business, or start your own trial. Plans and billing
+                Try the Manufacturing demo to see a live sample business, or start your own trial. Plans and billing
                 details live on our pricing page — kept off the homepage so this story stays clear.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-3">

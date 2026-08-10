@@ -5,6 +5,8 @@ import { Business } from '../models/Business.js';
 import { Membership } from '../models/Membership.js';
 import { Invite } from '../models/Invite.js';
 import { Notification } from '../models/Notification.js';
+import { OTP } from '../models/OTP.js';
+import { sendOTPEmail, sendWelcomeEmail } from '../services/emailService.js';
 import {
   signAccessToken,
   signRefreshToken,
@@ -390,3 +392,257 @@ async function getUserMemberships(userId) {
   const primary = await getPrimaryBusinessPayload(userId);
   return primary ? [primary] : [];
 }
+
+/**
+ * Send 6-digit OTP for signup request
+ */
+export const requestSignupOTP = asyncHandler(async (req, res) => {
+  const { email, name } = req.body;
+  if (!email || !name) {
+    return res.status(400).json({ error: 'Name and email are required' });
+  }
+
+  const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+  if (existingUser) {
+    return res.status(409).json({ error: 'Email already registered' });
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const existingOTP = await OTP.findOne({ email: cleanEmail, purpose: 'signup' });
+  if (existingOTP && existingOTP.lastSentAt && (Date.now() - existingOTP.lastSentAt.getTime() < 60000)) {
+    const waitSeconds = Math.ceil((60000 - (Date.now() - existingOTP.lastSentAt.getTime())) / 1000);
+    return res.status(429).json({ error: `Please wait ${waitSeconds} seconds before requesting a new OTP.` });
+  }
+
+  const rawOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpHash = await bcrypt.hash(rawOTP, 10);
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await OTP.findOneAndUpdate(
+    { email: cleanEmail, purpose: 'signup' },
+    { otpHash, expiresAt, attempts: 0, lastSentAt: new Date(), verified: false },
+    { upsert: true, new: true }
+  );
+
+  await sendOTPEmail({ email: cleanEmail, name, otp: rawOTP, purpose: 'signup' });
+
+  res.json({
+    success: true,
+    message: 'Verification code sent to your email. Please check your inbox.',
+  });
+});
+
+/**
+ * Verify Signup OTP & Complete Account Creation
+ */
+export const verifySignupOTP = [
+  ...registerValidators,
+  validate,
+  asyncHandler(async (req, res) => {
+    const { email, password, name, companyName, phone, businessType, otp } = req.body;
+
+    if (!otp) {
+      return res.status(400).json({ error: 'Verification code (OTP) is required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const otpRecord = await OTP.findOne({ email: cleanEmail, purpose: 'signup' });
+    if (!otpRecord) {
+      return res.status(400).json({ error: 'No pending OTP verification found for this email' });
+    }
+
+    if (otpRecord.expiresAt < new Date()) {
+      return res.status(400).json({ error: 'OTP has expired. Please request a new verification code.' });
+    }
+
+    if (otpRecord.attempts >= 5) {
+      return res.status(429).json({ error: 'Maximum verification attempts exceeded. Please request a new OTP.' });
+    }
+
+    const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
+    if (!isValid) {
+      otpRecord.attempts += 1;
+      await otpRecord.save();
+      return res.status(400).json({ error: `Invalid verification code. (${5 - otpRecord.attempts} attempts remaining)` });
+    }
+
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    const existing = await User.findOne({ email: cleanEmail });
+    if (existing) {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
+
+    let type = String(businessType || '').toLowerCase();
+    if (type === 'restaurant / cafe' || type === 'restaurant_cafe') type = 'restaurant';
+    if (!ALLOWED_SIGNUP_TYPES.includes(type)) {
+      type = 'general';
+    }
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await User.create({
+      name,
+      email: cleanEmail,
+      passwordHash,
+      phone: phone || '',
+      emailVerified: true,
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+    });
+
+    const business = await Business.create({
+      name: companyName,
+      tradeName: companyName,
+      ownerName: name,
+      email: cleanEmail,
+      phone: phone || '',
+      businessType: type,
+      industry: type,
+      subscriptionStatus: 'Pending',
+      subscriptionPlan: 'starter',
+      isActive: false,
+      createdBy: user._id,
+      onboardingCompleted: true,
+    });
+
+    await Membership.create({
+      userId: user._id,
+      businessId: business._id,
+      role: 'Owner',
+      permissions: getPermissionsForRole('Owner'),
+      status: 'active',
+    });
+
+    const accessToken = await issueTokens(user, req, res);
+
+    await logActivity({
+      businessId: business._id,
+      userId: user._id,
+      userName: user.name,
+      action: 'user.registered',
+      entityType: 'User',
+      entityId: user._id,
+      details: `Registered ${business.name} (${type}) via OTP verification`,
+      ip: req.ip,
+    });
+
+    try {
+      await sendWelcomeEmail({ email: cleanEmail, name, companyName });
+    } catch (emailErr) {
+      console.warn('Welcome email could not be sent:', emailErr.message);
+    }
+
+    const businessPayload = await getPrimaryBusinessPayload(user._id);
+
+    res.status(201).json({
+      success: true,
+      accessToken,
+      user: user.toPublicJSON(),
+      business: businessPayload,
+      businesses: businessPayload ? [businessPayload] : [],
+      activeBusinessId: businessPayload?.id || null,
+      subscriptionPending: true,
+      message: 'Account verified and created successfully! Welcome to Biizora.',
+    });
+  }),
+];
+
+/**
+ * Request Login OTP (Passwordless Login)
+ */
+export const requestLoginOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: cleanEmail });
+  if (!user) {
+    return res.status(404).json({ error: 'No account found with this email address' });
+  }
+
+  const existingOTP = await OTP.findOne({ email: cleanEmail, purpose: 'login' });
+  if (existingOTP && existingOTP.lastSentAt && (Date.now() - existingOTP.lastSentAt.getTime() < 60000)) {
+    const waitSeconds = Math.ceil((60000 - (Date.now() - existingOTP.lastSentAt.getTime())) / 1000);
+    return res.status(429).json({ error: `Please wait ${waitSeconds} seconds before requesting a new OTP.` });
+  }
+
+  const rawOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpHash = await bcrypt.hash(rawOTP, 10);
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await OTP.findOneAndUpdate(
+    { email: cleanEmail, purpose: 'login' },
+    { otpHash, expiresAt, attempts: 0, lastSentAt: new Date(), verified: false },
+    { upsert: true, new: true }
+  );
+
+  await sendOTPEmail({ email: cleanEmail, name: user.name, otp: rawOTP, purpose: 'login' });
+
+  res.json({
+    success: true,
+    message: 'Login OTP sent to your email address.',
+  });
+});
+
+/**
+ * Verify Login OTP & Authenticate
+ */
+export const verifyLoginOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) {
+    return res.status(400).json({ error: 'Email and OTP are required' });
+  }
+
+  const cleanEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: cleanEmail });
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const otpRecord = await OTP.findOne({ email: cleanEmail, purpose: 'login' });
+  if (!otpRecord) {
+    return res.status(400).json({ error: 'No active login OTP found' });
+  }
+
+  if (otpRecord.expiresAt < new Date()) {
+    return res.status(400).json({ error: 'OTP has expired. Please request a new one.' });
+  }
+
+  if (otpRecord.attempts >= 5) {
+    return res.status(429).json({ error: 'Maximum attempts exceeded. Please request a new OTP.' });
+  }
+
+  const isValid = await bcrypt.compare(otp, otpRecord.otpHash);
+  if (!isValid) {
+    otpRecord.attempts += 1;
+    await otpRecord.save();
+    return res.status(400).json({ error: `Invalid OTP code. (${5 - otpRecord.attempts} attempts remaining)` });
+  }
+
+  await OTP.deleteOne({ _id: otpRecord._id });
+
+  const accessToken = await issueTokens(user, req, res);
+  const businessPayload = await getPrimaryBusinessPayload(user._id);
+
+  await logActivity({
+    userId: user._id,
+    userName: user.name,
+    action: 'user.login_otp',
+    entityType: 'User',
+    entityId: user._id,
+    details: 'User logged in via Email OTP',
+    ip: req.ip,
+    businessId: businessPayload?.id,
+  });
+
+  res.json({
+    success: true,
+    accessToken,
+    user: user.toPublicJSON(),
+    business: businessPayload,
+    businesses: businessPayload ? [businessPayload] : [],
+    activeBusinessId: businessPayload?.id || null,
+  });
+});
+
