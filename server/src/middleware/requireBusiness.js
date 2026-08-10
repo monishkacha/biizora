@@ -60,7 +60,7 @@ export function requireActiveSubscription(req, res, next) {
   if (!business) {
     return res.status(400).json({ error: 'Business context required' });
   }
-  if (business.isDemoAccount) return next();
+  if (business.isDemoAccount || req.user?.isDemoAccount || req.user?.isSuperAdmin) return next();
   const status = business.subscriptionStatus || 'Pending';
   if (!isSubscriptionActive(status) || business.isActive === false) {
     return res.status(403).json({

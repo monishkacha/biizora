@@ -147,6 +147,42 @@ export const expensesApi = {
   remove: (id) => api(`/expenses/${id}`, { method: 'DELETE' }),
 };
 
+export const restaurantApi = {
+  getTables: () => api('/restaurant/tables'),
+  createOrUpdateTable: (body) => api('/restaurant/tables', { method: 'POST', body }),
+  updateTableStatus: (id, body) => api(`/restaurant/tables/${id}/status`, { method: 'PATCH', body }),
+
+  getReservations: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return api(`/restaurant/reservations${q ? `?${q}` : ''}`);
+  },
+  createReservation: (body) => api('/restaurant/reservations', { method: 'POST', body }),
+  updateReservationStatus: (id, body) => api(`/restaurant/reservations/${id}/status`, { method: 'PATCH', body }),
+  publicCreateReservation: (body) => api('/restaurant/public/booking', { method: 'POST', body }),
+
+  getMenuItems: () => api('/restaurant/menu'),
+  createOrUpdateMenuItem: (body) => api('/restaurant/menu', { method: 'POST', body }),
+  deleteMenuItem: (id) => api(`/restaurant/menu/${id}`, { method: 'DELETE' }),
+
+  getOrders: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return api(`/restaurant/orders${q ? `?${q}` : ''}`);
+  },
+  createOrder: (body) => api('/restaurant/orders', { method: 'POST', body }),
+  updateKitchenStatus: (id, body) => api(`/restaurant/orders/${id}/kitchen-status`, { method: 'PATCH', body }),
+  processOrderPayment: (id, body) => api(`/restaurant/orders/${id}/payment`, { method: 'PATCH', body }),
+  publicCreateOrder: (body) => api('/restaurant/public/order', { method: 'POST', body }),
+
+  getInventory: () => api('/restaurant/inventory'),
+  createOrUpdateInventoryItem: (body) => api('/restaurant/inventory', { method: 'POST', body }),
+  recordWaste: (body) => api('/restaurant/inventory/waste', { method: 'POST', body }),
+
+  getOffers: () => api('/restaurant/offers'),
+  validateOffer: (body) => api('/restaurant/offers/validate', { method: 'POST', body }),
+
+  getDashboardMetrics: () => api('/restaurant/dashboard-metrics'),
+};
+
 export const searchApi = {
   query: (q) => api(`/search?q=${encodeURIComponent(q)}`),
 };
@@ -214,5 +250,36 @@ export const adminApi = {
     api(`/admin/tenants/${id}/features`, { method: 'PATCH', body: { customFeatures } }),
   reset: (id) => api(`/admin/tenants/${id}/reset`, { method: 'POST' }),
   analytics: () => api('/admin/analytics'),
+};
+
+export const stationeryApi = {
+  getDashboardMetrics: () => api('/stationery/dashboard-metrics'),
+  createPosBill: (body) => api('/stationery/pos-bill', { method: 'POST', body }),
+  getInvoice: (id) => api(`/stationery/invoices/${id}`),
+
+  getCombos: () => api('/stationery/combos'),
+  createCombo: (body) => api('/stationery/combos', { method: 'POST', body }),
+  updateCombo: (id, body) => api(`/stationery/combos/${id}`, { method: 'PUT', body }),
+  deleteCombo: (id) => api(`/stationery/combos/${id}`, { method: 'DELETE' }),
+
+  getSchoolOrders: () => api('/stationery/school-orders'),
+  createSchoolOrder: (body) => api('/stationery/school-orders', { method: 'POST', body }),
+  updateSchoolOrder: (id, body) => api(`/stationery/school-orders/${id}`, { method: 'PUT', body }),
+  convertSchoolOrderToInvoice: (id) => api(`/stationery/school-orders/${id}/convert`, { method: 'POST' }),
+
+  getVendors: () => api('/stationery/vendors'),
+  createVendor: (body) => api('/stationery/vendors', { method: 'POST', body }),
+  updateVendor: (id, body) => api(`/stationery/vendors/${id}`, { method: 'PUT', body }),
+  recordVendorPurchase: (body) => api('/stationery/vendors/purchase', { method: 'POST', body }),
+
+  getInventoryLogs: () => api('/stationery/inventory/logs'),
+  adjustStock: (body) => api('/stationery/inventory/adjust', { method: 'POST', body }),
+
+  getReports: (type) => api(`/stationery/reports/${type}`),
+
+  getSettings: () => api('/stationery/settings'),
+  updateSettings: (body) => api('/stationery/settings', { method: 'PUT', body }),
+
+  seed: () => api('/stationery/seed', { method: 'POST' }),
 };
 

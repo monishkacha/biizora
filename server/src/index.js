@@ -30,6 +30,8 @@ import adminRoutes from './routes/admin.js';
 import modulesRoutes from './routes/modules.js';
 import bizzRoutes from './routes/bizz.js';
 import whatsappRoutes from './routes/whatsapp.js';
+import restaurantRoutes from './routes/restaurant.js';
+import stationeryRoutes from './routes/stationery.js';
 
 dotenv.config();
 
@@ -82,6 +84,8 @@ app.use('/api/migration', migrationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/modules', modulesRoutes);
 app.use('/api/bizz', bizzRoutes);
+app.use('/api/restaurant', restaurantRoutes);
+app.use('/api/stationery', stationeryRoutes);
 app.use('/public', express.static('public'));
 app.use('/api', whatsappRoutes);
 

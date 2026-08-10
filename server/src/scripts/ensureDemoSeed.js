@@ -7,6 +7,13 @@ import { Product } from '../models/Product.js';
 import { Invoice } from '../models/Invoice.js';
 import { Expense } from '../models/Expense.js';
 import { Notification } from '../models/Notification.js';
+import { Table } from '../models/Table.js';
+import { Reservation } from '../models/Reservation.js';
+import { MenuItem } from '../models/MenuItem.js';
+import { Order } from '../models/Order.js';
+import { InventoryItem } from '../models/InventoryItem.js';
+import { StockMovement } from '../models/StockMovement.js';
+import { Offer } from '../models/Offer.js';
 import { getPermissionsForRole } from '../services/permissionDefaults.js';
 import { resolveDefaultModules } from '../config/businessTypes.js';
 
@@ -40,7 +47,7 @@ export const INDUSTRY_DEMOS = [
     email: 'restaurant-demo@biizora.com',
     password: 'demo123',
     name: 'Restaurant Demo',
-    businessName: 'Spice Route Kitchen',
+    businessName: 'The Olive Table',
     businessType: 'restaurant',
     customFeatures: ['KitchenAnalytics', 'PeakHourPrediction', 'TableReservationAI'],
     plan: 'enterprise',
@@ -140,6 +147,9 @@ async function ensureAdrianDemo() {
   }
 
   let business = primary?.businessId || null;
+  if (business && !business.save) {
+    business = await Business.findById(business._id || business);
+  }
 
   if (!business) {
     business = await Business.create({
@@ -529,6 +539,10 @@ async function seedDemoRecords(user, business) {
     ...e
   })));
 
+  if (type === 'restaurant') {
+    await seedRestaurantData(business);
+  }
+
   await Notification.create({
     businessId: business._id,
     userId: user._id,
@@ -536,5 +550,354 @@ async function seedDemoRecords(user, business) {
     message: `Your single-business workspace is ready with sample ${type} products, invoices, and metrics.`,
     type: 'system',
   });
+}
+
+async function seedRestaurantData(business) {
+  try {
+    await Table.deleteMany({ businessId: business._id });
+    await Reservation.deleteMany({ businessId: business._id });
+    await MenuItem.deleteMany({ businessId: business._id });
+    await Order.deleteMany({ businessId: business._id });
+    await InventoryItem.deleteMany({ businessId: business._id });
+    await StockMovement.deleteMany({ businessId: business._id });
+    await Offer.deleteMany({ businessId: business._id });
+
+    // 1. Tables (1-20)
+    const tableSpecs = [
+      { tableNumber: 1, name: 'Table 1', capacity: 2, section: 'Indoor', shape: 'square', status: 'occupied', currentGuests: 2, serverName: 'Rahul' },
+      { tableNumber: 2, name: 'Table 2', capacity: 2, section: 'Indoor', shape: 'square', status: 'available' },
+      { tableNumber: 3, name: 'Table 3', capacity: 4, section: 'Indoor', shape: 'square', status: 'reserved' },
+      { tableNumber: 4, name: 'Table 4', capacity: 4, section: 'Indoor', shape: 'square', status: 'order_ready', currentGuests: 4, serverName: 'Priya' },
+      { tableNumber: 5, name: 'Table 5', capacity: 4, section: 'Indoor', shape: 'square', status: 'available' },
+      { tableNumber: 6, name: 'Table 6', capacity: 6, section: 'Indoor', shape: 'rectangle', status: 'occupied', currentGuests: 5, serverName: 'Rahul' },
+      { tableNumber: 7, name: 'Table 7', capacity: 6, section: 'Indoor', shape: 'rectangle', status: 'payment_pending', currentGuests: 6, serverName: 'Amit' },
+      { tableNumber: 8, name: 'Table 8', capacity: 2, section: 'Outdoor', shape: 'round', status: 'occupied', currentGuests: 2, serverName: 'Priya' },
+      { tableNumber: 9, name: 'Table 9', capacity: 2, section: 'Outdoor', shape: 'round', status: 'available' },
+      { tableNumber: 10, name: 'Table 10', capacity: 4, section: 'Outdoor', shape: 'square', status: 'available' },
+      { tableNumber: 11, name: 'Table 11', capacity: 4, section: 'Outdoor', shape: 'square', status: 'cleaning' },
+      { tableNumber: 12, name: 'Table 12', capacity: 8, section: 'Private Dining', shape: 'rectangle', status: 'reserved' },
+      { tableNumber: 13, name: 'Table 13', capacity: 4, section: 'Indoor', shape: 'square', status: 'available' },
+      { tableNumber: 14, name: 'Table 14', capacity: 4, section: 'Indoor', shape: 'square', status: 'available' },
+      { tableNumber: 15, name: 'Table 15', capacity: 2, section: 'Indoor', shape: 'square', status: 'available' },
+      { tableNumber: 16, name: 'Table 16', capacity: 2, section: 'Indoor', shape: 'square', status: 'available' },
+      { tableNumber: 17, name: 'Table 17', capacity: 4, section: 'Outdoor', shape: 'round', status: 'available' },
+      { tableNumber: 18, name: 'Table 18', capacity: 4, section: 'Outdoor', shape: 'round', status: 'available' },
+      { tableNumber: 19, name: 'Table 19', capacity: 6, section: 'Private Dining', shape: 'rectangle', status: 'available' },
+      { tableNumber: 20, name: 'Table 20', capacity: 10, section: 'Private Dining', shape: 'rectangle', status: 'available' },
+    ];
+
+    const createdTables = await Table.insertMany(tableSpecs.map((t) => ({ businessId: business._id, ...t })));
+
+    // 2. Inventory Items
+    const invSpecs = [
+      { name: 'Fresh Raw Chicken', sku: 'ING-CHK', category: 'Meat', unit: 'kg', currentStock: 25, minimumStock: 10, costPerUnit: 220 },
+      { name: 'Fresh Paneer (Cottage Cheese)', sku: 'ING-PNR', category: 'Dairy', unit: 'kg', currentStock: 18, minimumStock: 8, costPerUnit: 340 },
+      { name: 'Amul Butter', sku: 'ING-BTR', category: 'Dairy', unit: 'kg', currentStock: 12, minimumStock: 5, costPerUnit: 480 },
+      { name: 'Fresh Tomatoes', sku: 'ING-TOM', category: 'Vegetables', unit: 'kg', currentStock: 42, minimumStock: 15, costPerUnit: 40 },
+      { name: 'Cooking Oil & Ghee', sku: 'ING-OIL', category: 'General', unit: 'l', currentStock: 30, minimumStock: 10, costPerUnit: 160 },
+      { name: 'Basmati Rice Premium', sku: 'ING-RCE', category: 'Grains', unit: 'kg', currentStock: 50, minimumStock: 20, costPerUnit: 110 },
+      { name: 'Fresh Dairy Cream', sku: 'ING-CRM', category: 'Dairy', unit: 'l', currentStock: 15, minimumStock: 6, costPerUnit: 210 },
+      { name: 'Whole Wheat Flour & Maida', sku: 'ING-FLR', category: 'Grains', unit: 'kg', currentStock: 60, minimumStock: 20, costPerUnit: 45 },
+    ];
+
+    const createdInv = await InventoryItem.insertMany(invSpecs.map((i) => ({ businessId: business._id, ...i })));
+    const chkItem = createdInv.find((i) => i.sku === 'ING-CHK');
+    const pnrItem = createdInv.find((i) => i.sku === 'ING-PNR');
+    const btrItem = createdInv.find((i) => i.sku === 'ING-BTR');
+    const tomItem = createdInv.find((i) => i.sku === 'ING-TOM');
+
+    // 3. Menu Items
+    const menuSpecs = [
+      {
+        name: 'Paneer Tikka Platter',
+        description: 'Cottage cheese marinated in yogurt and spices, grilled in tandoor',
+        category: 'Starters',
+        price: 380,
+        costPrice: 120,
+        foodType: 'veg',
+        preparationTime: 15,
+        kitchenStation: 'Grill',
+        availability: 'available',
+        gstRate: 5,
+        image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&q=80',
+        recipe: pnrItem ? [{ ingredientId: pnrItem._id, ingredientName: pnrItem.name, quantity: 0.2, unit: 'kg' }] : [],
+        modifiers: [
+          { name: 'Spice Level', required: false, options: [{ name: 'Mild', price: 0 }, { name: 'Medium', price: 0 }, { name: 'Extra Spicy', price: 0 }] },
+          { name: 'Dip', required: false, options: [{ name: 'Mint Chutney', price: 0 }, { name: 'Garlic Mayo', price: 30 }] },
+        ],
+      },
+      {
+        name: 'Butter Chicken Special',
+        description: 'Tender tandoori chicken cooked in rich tomato and butter gravy',
+        category: 'Main Course',
+        price: 490,
+        costPrice: 180,
+        foodType: 'non-veg',
+        preparationTime: 20,
+        kitchenStation: 'Kitchen',
+        availability: 'available',
+        gstRate: 5,
+        image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=600&q=80',
+        recipe: chkItem
+          ? [
+              { ingredientId: chkItem._id, ingredientName: chkItem.name, quantity: 0.25, unit: 'kg' },
+              { ingredientId: btrItem._id, ingredientName: btrItem.name, quantity: 0.03, unit: 'kg' },
+              { ingredientId: tomItem._id, ingredientName: tomItem.name, quantity: 0.1, unit: 'kg' },
+            ]
+          : [],
+        modifiers: [
+          { name: 'Portion', required: true, options: [{ name: 'Half', price: -120 }, { name: 'Full', price: 0 }] },
+          { name: 'Special Request', required: false, options: [{ name: 'Less Spicy', price: 0 }, { name: 'Extra Butter', price: 30 }] },
+        ],
+      },
+      {
+        name: 'Paneer Butter Masala',
+        description: 'Soft cottage cheese cubes in rich tomato cashew butter gravy',
+        category: 'Main Course',
+        price: 420,
+        costPrice: 140,
+        foodType: 'veg',
+        preparationTime: 18,
+        kitchenStation: 'Kitchen',
+        availability: 'available',
+        gstRate: 5,
+        image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&q=80',
+      },
+      {
+        name: 'Dal Makhani',
+        description: 'Black lentils slow cooked overnight with butter and cream',
+        category: 'Main Course',
+        price: 340,
+        costPrice: 90,
+        foodType: 'veg',
+        preparationTime: 12,
+        kitchenStation: 'Kitchen',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Hyderabadi Dum Biryani',
+        description: 'Aromatic basmati rice cooked with chicken and spices in dum style',
+        category: 'Rice & Biryani',
+        price: 460,
+        costPrice: 160,
+        foodType: 'non-veg',
+        preparationTime: 22,
+        kitchenStation: 'Kitchen',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Garlic Naan',
+        description: 'Fresh tandoori naan brushed with minced garlic and butter',
+        category: 'Breads',
+        price: 85,
+        costPrice: 20,
+        foodType: 'veg',
+        preparationTime: 8,
+        kitchenStation: 'Grill',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Butter Naan',
+        description: 'Soft tandoori naan with fresh Amul butter',
+        category: 'Breads',
+        price: 70,
+        costPrice: 15,
+        foodType: 'veg',
+        preparationTime: 8,
+        kitchenStation: 'Grill',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Gulab Jamun (2 pcs)',
+        description: 'Warm soft milk dumplings soaked in cardamom sugar syrup',
+        category: 'Desserts',
+        price: 150,
+        costPrice: 40,
+        foodType: 'veg',
+        preparationTime: 5,
+        kitchenStation: 'Dessert',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Chocolate Brownie with Ice Cream',
+        description: 'Sizzling hot brownie topped with vanilla ice cream and fudge sauce',
+        category: 'Desserts',
+        price: 240,
+        costPrice: 70,
+        foodType: 'veg',
+        preparationTime: 8,
+        kitchenStation: 'Dessert',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Fresh Lime Soda',
+        description: 'Chilled lime drink with mint leaves (Sweet or Salted)',
+        category: 'Beverages',
+        price: 110,
+        costPrice: 20,
+        foodType: 'vegan',
+        preparationTime: 5,
+        kitchenStation: 'Bar',
+        availability: 'available',
+        gstRate: 5,
+      },
+      {
+        name: 'Masala Chai',
+        description: 'Traditional Indian spiced tea with milk and cardamom',
+        category: 'Beverages',
+        price: 75,
+        costPrice: 15,
+        foodType: 'veg',
+        preparationTime: 5,
+        kitchenStation: 'Bar',
+        availability: 'available',
+        gstRate: 5,
+      },
+    ];
+
+    const createdMenu = await MenuItem.insertMany(menuSpecs.map((m) => ({ businessId: business._id, ...m })));
+
+    // 4. Offers
+    await Offer.insertMany([
+      { businessId: business._id, code: 'WELCOME10', title: '10% OFF Welcome Discount', type: 'percentage', value: 10, minOrderAmount: 500, isActive: true },
+      { businessId: business._id, code: 'OLIVE200', title: '₹200 OFF on Orders Above ₹1,500', type: 'fixed', value: 200, minOrderAmount: 1500, isActive: true },
+    ]);
+
+    // 5. Today's date YYYY-MM-DD
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // 6. Reservations
+    const t3 = createdTables.find((t) => t.tableNumber === 3);
+    const t12 = createdTables.find((t) => t.tableNumber === 12);
+
+    await Reservation.insertMany([
+      {
+        businessId: business._id,
+        customerName: 'Rahul Sharma',
+        phone: '+91 98200 11223',
+        email: 'rahul@gmail.com',
+        date: todayStr,
+        time: '19:30',
+        guests: 4,
+        tableId: t3 ? t3._id : null,
+        tableName: t3 ? t3.name : 'Table 3',
+        status: 'confirmed',
+        bookingSource: 'Reservation',
+        specialRequests: 'Window seat preferred',
+      },
+      {
+        businessId: business._id,
+        customerName: 'Ananya Roy',
+        phone: '+91 98300 44556',
+        email: 'ananya@gmail.com',
+        date: todayStr,
+        time: '20:00',
+        guests: 8,
+        tableId: t12 ? t12._id : null,
+        tableName: t12 ? t12.name : 'Table 12',
+        status: 'confirmed',
+        bookingSource: 'Online',
+        specialRequests: 'Birthday celebration setup',
+      },
+    ]);
+
+    // 7. Seed Active & Completed Orders
+    const t1 = createdTables.find((t) => t.tableNumber === 1);
+    const t8 = createdTables.find((t) => t.tableNumber === 8);
+
+    const bc = createdMenu.find((m) => m.name.includes('Butter Chicken'));
+    const gn = createdMenu.find((m) => m.name.includes('Garlic Naan'));
+    const pt = createdMenu.find((m) => m.name.includes('Paneer Tikka'));
+    const fl = createdMenu.find((m) => m.name.includes('Fresh Lime Soda'));
+
+    const activeOrders = [
+      {
+        businessId: business._id,
+        orderNumber: '#1042',
+        orderType: 'dine_in',
+        tableId: t8 ? t8._id : null,
+        tableName: t8 ? t8.name : 'Table 8',
+        customerName: 'Rahul Sharma',
+        phone: '+91 98200 11223',
+        items: [
+          { menuItemId: bc ? bc._id : null, name: 'Butter Chicken Special', price: 490, quantity: 1, foodType: 'non-veg', kitchenStation: 'Kitchen', notes: 'Less spicy', kitchenStatus: 'preparing' },
+          { menuItemId: gn ? gn._id : null, name: 'Garlic Naan', price: 85, quantity: 2, foodType: 'veg', kitchenStation: 'Grill', notes: 'Extra butter', kitchenStatus: 'preparing' },
+          { menuItemId: fl ? fl._id : null, name: 'Fresh Lime Soda', price: 110, quantity: 2, foodType: 'vegan', kitchenStation: 'Bar', notes: 'Sweet & salted', kitchenStatus: 'ready' },
+        ],
+        kitchenStatus: 'preparing',
+        orderStatus: 'active',
+        paymentStatus: 'unpaid',
+        subtotal: 880,
+        taxAmount: 44,
+        grandTotal: 924,
+        serverName: 'Priya',
+      },
+      {
+        businessId: business._id,
+        orderNumber: '#1041',
+        orderType: 'dine_in',
+        tableId: t1 ? t1._id : null,
+        tableName: t1 ? t1.name : 'Table 1',
+        customerName: 'Vikram Seth',
+        phone: '+91 99200 11223',
+        items: [
+          { menuItemId: pt ? pt._id : null, name: 'Paneer Tikka Platter', price: 380, quantity: 2, foodType: 'veg', kitchenStation: 'Grill', notes: 'Medium spice', kitchenStatus: 'ready' },
+          { menuItemId: gn ? gn._id : null, name: 'Garlic Naan', price: 85, quantity: 4, foodType: 'veg', kitchenStation: 'Grill', kitchenStatus: 'ready' },
+        ],
+        kitchenStatus: 'ready',
+        orderStatus: 'active',
+        paymentStatus: 'unpaid',
+        subtotal: 1100,
+        taxAmount: 55,
+        grandTotal: 1155,
+        serverName: 'Rahul',
+      },
+    ];
+
+    const createdActive = await Order.insertMany(activeOrders);
+
+    if (t8 && createdActive[0]) {
+      t8.currentOrderId = createdActive[0]._id;
+      await t8.save();
+    }
+
+    if (t1 && createdActive[1]) {
+      t1.currentOrderId = createdActive[1]._id;
+      await t1.save();
+    }
+
+    // Completed paid order
+    await Order.create({
+      businessId: business._id,
+      orderNumber: '#1040',
+      orderType: 'dine_in',
+      customerName: 'Meera Nair',
+      phone: '+91 99300 44556',
+      items: [
+        { name: 'Butter Chicken Special', price: 490, quantity: 2, foodType: 'non-veg', kitchenStatus: 'completed' },
+        { name: 'Butter Naan', price: 70, quantity: 4, foodType: 'veg', kitchenStatus: 'completed' },
+        { name: 'Dal Makhani', price: 340, quantity: 1, foodType: 'veg', kitchenStatus: 'completed' },
+      ],
+      kitchenStatus: 'completed',
+      orderStatus: 'completed',
+      paymentStatus: 'paid',
+      subtotal: 1600,
+      taxAmount: 80,
+      grandTotal: 1680,
+      paidAmount: 1680,
+      paymentMethod: 'UPI / Online',
+      serverName: 'Amit',
+    });
+
+    console.log(`→ Seeded comprehensive restaurant data for ${business.name}`);
+  } catch (err) {
+    console.error('Restaurant seed failed:', err);
+  }
 }
 

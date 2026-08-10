@@ -12,10 +12,13 @@ import {
 import { PoweredByBizora } from './ui/PoweredByBizora';
 import { LogOut, Building2, Shield, BadgeCheck, Headphones } from 'lucide-react';
 
+import { isStationeryWorkspace, workspaceFeatures } from '../config/workspaceFeatures';
+
 export default function Sidebar({ collapsed, mobileOpen }) {
   const location = useLocation();
   const { user, logout, business, activeWorkspace } = useAuth();
   const biz = business || activeWorkspace;
+  const isStationery = isStationeryWorkspace(biz);
 
   const [navItems, setNavItems] = useState(() => modulesToNavItems(FALLBACK_NAV));
 
@@ -23,8 +26,46 @@ export default function Sidebar({ collapsed, mobileOpen }) {
     let cancelled = false;
 
     async function loadNav() {
-      if (!biz?.id) {
+      if (!biz?.id && !isStationery) {
         setNavItems(modulesToNavItems(FALLBACK_NAV));
+        return;
+      }
+
+      if (isStationery) {
+        const stationeryModules = [
+          { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'new-bill', title: 'New Bill', route: '/app/stationery/billing', icon: 'Receipt' },
+          { id: 'bills', title: 'Bills', route: '/app/stationery/bills', icon: 'FileText' },
+          { id: 'products', title: 'Products', route: '/app/stationery/products', icon: 'Package' },
+          { id: 'inventory', title: 'Inventory', route: '/app/stationery/inventory', icon: 'Boxes' },
+          { id: 'customers', title: 'Customers', route: '/app/stationery/customers', icon: 'Users' },
+          { id: 'vendors', title: 'Vendors', route: '/app/stationery/vendors', icon: 'Store' },
+          { id: 'school-orders', title: 'School Orders', route: '/app/stationery/school-orders', icon: 'GraduationCap' },
+          { id: 'print-xerox', title: 'Print & Xerox', route: '/app/stationery/print-xerox', icon: 'Printer' },
+          { id: 'reports', title: 'Reports', route: '/app/stationery/reports', icon: 'BarChart3' },
+          { id: 'settings', title: 'Settings', route: '/app/stationery/settings', icon: 'Settings' },
+        ];
+        setNavItems(modulesToNavItems(stationeryModules));
+        return;
+      }
+
+      if (biz?.businessType === 'restaurant') {
+        const restaurantModules = [
+          { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'tables', title: 'Tables', route: '/app/tables', icon: 'Store' },
+          { id: 'reservations', title: 'Reservations', route: '/app/reservations', icon: 'Calendar' },
+          { id: 'orders', title: 'Orders / POS', route: '/app/orders', icon: 'Receipt' },
+          { id: 'kitchen', title: 'Kitchen Display', route: '/app/kitchen', icon: 'Monitor' },
+          { id: 'menu', title: 'Menu Catalog', route: '/app/menu', icon: 'Package' },
+          { id: 'customers', title: 'Customers', route: '/app/customers', icon: 'Users' },
+          { id: 'team', title: 'Staff', route: '/app/team', icon: 'UserPlus' },
+          { id: 'inventory', title: 'Inventory', route: '/app/inventory', icon: 'Boxes' },
+          { id: 'billing', title: 'Billing', route: '/app/billing', icon: 'FileText' },
+          { id: 'reports', title: 'Reports', route: '/app/reports', icon: 'BarChart3' },
+          { id: 'offers', title: 'Offers & Discounts', route: '/app/offers', icon: 'Zap' },
+          { id: 'settings', title: 'Settings', route: '/app/settings', icon: 'Settings' },
+        ];
+        setNavItems(modulesToNavItems(restaurantModules));
         return;
       }
 
@@ -86,7 +127,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
     return () => {
       cancelled = true;
     };
-  }, [biz?.id, biz?.subscriptionStatus, biz?.businessType]);
+  }, [biz?.id, biz?.subscriptionStatus, biz?.businessType, isStationery]);
 
   return (
     <aside
@@ -155,7 +196,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           );
         })}
 
-        {!navItems.some((n) => n.path === '/app/membership') && biz?.businessType !== 'salon' && (
+        {!navItems.some((n) => n.path === '/app/membership') && biz?.businessType !== 'salon' && !isStationery && (
           <Link
             to="/app/membership"
             className={`

@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useBusiness } from '../context/BusinessContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
+import RestaurantDashboardComponent from '../components/RestaurantDashboardComponent';
+import StationeryDashboardComponent from '../components/stationery/StationeryDashboardComponent';
+import { isStationeryWorkspace } from '../config/workspaceFeatures';
 import {
   TrendingUp,
   Clock,
@@ -44,10 +47,16 @@ import { Badge, Card } from '../components/ui/Badge';
 
 export default function DashboardPage() {
   const { metrics, invoices, customers, aiInsights, company } = useBusiness();
-  const { user, activeWorkspace } = useAuth();
+  const { user, activeWorkspace, business } = useAuth();
   const navigate = useNavigate();
 
+  const biz = business || activeWorkspace;
+  if (isStationeryWorkspace(biz)) {
+    return <StationeryDashboardComponent />;
+  }
+
   const businessType = activeWorkspace?.businessType || 'general';
+  const recent = (invoices || []).slice(0, 5);
 
   // Salon Demo States
   const [salonSchedule, setSalonSchedule] = useState(() => {
@@ -245,7 +254,9 @@ export default function DashboardPage() {
     },
   ];
 
-  const recent = invoices.slice(0, 5);
+  if (businessType === 'restaurant') {
+    return <RestaurantDashboardComponent />;
+  }
 
   if (businessType === 'salon') {
     // Dynamic calculations from live context and storage

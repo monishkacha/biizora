@@ -18,6 +18,7 @@ const customerSchema = new mongoose.Schema(
     totalSpent: { type: Number, default: 0 },
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
     category: { type: String, default: '' },
+    schoolName: { type: String, default: '' },
     notes: { type: String, default: '' },
   },
   { timestamps: true }
@@ -43,7 +44,9 @@ customerSchema.methods.toPublicJSON = function toPublicJSON() {
     totalSpent: this.totalSpent,
     status: this.status,
     category: this.category,
+    schoolName: this.schoolName,
     notes: this.notes,
+    createdAt: this.createdAt,
   };
 };
 

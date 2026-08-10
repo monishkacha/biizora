@@ -2,6 +2,10 @@ import mongoose from 'mongoose';
 
 const invoiceItemSchema = new mongoose.Schema(
   {
+    productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    itemType: { type: String, enum: ['product', 'service', 'combo'], default: 'product' },
+    serviceType: { type: String, default: '' },
+    pages: { type: Number, default: 0 },
     description: String,
     hsnSac: String,
     quantity: { type: Number, default: 1 },
@@ -54,6 +58,11 @@ const invoiceSchema = new mongoose.Schema(
     status: { type: String, enum: ['draft', 'pending', 'paid', 'overdue', 'cancelled'], default: 'pending' },
     paidAmount: { type: Number, default: 0 },
     paymentMethod: { type: String, default: 'Pending' },
+    paymentSplit: { type: [{ method: String, amount: Number }], default: [] },
+    amountReceived: { type: Number, default: 0 },
+    balanceDue: { type: Number, default: 0 },
+    customerPhone: { type: String, default: '' },
+    invoiceType: { type: String, enum: ['standard', 'retail', 'school', 'xerox'], default: 'standard' },
     notes: { type: String, default: '' },
     terms: { type: String, default: '' },
   },
@@ -74,6 +83,10 @@ invoiceSchema.methods.toPublicJSON = function toPublicJSON() {
     dueDate: this.dueDate,
     items: this.items.map((item) => ({
       id: item._id.toString(),
+      productId: item.productId?.toString() || null,
+      itemType: item.itemType || 'product',
+      serviceType: item.serviceType || '',
+      pages: item.pages || 0,
       description: item.description,
       hsnSac: item.hsnSac,
       quantity: item.quantity,
@@ -113,8 +126,14 @@ invoiceSchema.methods.toPublicJSON = function toPublicJSON() {
     status: this.status,
     paidAmount: this.paidAmount,
     paymentMethod: this.paymentMethod,
+    paymentSplit: this.paymentSplit || [],
+    amountReceived: this.amountReceived,
+    balanceDue: this.balanceDue,
+    customerPhone: this.customerPhone,
+    invoiceType: this.invoiceType,
     notes: this.notes,
     terms: this.terms,
+    createdAt: this.createdAt,
   };
 };
 

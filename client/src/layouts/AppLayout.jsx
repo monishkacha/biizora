@@ -8,11 +8,14 @@ import FloatingAIChat from '../components/FloatingAIChat';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from '../components/ui/Badge';
 
+import { isStationeryWorkspace } from '../config/workspaceFeatures';
+
 const MEMBERSHIP_PATHS = ['/app/membership', '/app/pending', '/app/billing'];
 
 export default function AppLayout() {
   const { user, loading, business, activeWorkspace } = useAuth();
   const biz = business || activeWorkspace;
+  const isStationery = isStationeryWorkspace(biz);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -85,7 +88,7 @@ export default function AppLayout() {
       {isActive && (
         <>
           <CommandPalette />
-          <FloatingAIChat />
+          {!isStationery && <FloatingAIChat />}
         </>
       )}
       <Toast />

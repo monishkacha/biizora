@@ -52,7 +52,27 @@ import SalonBillingPage from './pages/salon/SalonBillingPage';
 import SalonMembershipsPage from './pages/salon/SalonMembershipsPage';
 import SalonReviewsPage from './pages/salon/SalonReviewsPage';
 import SalonReportsPage from './pages/salon/SalonReportsPage';
-import PublicBookingPage from './pages/salon/PublicBookingPage';
+import PublicBookingPage from './pages/restaurant/PublicBookingPage';
+import PublicOrderingPage from './pages/restaurant/PublicOrderingPage';
+
+import RestaurantTablesPage from './pages/restaurant/TablesPage';
+import RestaurantReservationsPage from './pages/restaurant/ReservationsPage';
+import RestaurantOrdersPOSPage from './pages/restaurant/OrdersPOSPage';
+import RestaurantKitchenDisplayPage from './pages/restaurant/KitchenDisplayPage';
+import RestaurantMenuPage from './pages/restaurant/MenuPage';
+import RestaurantOffersPage from './pages/restaurant/OffersPage';
+import RestaurantBillingPage from './pages/restaurant/BillingPage';
+
+import StationeryPOSBillingPage from './pages/stationery/StationeryPOSBillingPage';
+import StationeryBillsPage from './pages/stationery/StationeryBillsPage';
+import StationeryProductsPage from './pages/stationery/StationeryProductsPage';
+import StationeryInventoryPage from './pages/stationery/StationeryInventoryPage';
+import StationeryCustomersPage from './pages/stationery/StationeryCustomersPage';
+import StationeryVendorsPage from './pages/stationery/StationeryVendorsPage';
+import StationerySchoolOrdersPage from './pages/stationery/StationerySchoolOrdersPage';
+import StationeryPrintXeroxPage from './pages/stationery/StationeryPrintXeroxPage';
+import StationeryReportsPage from './pages/stationery/StationeryReportsPage';
+import StationerySettingsPage from './pages/stationery/StationerySettingsPage';
 
 export default function App() {
   return (
@@ -80,6 +100,10 @@ export default function App() {
                   <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/book" element={<PublicBookingPage />} />
+                  <Route path="/order" element={<PublicOrderingPage />} />
+
+                  {/* Top-Level Stationery Billing Shortcut */}
+                  <Route path="/stationery/billing" element={<AppLayout><StationeryPOSBillingPage /></AppLayout>} />
 
                   <Route path="/app" element={<AppLayout />}>
                     <Route index element={<DashboardPage />} />
@@ -98,47 +122,32 @@ export default function App() {
                     <Route path="ai-suite" element={<AIPowerSuitePage />} />
                     <Route path="migration" element={<MigrationCenterPage />} />
                     <Route path="payments" element={<PaymentsPage />} />
-                    <Route path="billing" element={<SaaSBillingPage />} />
+                    <Route path="billing" element={<RestaurantBillingPage />} />
                     <Route path="team" element={<TeamPage />} />
                     <Route path="activity" element={<ActivityLogPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                     <Route path="support" element={<SupportPage />} />
-                    {/* Industry / plugin module shells — configuration-driven */}
-                    <Route path="appointments" element={<SalonAppointmentsPage />} />
-                    <Route path="calendar" element={<SalonCalendarPage />} />
-                    <Route path="stylists" element={<SalonStylistsPage />} />
-                    <Route path="services" element={<SalonServicesPage />} />
-                    <Route path="memberships" element={<SalonMembershipsPage />} />
-                    <Route path="reviews" element={<SalonReviewsPage />} />
-                    <Route path="staff-schedule" element={<ModulePlaceholderPage title="Staff Schedule" />} />
-                    <Route path="packages" element={<ModulePlaceholderPage title="Packages" />} />
-                    <Route path="loyalty" element={<ModulePlaceholderPage title="Loyalty" />} />
-                    <Route path="customer-history" element={<ModulePlaceholderPage title="Customer History" />} />
-                    <Route path="walk-ins" element={<ModulePlaceholderPage title="Walk-ins" />} />
-                    <Route path="queue" element={<ModulePlaceholderPage title="Queue" />} />
-                    <Route path="stylist" element={<ModulePlaceholderPage title="Stylist Dashboard" />} />
-                    <Route path="commission" element={<ModulePlaceholderPage title="Commission" />} />
-                    <Route path="product-inventory" element={<ModulePlaceholderPage title="Product Inventory" />} />
-                    <Route path="before-after" element={<ModulePlaceholderPage title="Before After Photos" />} />
-                    <Route path="revenue-analytics" element={<ModulePlaceholderPage title="Revenue Analytics" />} />
-                    <Route path="tables" element={<ModulePlaceholderPage title="Tables" />} />
-                    <Route path="reservations" element={<ModulePlaceholderPage title="Reservations" />} />
-                    <Route path="kitchen" element={<ModulePlaceholderPage title="Kitchen Display" />} />
-                    <Route path="orders" element={<ModulePlaceholderPage title="Orders" />} />
-                    <Route path="takeaway" element={<ModulePlaceholderPage title="Takeaway" />} />
-                    <Route path="delivery" element={<ModulePlaceholderPage title="Delivery" />} />
-                    <Route path="menu" element={<ModulePlaceholderPage title="Menu" />} />
-                    <Route path="recipe-costing" element={<ModulePlaceholderPage title="Recipe Costing" />} />
-                    <Route path="ingredients" element={<ModulePlaceholderPage title="Ingredients" />} />
-                    <Route path="waste" element={<ModulePlaceholderPage title="Waste Tracking" />} />
-                    <Route path="chef" element={<ModulePlaceholderPage title="Chef Dashboard" />} />
-                    <Route path="peak-hours" element={<ModulePlaceholderPage title="Peak Hour Analytics" />} />
-                    <Route path="barcode" element={<ModulePlaceholderPage title="Barcode" />} />
-                    <Route path="pos" element={<ModulePlaceholderPage title="POS" />} />
-                    <Route path="returns" element={<ModulePlaceholderPage title="Returns" />} />
-                    <Route path="purchase-orders" element={<ModulePlaceholderPage title="Purchase Orders" />} />
-                    <Route path="discount-rules" element={<ModulePlaceholderPage title="Discount Rules" />} />
-                    <Route path="offers" element={<ModulePlaceholderPage title="Offers" />} />
+
+                    {/* Stationery Dedicated Routes */}
+                    <Route path="stationery/billing" element={<StationeryPOSBillingPage />} />
+                    <Route path="stationery/bills" element={<StationeryBillsPage />} />
+                    <Route path="stationery/products" element={<StationeryProductsPage />} />
+                    <Route path="stationery/inventory" element={<StationeryInventoryPage />} />
+                    <Route path="stationery/customers" element={<StationeryCustomersPage />} />
+                    <Route path="stationery/vendors" element={<StationeryVendorsPage />} />
+                    <Route path="stationery/school-orders" element={<StationerySchoolOrdersPage />} />
+                    <Route path="stationery/print-xerox" element={<StationeryPrintXeroxPage />} />
+                    <Route path="stationery/reports" element={<StationeryReportsPage />} />
+                    <Route path="stationery/settings" element={<StationerySettingsPage />} />
+
+                    {/* Restaurant Routes */}
+                    <Route path="tables" element={<RestaurantTablesPage />} />
+                    <Route path="reservations" element={<RestaurantReservationsPage />} />
+                    <Route path="kitchen" element={<RestaurantKitchenDisplayPage />} />
+                    <Route path="orders" element={<RestaurantOrdersPOSPage />} />
+                    <Route path="pos" element={<RestaurantOrdersPOSPage />} />
+                    <Route path="menu" element={<RestaurantMenuPage />} />
+                    <Route path="offers" element={<RestaurantOffersPage />} />
                     <Route path="gst-billing" element={<ModulePlaceholderPage title="GST Billing" />} />
                     <Route path="stock-alerts" element={<ModulePlaceholderPage title="Stock Alerts" />} />
                     <Route path="raw-materials" element={<ModulePlaceholderPage title="Raw Materials" />} />

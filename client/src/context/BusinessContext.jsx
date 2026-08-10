@@ -5,20 +5,43 @@ import {
   invoicesApi,
   expensesApi,
   businessApi,
+  restaurantApi,
+  stationeryApi,
   setActiveBusinessId,
 } from '../api/client';
 import { useAuth } from './AuthContext';
 import { defaultAIInsights } from '../data/initialData';
+import { isStationeryWorkspace } from '../config/workspaceFeatures';
 
 const BusinessContext = createContext();
 
 export const BusinessProvider = ({ children }) => {
-  const { user, activeBusinessId, businesses, refreshBusinesses } = useAuth();
+  const { user, activeBusinessId, businesses, refreshBusinesses, activeWorkspace } = useAuth();
   const [company, setCompany] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [expenses, setExpenses] = useState([]);
+
+  // Restaurant State
+  const [tables, setTables] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [inventoryItems, setInventoryItems] = useState([]);
+  const [stockMovements, setStockMovements] = useState([]);
+  const [offers, setOffers] = useState([]);
+  const [dashboardMetrics, setDashboardMetrics] = useState(null);
+
+  // Stationery State
+  const [stationeryCombos, setStationeryCombos] = useState([]);
+  const [stationerySchoolOrders, setStationerySchoolOrders] = useState([]);
+  const [stationeryVendors, setStationeryVendors] = useState([]);
+  const [stationeryVendorPurchases, setStationeryVendorPurchases] = useState([]);
+  const [stationeryStockLogs, setStationeryStockLogs] = useState([]);
+  const [stationeryMetrics, setStationeryMetrics] = useState(null);
+  const [stationerySettings, setStationerySettings] = useState(null);
+
   const [aiInsights] = useState(defaultAIInsights);
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,6 +60,19 @@ export const BusinessProvider = ({ children }) => {
       setProducts([]);
       setInvoices([]);
       setExpenses([]);
+      setTables([]);
+      setReservations([]);
+      setMenuItems([]);
+      setOrders([]);
+      setInventoryItems([]);
+      setOffers([]);
+      setStationeryCombos([]);
+      setStationerySchoolOrders([]);
+      setStationeryVendors([]);
+      setStationeryVendorPurchases([]);
+      setStationeryStockLogs([]);
+      setStationeryMetrics(null);
+      setStationerySettings(null);
       return;
     }
 
@@ -58,17 +94,226 @@ export const BusinessProvider = ({ children }) => {
       setProducts(prodRes.products || []);
       setInvoices(invRes.invoices || []);
       setExpenses(expRes.expenses || []);
+
+      const currentWorkspace = bizRes.business || activeWorkspace;
+      const bizType = (currentWorkspace?.businessType || '').toLowerCase();
+
+      // If restaurant business type, load restaurant entities
+      if (bizType === 'restaurant') {
+        const [tblRes, resRes, menuRes, ordRes, invtRes, offRes, metRes] = await Promise.all([
+          restaurantApi.getTables().catch(() => ({ tables: [] })),
+          restaurantApi.getReservations().catch(() => ({ reservations: [] })),
+          restaurantApi.getMenuItems().catch(() => ({ menuItems: [] })),
+          restaurantApi.getOrders().catch(() => ({ orders: [] })),
+          restaurantApi.getInventory().catch(() => ({ inventory: [], movements: [] })),
+          restaurantApi.getOffers().catch(() => ({ offers: [] })),
+          restaurantApi.getDashboardMetrics().catch(() => ({ metrics: null })),
+        ]);
+
+        setTables(tblRes.tables || []);
+        setReservations(resRes.reservations || []);
+        setMenuItems(menuRes.menuItems || []);
+        setOrders(ordRes.orders || []);
+        setInventoryItems(invtRes.inventory || []);
+        setStockMovements(invtRes.movements || []);
+        setOffers(offRes.offers || []);
+        setDashboardMetrics(metRes.metrics || null);
+      }
+
+      // If stationery workspace, load stationery entities
+      if (isStationeryWorkspace(currentWorkspace)) {
+        if ((prodRes.products || []).length === 0) {
+          await stationeryApi.seed().catch(() => {});
+          const refreshedProducts = await productsApi.list().catch(() => ({ products: [] }));
+          setProducts(refreshedProducts.products || []);
+        }
+
+        const [stMetrics, stCombos, stSchool, stVendors, stStock, stSettings] = await Promise.all([
+          stationeryApi.getDashboardMetrics().catch(() => ({ metrics: null })),
+          stationeryApi.getCombos().catch(() => ({ combos: [] })),
+          stationeryApi.getSchoolOrders().catch(() => ({ orders: [] })),
+          stationeryApi.getVendors().catch(() => ({ vendors: [], purchases: [] })),
+          stationeryApi.getInventoryLogs().catch(() => ({ logs: [] })),
+          stationeryApi.getSettings().catch(() => ({ settings: null })),
+        ]);
+
+        setStationeryMetrics(stMetrics.metrics || null);
+        setStationeryCombos(stCombos.combos || []);
+        setStationerySchoolOrders(stSchool.orders || []);
+        setStationeryVendors(stVendors.vendors || []);
+        setStationeryVendorPurchases(stVendors.purchases || []);
+        setStationeryStockLogs(stStock.logs || []);
+        setStationerySettings(stSettings.settings || null);
+      }
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Failed to load business data', 'error');
     } finally {
       setLoading(false);
     }
-  }, [user, activeBusinessId]);
+  }, [user, activeBusinessId, activeWorkspace]);
 
   useEffect(() => {
     loadBusinessData();
   }, [loadBusinessData]);
+
+  // Restaurant Helper Functions
+  const updateTableStatus = async (id, data) => {
+    const res = await restaurantApi.updateTableStatus(id, data);
+    setTables((prev) => prev.map((t) => (t.id === id ? res.table : t)));
+    await loadBusinessData();
+    return res.table;
+  };
+
+  const createTable = async (data) => {
+    const res = await restaurantApi.createOrUpdateTable(data);
+    setTables((prev) => [...prev, res.table]);
+    showToast(`Table ${res.table.name} created!`);
+    return res.table;
+  };
+
+  const createReservation = async (data) => {
+    const res = await restaurantApi.createReservation(data);
+    setReservations((prev) => [res.reservation, ...prev]);
+    showToast(`Reservation confirmed for ${res.reservation.customerName}!`);
+    await loadBusinessData();
+    return res.reservation;
+  };
+
+  const updateReservationStatus = async (id, data) => {
+    const res = await restaurantApi.updateReservationStatus(id, data);
+    setReservations((prev) => prev.map((r) => (r.id === id ? res.reservation : r)));
+    await loadBusinessData();
+    return res.reservation;
+  };
+
+  const createOrUpdateMenuItem = async (data) => {
+    const res = await restaurantApi.createOrUpdateMenuItem(data);
+    setMenuItems((prev) => {
+      const idx = prev.findIndex((m) => m.id === res.menuItem.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = res.menuItem;
+        return next;
+      }
+      return [res.menuItem, ...prev];
+    });
+    showToast(`Menu item "${res.menuItem.name}" saved!`);
+    return res.menuItem;
+  };
+
+  const deleteMenuItem = async (id) => {
+    await restaurantApi.deleteMenuItem(id);
+    setMenuItems((prev) => prev.filter((m) => m.id !== id));
+    showToast('Menu item removed.', 'warning');
+  };
+
+  const createOrder = async (data) => {
+    const res = await restaurantApi.createOrder(data);
+    setOrders((prev) => [res.order, ...prev]);
+    showToast(`Order ${res.order.orderNumber} sent to kitchen!`);
+    await loadBusinessData();
+    return res.order;
+  };
+
+  const updateKitchenStatus = async (id, data) => {
+    const res = await restaurantApi.updateKitchenStatus(id, data);
+    setOrders((prev) => prev.map((o) => (o.id === id ? res.order : o)));
+    await loadBusinessData();
+    return res.order;
+  };
+
+  const processOrderPayment = async (id, data) => {
+    const res = await restaurantApi.processOrderPayment(id, data);
+    setOrders((prev) => prev.map((o) => (o.id === id ? res.order : o)));
+    showToast(`Order ${res.order.orderNumber} payment completed!`);
+    await loadBusinessData();
+    return res.order;
+  };
+
+  const createOrUpdateInventoryItem = async (data) => {
+    const res = await restaurantApi.createOrUpdateInventoryItem(data);
+    setInventoryItems((prev) => {
+      const idx = prev.findIndex((i) => i.id === res.inventoryItem.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = res.inventoryItem;
+        return next;
+      }
+      return [...prev, res.inventoryItem];
+    });
+    showToast(`Ingredient "${res.inventoryItem.name}" saved!`);
+    return res.inventoryItem;
+  };
+
+  const recordWaste = async (data) => {
+    const res = await restaurantApi.recordWaste(data);
+    setInventoryItems((prev) => prev.map((i) => (i.id === res.item.id ? res.item : i)));
+    setStockMovements((prev) => [res.movement, ...prev]);
+    showToast(`Recorded waste for ${res.item.name}`, 'warning');
+    await loadBusinessData();
+  };
+
+  // Stationery Helper Functions
+  const createPosBill = async (billData) => {
+    const res = await stationeryApi.createPosBill(billData);
+    setInvoices((prev) => [res.invoice, ...prev]);
+    await loadBusinessData();
+    showToast(`Bill ${res.invoice.invoiceNumber} created!`);
+    return res.invoice;
+  };
+
+  const adjustStationeryStock = async (data) => {
+    const res = await stationeryApi.adjustStock(data);
+    await loadBusinessData();
+    showToast(`Stock updated for ${res.product?.name || 'item'}`);
+    return res.product;
+  };
+
+  const createSchoolOrder = async (data) => {
+    const res = await stationeryApi.createSchoolOrder(data);
+    setStationerySchoolOrders((prev) => [res.order, ...prev]);
+    showToast(`School order ${res.order.orderNumber} created!`);
+    await loadBusinessData();
+    return res.order;
+  };
+
+  const updateSchoolOrder = async (id, data) => {
+    const res = await stationeryApi.updateSchoolOrder(id, data);
+    setStationerySchoolOrders((prev) => prev.map((o) => (o.id === id ? res.order : o)));
+    showToast(`School order updated!`);
+    await loadBusinessData();
+    return res.order;
+  };
+
+  const convertSchoolOrderToInvoice = async (id) => {
+    const res = await stationeryApi.convertSchoolOrderToInvoice(id);
+    await loadBusinessData();
+    showToast(`School order converted to Invoice ${res.invoice.invoiceNumber}!`);
+    return res;
+  };
+
+  const createVendor = async (data) => {
+    const res = await stationeryApi.createVendor(data);
+    setStationeryVendors((prev) => [...prev, res.vendor]);
+    showToast(`Vendor ${res.vendor.name} added!`);
+    return res.vendor;
+  };
+
+  const recordVendorPurchase = async (data) => {
+    const res = await stationeryApi.recordVendorPurchase(data);
+    await loadBusinessData();
+    showToast(`Recorded purchase from ${res.purchase.vendorName}!`);
+    return res.purchase;
+  };
+
+  const updateStationerySettings = async (data) => {
+    const res = await stationeryApi.updateSettings(data);
+    setStationerySettings(res.settings);
+    showToast('Stationery settings updated!');
+    await loadBusinessData();
+    return res.settings;
+  };
 
   const updateCompany = async (newDetails) => {
     const data = await businessApi.update(activeBusinessId, newDetails);
@@ -199,6 +444,42 @@ export const BusinessProvider = ({ children }) => {
         expenses,
         addExpense,
         deleteExpense,
+        // Restaurant Exposes
+        tables,
+        reservations,
+        menuItems,
+        orders,
+        inventoryItems,
+        stockMovements,
+        offers,
+        dashboardMetrics,
+        updateTableStatus,
+        createTable,
+        createReservation,
+        updateReservationStatus,
+        createOrUpdateMenuItem,
+        deleteMenuItem,
+        createOrder,
+        updateKitchenStatus,
+        processOrderPayment,
+        createOrUpdateInventoryItem,
+        recordWaste,
+        // Stationery Exposes
+        stationeryCombos,
+        stationerySchoolOrders,
+        stationeryVendors,
+        stationeryVendorPurchases,
+        stationeryStockLogs,
+        stationeryMetrics,
+        stationerySettings,
+        createPosBill,
+        adjustStationeryStock,
+        createSchoolOrder,
+        updateSchoolOrder,
+        convertSchoolOrderToInvoice,
+        createVendor,
+        recordVendorPurchase,
+        updateStationerySettings,
         aiInsights,
         toast,
         showToast,
@@ -227,3 +508,4 @@ export const BusinessProvider = ({ children }) => {
 };
 
 export const useBusiness = () => useContext(BusinessContext);
+
