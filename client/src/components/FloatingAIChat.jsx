@@ -1,18 +1,36 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, Send, X, Bot, User, Globe, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FloatingAIChat() {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [language, setLanguage] = useState(() => localStorage.getItem('bizz_lang') || 'en'); // 'en' | 'gu'
+  const [language, setLanguage] = useState(() => localStorage.getItem('bizz_lang') || (i18n.language?.startsWith('gu') ? 'gu' : 'en'));
   const { metrics, invoices, customers, expenses, products, company } = useBusiness();
   const { user } = useAuth();
   const messagesEndRef = useRef(null);
-  const firstName = user?.name?.split(' ')[0] || 'there';
+
+  useEffect(() => {
+    const current = i18n.language?.startsWith('gu') ? 'gu' : 'en';
+    setLanguage(current);
+  }, [i18n.language]);
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+    i18n.changeLanguage(lang);
+  };
+
+  const getInitialMessage = (lang) => {
+    if (lang === 'gu') {
+      return `નમસ્તે! હું **Bizz AI** છું, ${company?.name || 'તમારા વ્યવસાય'} માટે તમારો પાયલોટ.\n\nતમે મને આવક, બાકી ઇન્વૉઇસ, ગ્રાહકો, અથવા સ્ટોક વિશે અંગ્રેજી કે ગુજરાતીમાં પૂછી શકો છો.`;
+    }
+    return `Hello! I am **Bizz AI**, your business co-pilot for ${company?.name || 'your business'}.\n\nYou can ask me about customers, revenue, GST rules, or business growth — in English or Gujarati.`;
+  };
 
   const initialGreeting = language === 'gu'
     ? `નમસ્તે ${firstName}! હું **Bizz (બીઝ)** છું — ${company?.name || 'તમારા ધંધા'} નો તમારો સ્માર્ટ AI બિઝનેસ પાઇલટ. 🚀\n\nતમે મને તમારા વેચાણ, ચોખ્ખો નફો, બાકી લેણી રકમ, GST નિયમો અથવા સ્ટોકની માહિતી વિશે કંઈ પણ પૂછી શકો છો!`
@@ -227,22 +245,26 @@ export default function FloatingAIChat() {
   };
 
   return (
-    <>
-      {/* Floating Trigger Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-green-bottle text-white shadow-xl hover:bg-emerald-900 transition-all font-medium text-sm"
-        >
-          <div className="relative">
-            <Bot className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping" />
-          </div>
-          <span>Ask Bizz AI</span>
-        </motion.button>
-      </div>
+    <div className="fixed bottom-6 right-6 z-50">
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsOpen(true)}
+            className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-green-bottle text-white shadow-xl hover:bg-emerald-900 transition-all font-medium text-sm cursor-pointer"
+          >
+            <div className="relative flex items-center gap-2">
+              <Bot className="w-5 h-5" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping" />
+            </div>
+            <span>{t('common.askBizzAi', 'Ask Bizz AI')}</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Floating Chat Modal */}
       <AnimatePresence>
@@ -262,7 +284,7 @@ export default function FloatingAIChat() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm flex items-center gap-1.5">
-                    Bizz AI <span className="text-[10px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-normal">Co-Pilot</span>
+                    Bizz AI <span className="text-[10px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-normal">{t('bizz.online', 'Co-Pilot')}</span>
                   </h3>
                   <p className="text-[11px] text-stone-400">{company?.name || 'Biizora Business Pilot'}</p>
                 </div>
@@ -273,7 +295,7 @@ export default function FloatingAIChat() {
                 <div className="flex items-center bg-stone-800 p-0.5 rounded-lg border border-stone-700">
                   <button
                     type="button"
-                    onClick={() => toggleLanguage('en')}
+                    onClick={() => handleLanguageChange('en')}
                     className={`px-2 py-1 text-[11px] font-semibold rounded-md transition-all ${
                       language === 'en' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
                     }`}
@@ -282,7 +304,7 @@ export default function FloatingAIChat() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => toggleLanguage('gu')}
+                    onClick={() => handleLanguageChange('gu')}
                     className={`px-2 py-1 text-[11px] font-semibold rounded-md transition-all ${
                       language === 'gu' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
                     }`}
@@ -334,7 +356,7 @@ export default function FloatingAIChat() {
               {isTyping && (
                 <div className="flex items-center gap-2 text-warm-gray text-xs">
                   <Bot className="w-4 h-4 animate-bounce text-green-bottle" />
-                  <span>{language === 'gu' ? 'Bizz AI જવાબ વિચારી રહ્યું છે…' : 'Bizz AI is thinking…'}</span>
+                  <span>{t('bizz.thinking', language === 'gu' ? 'Bizz AI જવાબ વિચારી રહ્યું છે…' : 'Bizz AI is thinking…')}</span>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -373,6 +395,6 @@ export default function FloatingAIChat() {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

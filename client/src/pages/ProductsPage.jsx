@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import {
   Package,
@@ -15,6 +16,8 @@ import {
 } from 'lucide-react';
 
 export default function ProductsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { products, addProduct, updateProduct, deleteProduct } = useBusiness();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
@@ -85,16 +88,18 @@ export default function ProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Package className="w-6 h-6 text-accent" /> Products & Services Catalog
+            <Package className="w-6 h-6 text-accent" /> {isGu ? 'ઉત્પાદનો અને સેવાઓ કેટલોગ' : 'Products & Services Catalog'}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Manage catalog SKUs, HSN/SAC GST codes, pricing & low-stock alerts.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {isGu ? 'SKU કેટલોગ, HSN/SAC જીએસટી કોડ, કિંમત અને સ્ટોક એલર્ટ સંચાલિત કરો' : 'Manage catalog SKUs, HSN/SAC GST codes, pricing & low-stock alerts.'}
+          </p>
         </div>
 
         <button
           onClick={() => handleOpenModal()}
           className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all"
         >
-          <Plus className="w-4 h-4" /> Add Item / Service
+          <Plus className="w-4 h-4" /> {isGu ? '+ વસ્તુ / સેવા ઉમેરો' : 'Add Item / Service'}
         </button>
       </div>
 
@@ -104,7 +109,7 @@ export default function ProductsPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
-            placeholder="Search by SKU, item name, HSN code..."
+            placeholder={isGu ? 'SKU, નામ, HSN કોડ દ્વારા શોધો...' : 'Search by SKU, item name, HSN code...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
@@ -112,15 +117,15 @@ export default function ProductsPage() {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-slate-400 font-medium">Item Type:</span>
+          <span className="text-xs text-slate-400 font-medium">{isGu ? 'પ્રકાર:' : 'Item Type:'}</span>
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
           >
-            <option value="All">All Types</option>
-            <option value="product">Products</option>
-            <option value="service">Services</option>
+            <option value="All">{isGu ? 'બધા પ્રકારો' : 'All Types'}</option>
+            <option value="product">{isGu ? 'ઉત્પાદનો (Products)' : 'Products'}</option>
+            <option value="service">{isGu ? 'સેવાઓ (Services)' : 'Services'}</option>
           </select>
         </div>
       </div>
@@ -131,14 +136,14 @@ export default function ProductsPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/50">
-                <th className="py-3.5 px-4">SKU / Item</th>
+                <th className="py-3.5 px-4">{isGu ? 'SKU / વસ્તુ' : 'SKU / Item'}</th>
                 <th className="py-3.5 px-4">HSN/SAC</th>
-                <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Selling Price</th>
-                <th className="py-3.5 px-4">Cost Price</th>
-                <th className="py-3.5 px-4">GST Rate</th>
-                <th className="py-3.5 px-4">Stock Level</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-4">{isGu ? 'કેટેગરી' : 'Category'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'વેચાણ કિંમત' : 'Selling Price'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'મૂળ કિંમત' : 'Cost Price'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'જીએસટી દર' : 'GST Rate'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'સ્ટોક સ્તર' : 'Stock Level'}</th>
+                <th className="py-3.5 px-4 text-right">{isGu ? 'ક્રિયાઓ' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">

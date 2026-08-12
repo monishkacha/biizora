@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import {
   BarChart3,
@@ -16,6 +17,8 @@ import { useAuth } from '../context/AuthContext';
 import SalonReportsPage from './salon/SalonReportsPage';
 
 export default function ReportsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { activeWorkspace } = useAuth();
   const { metrics, invoices, expenses, company } = useBusiness();
 
@@ -39,25 +42,27 @@ export default function ReportsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-accent" /> Executive Financial Reports & GST Filing
+            <BarChart3 className="w-6 h-6 text-accent" /> {isGu ? 'નાણાકીય રિપોર્ટ્સ અને જીએસટી ફાઇલિંગ' : 'Executive Financial Reports & GST Filing'}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Generate P&L statements, GSTR-1 / GSTR-3B tax summaries, and cash flow reports.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {isGu ? 'નફા-નુકસાન પત્રક (P&L), GSTR-1 / GSTR-3B ટેક્સ સારાંશ અને કેશ ફ્લો રિપોર્ટ્સ બનાવો' : 'Generate P&L statements, GSTR-1 / GSTR-3B tax summaries, and cash flow reports.'}
+          </p>
         </div>
 
         <button
           onClick={handlePrintReport}
           className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all"
         >
-          <Printer className="w-4 h-4" /> Print / Export Report PDF
+          <Printer className="w-4 h-4" /> {isGu ? 'રિપોર્ટ પ્રિન્ટ / પીડીએફ ડાઉનલોડ' : 'Print / Export Report PDF'}
         </button>
       </div>
 
       {/* Report Type Selector Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 no-print">
         {[
-          { id: 'pnl', label: 'Profit & Loss Statement' },
-          { id: 'gst', label: 'GST GSTR-1 / 3B Summary' },
-          { id: 'cashflow', label: 'Cash Flow Statement' }
+          { id: 'pnl', label: isGu ? 'નફા-નુકસાન પત્રક (P&L)' : 'Profit & Loss Statement' },
+          { id: 'gst', label: isGu ? 'જીએસટી (GSTR-1 / 3B) સારાંશ' : 'GST GSTR-1 / 3B Summary' },
+          { id: 'cashflow', label: isGu ? 'કેશ ફ્લો પત્રક' : 'Cash Flow Statement' }
         ].map(tab => (
           <button
             key={tab.id}
@@ -84,7 +89,7 @@ export default function ReportsPage() {
           </div>
           <div className="text-right">
             <span className="px-3 py-1 bg-bg-secondary dark:bg-bg-secondary text-blue-700 dark:text-blue-300 text-xs font-bold rounded-lg uppercase">
-              Financial Period: FY 2026-27 (Q2)
+              {isGu ? 'નાણાકીય વર્ષ: ૨૦૨૬-૨૭ (Q2)' : 'Financial Period: FY 2026-27 (Q2)'}
             </span>
             <p className="text-[11px] text-slate-400 mt-1">Generated: {new Date().toLocaleDateString('en-IN')}</p>
           </div>

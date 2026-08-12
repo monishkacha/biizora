@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useBusiness } from '../context/BusinessContext';
 import { modulesApi } from '../api/client';
@@ -14,13 +15,76 @@ import { LogOut, Building2, Shield, BadgeCheck, Headphones } from 'lucide-react'
 
 import { isStationeryWorkspace, workspaceFeatures } from '../config/workspaceFeatures';
 
+const navTranslationKeys = {
+  Overview: 'dashboard',
+  Dashboard: 'dashboard',
+  Invoices: 'invoices',
+  Products: 'products',
+  Inventory: 'inventory',
+  Customers: 'customers',
+  Expenses: 'expenses',
+  Reports: 'reports',
+  Analytics: 'analytics',
+  Settings: 'settings',
+  'AI Suite': 'aiSuite',
+  'Bizz AI Suite': 'aiSuite',
+  'Data Migration': 'migration',
+  'Migration Center': 'migration',
+  Activity: 'activity',
+  'Activity Timeline': 'activity',
+  Payments: 'payments',
+  'POS Billing': 'billing',
+  'New Bill': 'newBill',
+  Bills: 'bills',
+  Vendors: 'vendors',
+  Suppliers: 'suppliers',
+  'Raw Materials': 'rawMaterials',
+  'Production Orders': 'productionOrders',
+  Machines: 'machines',
+  Warehouse: 'warehouse',
+  'Quality Control': 'qc',
+  QC: 'qc',
+  'School Orders': 'schoolOrders',
+  'Print & Xerox': 'printXerox',
+  Tables: 'tables',
+  Reservations: 'reservations',
+  'Orders / POS': 'posOrders',
+  Orders: 'posOrders',
+  'Kitchen Display': 'kitchenDisplay',
+  'Menu Catalog': 'menu',
+  Menu: 'menu',
+  Stylists: 'stylists',
+  Services: 'services',
+  Billing: 'billing',
+  Membership: 'membership',
+  Memberships: 'membership',
+  Reviews: 'reviews',
+  Calendar: 'calendar',
+  Appointments: 'appointments',
+  Team: 'team',
+  Staff: 'team',
+  'Offers & Discounts': 'offers',
+  Offers: 'offers',
+  Support: 'support',
+  'Help & Support': 'support',
+  Admin: 'superAdmin',
+  'Super Admin': 'superAdmin',
+};
+
 export default function Sidebar({ collapsed, mobileOpen }) {
+  const { t } = useTranslation();
   const location = useLocation();
   const { user, logout, business, activeWorkspace } = useAuth();
   const biz = business || activeWorkspace;
   const isStationery = isStationeryWorkspace(biz);
 
   const [navItems, setNavItems] = useState(() => modulesToNavItems(FALLBACK_NAV));
+
+  const getNavLabel = (label) => {
+    const key = navTranslationKeys[label];
+    if (key) return t(`nav.${key}`, label);
+    return t(`common.${label.toLowerCase()}`, label);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +148,22 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           { id: 'settings', title: 'Settings', route: '/app/settings', icon: 'Settings' },
         ];
         setNavItems(modulesToNavItems(salonModules));
+        return;
+      }
+
+      if (biz?.businessType === 'manufacturing') {
+        const manufacturingModules = [
+          { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'suppliers', title: 'Suppliers', route: '/app/suppliers', icon: 'Building2' },
+          { id: 'raw-materials', title: 'Raw Materials', route: '/app/raw-materials', icon: 'Boxes' },
+          { id: 'production-orders', title: 'Production Orders', route: '/app/production-orders', icon: 'ClipboardList' },
+          { id: 'machines', title: 'Machines', route: '/app/machines', icon: 'Cpu' },
+          { id: 'warehouse', title: 'Warehouse', route: '/app/warehouse', icon: 'Factory' },
+          { id: 'qc', title: 'Quality Control', route: '/app/qc', icon: 'BadgeCheck' },
+          { id: 'reports', title: 'Reports', route: '/app/reports', icon: 'BarChart3' },
+          { id: 'settings', title: 'Settings', route: '/app/settings', icon: 'Settings' },
+        ];
+        setNavItems(modulesToNavItems(manufacturingModules));
         return;
       }
 
@@ -179,6 +259,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
             item.path === '/app'
               ? location.pathname === '/app'
               : location.pathname.startsWith(item.path);
+          const translatedLabel = getNavLabel(item.label);
           return (
             <Link
               key={item.id || item.path}
@@ -188,10 +269,10 @@ export default function Sidebar({ collapsed, mobileOpen }) {
                 ${active ? 'bg-green-bottle text-white shadow-subtle' : 'text-charcoal/80 hover:bg-white'}
                 ${collapsed ? 'justify-center' : ''}
               `}
-              title={item.label}
+              title={translatedLabel}
             >
               <Icon className="w-4 h-4 shrink-0" />
-              {!collapsed && <span className="truncate font-medium">{item.label}</span>}
+              {!collapsed && <span className="truncate font-medium">{translatedLabel}</span>}
             </Link>
           );
         })}
@@ -206,7 +287,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
             `}
           >
             <BadgeCheck className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="font-medium">Membership</span>}
+            {!collapsed && <span className="font-medium">{t('common.membership', 'Membership')}</span>}
           </Link>
         )}
 
@@ -220,7 +301,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
             `}
           >
             <Shield className="w-4 h-4 shrink-0" />
-            {!collapsed && <span className="font-medium">Super Admin</span>}
+            {!collapsed && <span className="font-medium">{t('nav.superAdmin', 'Super Admin')}</span>}
           </Link>
         )}
       </nav>
@@ -231,7 +312,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           className={`flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm text-warm-gray hover:bg-white hover:text-charcoal ${collapsed ? 'justify-center' : ''}`}
         >
           <Headphones className="w-4 h-4" />
-          {!collapsed && <span>Help & Support</span>}
+          {!collapsed && <span>{t('common.helpSupport', 'Help & Support')}</span>}
         </Link>
         <button
           type="button"
@@ -239,7 +320,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm text-warm-gray hover:bg-white hover:text-charcoal ${collapsed ? 'justify-center' : ''}`}
         >
           <LogOut className="w-4 h-4" />
-          {!collapsed && <span>Sign out</span>}
+          {!collapsed && <span>{t('common.signOut', 'Sign Out')}</span>}
         </button>
         {!collapsed && <PoweredByBizora className="pt-2 border-t border-stone/30" />}
       </div>

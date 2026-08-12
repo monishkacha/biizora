@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { activityApi } from '../api/client';
 import { useBusiness } from '../context/BusinessContext';
 import { PageHeader } from '../components/ui/PageHeader';
@@ -6,6 +7,8 @@ import { Card, EmptyState, Skeleton, Badge } from '../components/ui/Badge';
 import { ScrollText } from 'lucide-react';
 
 export default function ActivityLogPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { showToast } = useBusiness();
   const [activity, setActivity] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,8 +34,8 @@ export default function ActivityLogPage() {
   return (
     <div>
       <PageHeader
-        title="Activity log"
-        description="Complete audit trail of logins, invoices, payments, and settings changes."
+        title={isGu ? 'પ્રવૃત્તિ ટાઇમલાઇન' : 'Activity Log'}
+        description={isGu ? 'લોગિન, ઇન્વૉઇસ, ચુકવણીઓ અને સેટિંગ્સના ફેરફારોનું ઓડિટ ટ્રેલ.' : 'Complete audit trail of logins, invoices, payments, and settings changes.'}
       />
 
       <Card className="overflow-hidden">

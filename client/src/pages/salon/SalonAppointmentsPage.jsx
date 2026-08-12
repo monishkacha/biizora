@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../../context/BusinessContext';
 import { useNotification } from '../../context/NotificationContext';
 import {
@@ -234,26 +235,30 @@ export default function SalonAppointmentsPage() {
       a.client.toLowerCase().includes(search.toLowerCase()) ||
       (a.phone && a.phone.includes(search));
     const matchesStylist = stylistFilter === 'All' || a.stylist === stylistFilter;
-    const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
     return matchesSearch && matchesStylist && matchesStatus;
   });
+  const isGu = i18n.language?.startsWith('gu');
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Floor Control</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">
+            {isGu ? 'ફ્લોર કંટ્રોલ' : 'Floor Control'}
+          </p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Appointments
+            {isGu ? 'એપોઇન્ટમેન્ટ્સ (બુકિંગ)' : 'Appointments'}
           </h1>
-          <p className="text-sm text-warm-gray">Manage bookings, assignments, status chips, and pricing totals</p>
+          <p className="text-sm text-warm-gray">
+            {isGu ? 'બુકિંગ સંચાલિત કરો, સ્ટાઈલિસ્ટ ફાળવો અને સ્થિતિ અપડેટ કરો' : 'Manage bookings, assignments, status chips, and pricing totals'}
+          </p>
         </div>
         <button
           onClick={handleOpenModal}
           className="flex items-center justify-center gap-1.5 px-4 py-2 bg-green-bottle hover:bg-green-forest text-white rounded-xl text-xs font-bold transition-all"
         >
-          <Plus className="w-4 h-4" /> Add New Appointment
+          <Plus className="w-4 h-4" /> {isGu ? '+ નવી એપોઇન્ટમેન્ટ ઉમેરો' : 'Add New Appointment'}
         </button>
       </div>
 
@@ -263,7 +268,7 @@ export default function SalonAppointmentsPage() {
           <Search className="w-4 h-4 text-warm-gray absolute left-3 top-3" />
           <input
             type="text"
-            placeholder="Search by client name, phone..."
+            placeholder={isGu ? 'ક્લાયન્ટનું નામ, ફોન દ્વારા શોધો...' : 'Search by client name, phone...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-ivory/55 border border-stone rounded-xl text-xs outline-none focus:border-green-bottle text-charcoal font-sans"
@@ -272,30 +277,30 @@ export default function SalonAppointmentsPage() {
 
         <div className="flex flex-wrap items-center gap-4 w-full md:w-auto text-xs text-charcoal font-semibold">
           <label className="flex items-center gap-2">
-            <span className="text-warm-gray font-medium">Stylist:</span>
+            <span className="text-warm-gray font-medium">{isGu ? 'સ્ટાઈલિસ્ટ:' : 'Stylist:'}</span>
             <select
               value={stylistFilter}
               onChange={(e) => setStylistFilter(e.target.value)}
               className="px-3 py-2 bg-ivory/55 border border-stone rounded-xl outline-none"
             >
-              <option value="All">All Stylists</option>
+              <option value="All">{isGu ? 'બધા સ્ટાઈલિસ્ટ' : 'All Stylists'}</option>
               {stylistList.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </label>
 
           <label className="flex items-center gap-2">
-            <span className="text-warm-gray font-medium">Status:</span>
+            <span className="text-warm-gray font-medium">{isGu ? 'સ્થિતિ:' : 'Status:'}</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               className="px-3 py-2 bg-ivory/55 border border-stone rounded-xl outline-none"
             >
-              <option value="All">All Statuses</option>
-              <option value="Pending">Pending</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="All">{isGu ? 'બધી સ્થિતિ' : 'All Statuses'}</option>
+              <option value="Pending">{isGu ? 'પેન્ડિંગ' : 'Pending'}</option>
+              <option value="Confirmed">{isGu ? 'પુષ્ટિ થયેલ' : 'Confirmed'}</option>
+              <option value="In Progress">{isGu ? 'પ્રગતિમાં' : 'In Progress'}</option>
+              <option value="Completed">{isGu ? 'પૂર્ણ' : 'Completed'}</option>
+              <option value="Cancelled">{isGu ? 'રદ કરેલ' : 'Cancelled'}</option>
             </select>
           </label>
         </div>
@@ -307,14 +312,14 @@ export default function SalonAppointmentsPage() {
           <table className="bz-table w-full text-left">
             <thead>
               <tr className="bg-ivory/50 text-charcoal text-xs border-b border-stone">
-                <th className="p-4">Time</th>
-                <th className="p-4">Date</th>
-                <th className="p-4">Client</th>
-                <th className="p-4">Service</th>
-                <th className="p-4">Stylist</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-right">Amount</th>
-                <th className="p-4 text-center">Actions</th>
+                <th className="p-4">{isGu ? 'સમય' : 'Time'}</th>
+                <th className="p-4">{isGu ? 'તારીખ' : 'Date'}</th>
+                <th className="p-4">{isGu ? 'ક્લાયન્ટ' : 'Client'}</th>
+                <th className="p-4">{isGu ? 'સેવા' : 'Service'}</th>
+                <th className="p-4">{isGu ? 'સ્ટાઈલિસ્ટ' : 'Stylist'}</th>
+                <th className="p-4">{isGu ? 'સ્થિતિ' : 'Status'}</th>
+                <th className="p-4 text-right">{isGu ? 'રકમ' : 'Amount'}</th>
+                <th className="p-4 text-center">{isGu ? 'ક્રિયાઓ' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="text-xs divide-y divide-stone/50 bg-white">

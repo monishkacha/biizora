@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../context/NotificationContext';
 import {
   Scissors,
@@ -17,6 +18,8 @@ import { Button } from '../../components/ui/Button';
 const stylistsOptions = ['Riya Sharma', 'Anjali Shah', 'Kavya Rao', 'Sunita Das'];
 
 export default function SalonServicesPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { addNotification } = useNotification();
   const [activeCategory, setActiveCategory] = useState('Hair');
 
@@ -187,17 +190,17 @@ export default function SalonServicesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Menu Management</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">{isGu ? 'મેનુ મેનેજમેન્ટ' : 'Menu Management'}</p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Services & Catalog
+            {isGu ? 'સેવાઓ અને કેટેલોગ' : 'Services & Catalog'}
           </h1>
-          <p className="text-sm text-warm-gray">Define service categories, pricing tables, stylist assignments, and booking options</p>
+          <p className="text-sm text-warm-gray">{isGu ? 'સેવા કેટેગરીઓ, કિંમતો અને બુકિંગ વિકલ્પો નક્કી કરો' : 'Define service categories, pricing tables, stylist assignments, and booking options'}</p>
         </div>
         <button
           onClick={handleOpenAdd}
           className="flex items-center justify-center gap-1.5 px-4 py-2 bg-green-bottle hover:bg-green-forest text-white rounded-xl text-xs font-bold transition-all"
         >
-          <Plus className="w-4 h-4" /> Add New Service
+          <Plus className="w-4 h-4" /> {isGu ? 'નવી સેવા ઉમેરો' : 'Add New Service'}
         </button>
       </div>
 

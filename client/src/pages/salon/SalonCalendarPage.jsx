@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -11,8 +12,10 @@ import {
 import { Button } from '../../components/ui/Button';
 
 export default function SalonCalendarPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const [view, setView] = useState('week'); // 'day', 'week', 'month'
-  const [selectedDate, setSelectedDate] = useState('10 Aug 2026');
+  const [selectedDate, setSelectedDate] = useState(isGu ? '૧૦ ઓગસ્ટ ૨૦૨૬' : '10 Aug 2026');
 
   // Sample appointments
   const appointments = [
@@ -29,24 +32,32 @@ export default function SalonCalendarPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Floor Control</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">
+            {isGu ? 'ફ્લોર કંટ્રોલ' : 'Floor Control'}
+          </p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Calendar
+            {isGu ? 'કેલેન્ડર' : 'Calendar'}
           </h1>
-          <p className="text-sm text-warm-gray">Manage real-time stylist chairs, walk-ins, and reservations</p>
+          <p className="text-sm text-warm-gray">
+            {isGu ? 'રીયલ-ટાઇમ સ્ટાઈલિસ્ટ ખુરશીઓ, વોક-ઈન અને બુકિંગ હિસ્ટ્રી સંચાલિત કરો' : 'Manage real-time stylist chairs, walk-ins, and reservations'}
+          </p>
         </div>
         
         {/* Toggle views */}
         <div className="flex bg-ivory border border-stone p-1 rounded-xl text-xs font-semibold self-start sm:self-center">
-          {['day', 'week', 'month'].map((v) => (
+          {[
+            { id: 'day', label: isGu ? 'દિવસ' : 'day' },
+            { id: 'week', label: isGu ? 'સપ્તાહ' : 'week' },
+            { id: 'month', label: isGu ? 'મહિનો' : 'month' },
+          ].map((v) => (
             <button
-              key={v}
-              onClick={() => setView(v)}
+              key={v.id}
+              onClick={() => setView(v.id)}
               className={`px-4 py-2 rounded-lg capitalize transition-colors ${
-                view === v ? 'bg-green-bottle text-white shadow-subtle' : 'text-charcoal/80 hover:bg-cream'
+                view === v.id ? 'bg-green-bottle text-white shadow-subtle' : 'text-charcoal/80 hover:bg-cream'
               }`}
             >
-              {v}
+              {v.label}
             </button>
           ))}
         </div>
@@ -64,19 +75,19 @@ export default function SalonCalendarPage() {
           </button>
         </div>
         <button className="flex items-center gap-1.5 px-3.5 py-2 bg-ivory border border-stone text-xs text-charcoal rounded-xl hover:bg-cream transition-colors">
-          <CalendarIcon className="w-4 h-4 text-green-bottle" /> Today
+          <CalendarIcon className="w-4 h-4 text-green-bottle" /> {isGu ? 'આજે' : 'Today'}
         </button>
       </div>
 
       {/* Time-grid Calendar Layout */}
       <div className="bg-white border border-stone rounded-[20px] shadow-subtle overflow-hidden">
         <div className="grid grid-cols-6 border-b border-stone bg-ivory/50 p-4 text-xs font-semibold text-charcoal text-center">
-          <div className="text-left">Time</div>
-          <div>Mon 10</div>
-          <div>Tue 11</div>
-          <div>Wed 12</div>
-          <div>Thu 13</div>
-          <div>Fri 14</div>
+          <div className="text-left">{isGu ? 'સમય' : 'Time'}</div>
+          <div>{isGu ? 'સોમ ૧૦' : 'Mon 10'}</div>
+          <div>{isGu ? 'મંગળ ૧૧' : 'Tue 11'}</div>
+          <div>{isGu ? 'બુધ ૧૨' : 'Wed 12'}</div>
+          <div>{isGu ? 'ગુરુ ૧૩' : 'Thu 13'}</div>
+          <div>{isGu ? 'શુક્ર ૧૪' : 'Fri 14'}</div>
         </div>
 
         <div className="divide-y divide-stone/60">

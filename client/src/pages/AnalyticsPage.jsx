@@ -1,9 +1,12 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { TrendingUp, Users, Package, DollarSign, BarChart2 } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from 'recharts';
 
 export default function AnalyticsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { customers, products, invoices, metrics } = useBusiness();
 
   const customerSpendData = customers.map(c => ({
@@ -24,9 +27,11 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-accent" /> Advanced Financial Analytics
+          <TrendingUp className="w-6 h-6 text-accent" /> {isGu ? 'એડવાન્સ્ડ નાણાકીય એનાલિટિક્સ' : 'Advanced Financial Analytics'}
         </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">Deep-dive analysis into client acquisition, revenue concentration, and payment channels.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {isGu ? 'ગ્રાહક આવક, પેમેન્ટ મોડ્સ અને બિઝનેસ પરફોર્મન્સનું ઊંડું વિશ્લેષણ.' : 'Deep-dive analysis into client acquisition, revenue concentration, and payment channels.'}
+        </p>
       </div>
 
       {/* Analytics Charts Grid */}
@@ -34,13 +39,15 @@ export default function AnalyticsPage() {
         
         {/* Customer Lifetime Spend Chart */}
         <div className="p-6 bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">Top Customer Revenue Concentration</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            {isGu ? 'ટોપ ગ્રાહક આવક એકાગ્રતા' : 'Top Customer Revenue Concentration'}
+          </h3>
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={customerSpendData}>
                 <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickFormatter={(v) => `₹${v/1000}k`} />
-                <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Lifetime Spent']} />
+                <Tooltip formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, isGu ? 'કુલ ખર્ચ' : 'Lifetime Spent']} />
                 <Bar dataKey="spent" fill="#2563EB" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -49,7 +56,9 @@ export default function AnalyticsPage() {
 
         {/* Payment Channel Breakdown */}
         <div className="p-6 bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card space-y-4">
-          <h3 className="text-base font-bold text-slate-900 dark:text-white">Payment Method Distribution</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            {isGu ? 'ચુકવણી પદ્ધતિ વહેંચણી' : 'Payment Method Distribution'}
+          </h3>
           <div className="h-64 w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

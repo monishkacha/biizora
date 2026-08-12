@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../../context/BusinessContext';
 import { PoweredByBizora } from '../../components/ui/PoweredByBizora';
 import {
@@ -20,6 +21,8 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 export default function RestaurantBillingPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const paramOrderId = searchParams.get('orderId');
@@ -60,13 +63,17 @@ export default function RestaurantBillingPage() {
     return (
       <div className="p-12 text-center bg-white rounded-3xl border border-stone space-y-4">
         <Receipt className="w-12 h-12 text-warm-gray mx-auto" />
-        <h2 className="text-xl font-bold text-charcoal">No Active Unpaid Orders Found</h2>
-        <p className="text-sm text-warm-gray">Create an order from POS to generate billing receipts.</p>
+        <h2 className="text-xl font-bold text-charcoal">
+          {isGu ? 'કોઈ સક્રિય અવેતન ઓર્ડર મળ્યા નથી' : 'No Active Unpaid Orders Found'}
+        </h2>
+        <p className="text-sm text-warm-gray">
+          {isGu ? 'બિલિંગ રસીદ બનાવવા માટે POS માંથી એક ઓર્ડર બનાવો.' : 'Create an order from POS to generate billing receipts.'}
+        </p>
         <button
           onClick={() => navigate('/app/orders')}
           className="px-5 py-2.5 bg-green-bottle text-white font-bold text-sm rounded-xl"
         >
-          Go to POS / Order Entry
+          {isGu ? 'POS / ઓર્ડર એન્ટ્રી પર જાઓ' : 'Go to POS / Order Entry'}
         </button>
       </div>
     );
@@ -169,9 +176,11 @@ export default function RestaurantBillingPage() {
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-charcoal">POS & Billing Settlement</h1>
+            <h1 className="text-2xl font-bold text-charcoal">
+              {isGu ? 'POS અને બિલિંગ સેટલમેન્ટ' : 'POS & Billing Settlement'}
+            </h1>
             <p className="text-sm text-warm-gray mt-0.5">
-              Review order items, apply taxes/service charges, process payments, and dispatch receipts.
+              {isGu ? 'ઓર્ડર આઇટમ્સ તપાસો, ટેક્સ/સર્વિસ ચાર્જ લાગુ કરો અને ચુકવણી કરો.' : 'Review order items, apply taxes/service charges, process payments, and dispatch receipts.'}
             </p>
           </div>
         </div>
@@ -197,14 +206,14 @@ export default function RestaurantBillingPage() {
         <div className="lg:col-span-6 space-y-4 print:hidden">
           <div className="bg-white p-6 rounded-3xl border border-stone/40 shadow-sm space-y-5">
             <h2 className="text-lg font-bold text-charcoal border-b border-stone/40 pb-3 flex justify-between items-center">
-              <span>Bill Details ({selectedOrder.orderNumber})</span>
+              <span>{isGu ? 'બિલ વિગત' : 'Bill Details'} ({selectedOrder.orderNumber})</span>
               <span className="text-xs text-warm-gray">{selectedOrder.tableName || selectedOrder.orderType}</span>
             </h2>
 
             {/* Tax & Charges Toggles */}
             <div className="space-y-3 pt-1">
               <div className="flex items-center justify-between p-3 rounded-xl bg-cream/50 border border-stone/40">
-                <span className="text-xs font-bold text-charcoal">Apply GST (5%)</span>
+                <span className="text-xs font-bold text-charcoal">{isGu ? 'GST લાગુ કરો (5%)' : 'Apply GST (5%)'}</span>
                 <input
                   type="checkbox"
                   checked={applyGst}
@@ -214,7 +223,7 @@ export default function RestaurantBillingPage() {
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-xl bg-cream/50 border border-stone/40">
-                <span className="text-xs font-bold text-charcoal">Apply Service Charge (5%)</span>
+                <span className="text-xs font-bold text-charcoal">{isGu ? 'સર્વિસ ચાર્જ લાગુ કરો (5%)' : 'Apply Service Charge (5%)'}</span>
                 <input
                   type="checkbox"
                   checked={applyServiceCharge}
@@ -226,11 +235,11 @@ export default function RestaurantBillingPage() {
 
             {/* Coupon Code input */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-charcoal">Apply Offer / Coupon Code</label>
+              <label className="text-xs font-semibold text-charcoal">{isGu ? 'ઓફર / કૂપન કોડ ઉમેરો' : 'Apply Offer / Coupon Code'}</label>
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="e.g. WELCOME10 or OLIVE200"
+                  placeholder={isGu ? 'દા.ત. WELCOME10 અથવા OLIVE200' : 'e.g. WELCOME10 or OLIVE200'}
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
                   className="flex-1 p-2.5 border border-stone rounded-xl text-xs uppercase"
@@ -240,14 +249,14 @@ export default function RestaurantBillingPage() {
                   onClick={handleApplyCoupon}
                   className="px-4 py-2.5 bg-green-bottle text-white text-xs font-bold rounded-xl hover:bg-green-bottle/90"
                 >
-                  Apply
+                  {isGu ? 'લાગુ કરો' : 'Apply'}
                 </button>
               </div>
             </div>
 
             {/* Payment Method Selector */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-warm-gray uppercase tracking-wider">Payment Method</label>
+              <label className="text-xs font-bold text-warm-gray uppercase tracking-wider">{isGu ? 'ચુકવણી પદ્ધતિ' : 'Payment Method'}</label>
               <div className="grid grid-cols-4 gap-2">
                 {['UPI', 'Cash', 'Card', 'Split'].map((mode) => (
                   <button
@@ -260,7 +269,7 @@ export default function RestaurantBillingPage() {
                         : 'bg-cream text-charcoal border-stone hover:bg-stone-200'
                     }`}
                   >
-                    {mode}
+                    {mode === 'Cash' && isGu ? 'કેશ' : mode === 'Card' && isGu ? 'કાર્ડ' : mode === 'Split' && isGu ? 'સ્પ્લિટ' : mode}
                   </button>
                 ))}
               </div>
@@ -270,7 +279,7 @@ export default function RestaurantBillingPage() {
             {paymentMode === 'Split' && (
               <div className="grid grid-cols-2 gap-3 p-3 bg-amber-500/10 rounded-2xl border border-amber-500/30">
                 <div>
-                  <label className="text-[11px] font-bold text-amber-900">Cash Amount (₹)</label>
+                  <label className="text-[11px] font-bold text-amber-900">{isGu ? 'કેશ રકમ (₹)' : 'Cash Amount (₹)'}</label>
                   <input
                     type="number"
                     value={cashPart}
@@ -279,7 +288,7 @@ export default function RestaurantBillingPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-amber-900">UPI Amount (₹)</label>
+                  <label className="text-[11px] font-bold text-amber-900">{isGu ? 'UPI રકમ (₹)' : 'UPI Amount (₹)'}</label>
                   <input
                     type="number"
                     value={upiPart}
@@ -294,7 +303,7 @@ export default function RestaurantBillingPage() {
             <div className="pt-2">
               {selectedOrder.paymentStatus === 'paid' ? (
                 <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 text-emerald-900 rounded-2xl text-center text-xs font-bold flex items-center justify-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Payment Complete & Settled
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> {isGu ? 'ચુકવણી પૂર્ણ અને સેટલ થઈ ગઈ' : 'Payment Complete & Settled'}
                 </div>
               ) : (
                 <button
@@ -302,7 +311,7 @@ export default function RestaurantBillingPage() {
                   disabled={isProcessing}
                   className="w-full py-3.5 bg-green-bottle text-white font-extrabold text-sm rounded-2xl hover:bg-green-bottle/90 shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  <CheckCircle2 className="w-5 h-5" /> Settle & Pay ₹{grandTotal}
+                  <CheckCircle2 className="w-5 h-5" /> {isGu ? `ચૂકવો અને સેટલ કરો ₹${grandTotal}` : `Settle & Pay ₹${grandTotal}`}
                 </button>
               )}
             </div>
@@ -312,13 +321,13 @@ export default function RestaurantBillingPage() {
         {/* Right Receipt Preview & Print Renderer (6 cols) */}
         <div className="lg:col-span-6 space-y-4">
           <div className="flex justify-between items-center print:hidden">
-            <span className="text-xs font-bold text-warm-gray uppercase tracking-wider">Invoice Receipt Preview</span>
+            <span className="text-xs font-bold text-warm-gray uppercase tracking-wider">{isGu ? 'ઇન્વૉઇસ રસીદ પૂર્વાવલોકન' : 'Invoice Receipt Preview'}</span>
             <div className="flex gap-2">
               <button
                 onClick={handlePrintReceipt}
                 className="px-3 py-1.5 bg-stone-100 text-charcoal text-xs font-bold rounded-xl hover:bg-stone-200 flex items-center gap-1"
               >
-                <Printer className="w-3.5 h-3.5" /> Print
+                <Printer className="w-3.5 h-3.5" /> {isGu ? 'પ્રિન્ટ' : 'Print'}
               </button>
               <button
                 onClick={handleDownloadPDF}

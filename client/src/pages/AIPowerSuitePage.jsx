@@ -18,11 +18,15 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { useTranslation } from 'react-i18next';
+
 export default function AIPowerSuitePage() {
+  const { t, i18n } = useTranslation();
   const { metrics, invoices, customers, expenses, company, showToast } = useBusiness();
 
   const [activeModule, setActiveModule] = useState('advisor');
-  const [language, setLanguage] = useState('en'); // 'en' | 'gu'
+  const language = i18n.language?.startsWith('gu') ? 'gu' : 'en';
+  const setLanguage = (lang) => i18n.changeLanguage(lang);
   const [copiedText, setCopiedText] = useState('');
 
   // Reminder Generator State
@@ -197,13 +201,13 @@ export default function AIPowerSuitePage() {
                   </h4>
                   <p className="text-[11px] text-slate-400">
                     {language === 'gu'
-                      ? 'સ્ક્રીનના નીચે જમણી બાજુએ આપેલ "Ask Biizora AI" બટન દબાવીને ગુજરાતી કે ઈંગ્લીશમાં ચેટ કરો!'
-                      : 'Use the floating **Ask Biizora AI** button at the bottom-right of your screen to chat in English or Gujarati anytime!'}
+                      ? 'સ્ક્રીનના નીચે જમણી બાજુએ આપેલ "Ask Bizz AI" બટન દબાવીને ગુજરાતી કે ઈંગ્લીશમાં ચેટ કરો!'
+                      : 'Use the floating **Ask Bizz AI** button at the bottom-right of your screen to chat in English or Gujarati anytime!'}
                   </p>
                 </div>
               </div>
               <button
-                onClick={() => showToast(language === 'gu' ? 'ચેટ શરૂ કરવા નીચે જમણી બાજુ "Ask Biizora AI" પર ક્લિક કરો!' : 'Click the bottom-right "Ask Biizora AI" button to launch instant chat!')}
+                onClick={() => showToast(language === 'gu' ? 'ચેટ શરૂ કરવા નીચે જમણી બાજુ "Ask Bizz AI" પર ક્લિક કરો!' : 'Click the bottom-right "Ask Bizz AI" button to launch instant chat!')}
                 className="px-4 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow-md hover:bg-text"
               >
                 {language === 'gu' ? 'ચેટબોટ ખોલો' : 'Launch Chatbot'}

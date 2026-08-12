@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { authApi, setAccessToken, setActiveBusinessId } from '../api/client';
 import { Sparkles, ArrowRight, ShieldCheck, Mail, KeyRound, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
-const BUSINESS_TYPES = [
-  { value: 'salon', label: 'Salon' },
-  { value: 'restaurant', label: 'Restaurant / Cafe' },
-  { value: 'retail', label: 'Retail' },
-  { value: 'manufacturing', label: 'Manufacturing' },
-  { value: 'stationery', label: 'Stationery' },
-];
-
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1); // 1: Info Form, 2: OTP Verification
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
@@ -28,6 +22,14 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const inviteToken = params.get('invite');
+
+  const BUSINESS_TYPES = [
+    { value: 'salon', label: t('nav.salon', 'Salon') },
+    { value: 'restaurant', label: t('nav.restaurant', 'Restaurant / Cafe') },
+    { value: 'retail', label: t('nav.retail', 'Retail') },
+    { value: 'manufacturing', label: t('nav.manufacturing', 'Manufacturing') },
+    { value: 'stationery', label: t('nav.stationery', 'Stationery') },
+  ];
 
   // Step 1: Request Signup OTP
   const handleFormSubmit = async (e) => {
@@ -66,7 +68,7 @@ export default function RegisterPage() {
       setStep(2);
       setInfoMsg(data.message || `Verification code sent to ${email}`);
     } catch (err) {
-      setError(err.message || 'Registration failed');
+      setError(err.message || t('errors.registerFailed', 'Registration failed'));
     } finally {
       setLoading(false);
     }
@@ -145,10 +147,10 @@ export default function RegisterPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-display font-semibold tracking-tight">
-              {inviteToken ? 'Join your team' : step === 1 ? 'Create your business' : 'Verify Email Address'}
+              {inviteToken ? t('auth.createAccount', 'Join your team') : step === 1 ? t('auth.createAccountTitle', 'Create your business') : t('auth.verifyEmailTitle', 'Verify Email Address')}
             </h1>
             <p className="mt-1.5 text-sm text-warm-gray">
-              {step === 1 ? 'One account · One business · Built for your industry' : `Enter code sent to ${email}`}
+              {step === 1 ? t('auth.createAccountSubtitle', 'One account · One business · Built for your industry') : `Enter code sent to ${email}`}
             </p>
           </div>
         </div>
@@ -160,29 +162,26 @@ export default function RegisterPage() {
               {infoMsg}
             </p>
           ) : null}
-
           {error ? (
-            <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">
-              {error}
-            </p>
+            <p className="text-xs text-terracotta bg-[#F8E6E1] border border-[#E8C4BA] rounded-[14px] px-3 py-2.5">{error}</p>
           ) : null}
 
           {step === 1 ? (
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <label className="block space-y-1.5">
-                <span className="text-xs font-medium text-warm-gray">Owner name</span>
+                <span className="text-xs font-medium text-warm-gray">{t('auth.fullName', 'Owner name')}</span>
                 <input
                   required
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   className="bz-input"
-                  placeholder="Rahul Verma"
+                  placeholder="John Smith"
                 />
               </label>
               {!inviteToken ? (
                 <>
                   <label className="block space-y-1.5">
-                    <span className="text-xs font-medium text-warm-gray">Business name</span>
+                    <span className="text-xs font-medium text-warm-gray">{t('auth.businessName', 'Business name')}</span>
                     <input
                       required
                       value={businessName}
@@ -192,27 +191,27 @@ export default function RegisterPage() {
                     />
                   </label>
                   <label className="block space-y-1.5">
-                    <span className="text-xs font-medium text-warm-gray">Email</span>
+                    <span className="text-xs font-medium text-warm-gray">{t('auth.workEmail', 'Email')}</span>
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="bz-input"
-                      placeholder="rahul@company.com"
+                      placeholder="john@company.com"
                     />
                   </label>
                   <label className="block space-y-1.5">
-                    <span className="text-xs font-medium text-warm-gray">Business type</span>
+                    <span className="text-xs font-medium text-warm-gray">{t('auth.businessType', 'Business type')}</span>
                     <select
                       required
                       value={businessType}
                       onChange={(e) => setBusinessType(e.target.value)}
                       className="bz-input"
                     >
-                      {BUSINESS_TYPES.map((t) => (
-                        <option key={t.value} value={t.value}>
-                          {t.label}
+                      {BUSINESS_TYPES.map((tItem) => (
+                        <option key={tItem.value} value={tItem.value}>
+                          {tItem.label}
                         </option>
                       ))}
                     </select>
@@ -220,7 +219,7 @@ export default function RegisterPage() {
                 </>
               ) : null}
               <label className="block space-y-1.5">
-                <span className="text-xs font-medium text-warm-gray">Password</span>
+                <span className="text-xs font-medium text-warm-gray">{t('auth.password', 'Password')}</span>
                 <input
                   type="password"
                   required
@@ -231,7 +230,7 @@ export default function RegisterPage() {
                 />
               </label>
               <Button type="submit" variant="accent" loading={loading} className="w-full" size="lg">
-                {inviteToken ? 'Accept invite' : 'Send Verification Code'} <Mail className="w-4 h-4" />
+                {inviteToken ? t('auth.acceptInvite', 'Accept invite') : t('auth.sendCodeBtn', 'Send Verification Code')} <Mail className="w-4 h-4" />
               </Button>
             </form>
           ) : (
@@ -240,11 +239,11 @@ export default function RegisterPage() {
                 <div className="w-12 h-12 rounded-full bg-green-50 text-green-bottle flex items-center justify-center mx-auto mb-2">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
-                <p className="text-xs text-warm-gray">Check your email for the 6-digit OTP code.</p>
+                <p className="text-xs text-warm-gray">{t('auth.checkOtpMsg', 'Check your email for the 6-digit OTP code.')}</p>
               </div>
 
               <label className="block space-y-1.5">
-                <span className="text-xs font-medium text-warm-gray">Verification Code</span>
+                <span className="text-xs font-medium text-warm-gray">{t('auth.verificationCode', 'Verification Code')}</span>
                 <div className="relative">
                   <input
                     type="text"
@@ -260,7 +259,7 @@ export default function RegisterPage() {
               </label>
 
               <Button type="submit" variant="accent" loading={loading} className="w-full" size="lg">
-                Verify & Activate Workspace <ArrowRight className="w-4 h-4" />
+                {t('auth.verifyActivateBtn', 'Verify & Activate Workspace')} <ArrowRight className="w-4 h-4" />
               </Button>
 
               <div className="flex justify-between items-center pt-2 text-xs">
@@ -269,7 +268,7 @@ export default function RegisterPage() {
                   onClick={() => setStep(1)}
                   className="text-warm-gray hover:underline"
                 >
-                  ← Edit details
+                  ← {t('auth.editDetails', 'Edit details')}
                 </button>
                 <button
                   type="button"
@@ -277,7 +276,7 @@ export default function RegisterPage() {
                   disabled={loading}
                   className="text-green-bottle font-semibold hover:underline"
                 >
-                  Resend OTP
+                  {t('auth.resendOtp', 'Resend OTP')}
                 </button>
               </div>
             </form>
@@ -285,9 +284,9 @@ export default function RegisterPage() {
         </div>
 
         <p className="text-center text-sm text-warm-gray">
-          Already have an account?{' '}
+          {t('auth.alreadyHaveAccount', 'Already have an account?')}{' '}
           <Link to="/login" className="font-semibold text-green-bottle hover:underline">
-            Sign in
+            {t('auth.signInBtn', 'Sign in')}
           </Link>
         </p>
       </div>

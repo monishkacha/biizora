@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 
 export default function InvoiceCreatePage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { customers, addCustomer, products, company, generateInvoiceNumber, createInvoice } = useBusiness();
   const navigate = useNavigate();
 
@@ -259,7 +261,7 @@ export default function InvoiceCreatePage() {
       {/* Top Header Bar */}
       <div className="flex items-center justify-between">
         <button onClick={() => navigate('/app/invoices')} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 font-semibold">
-          <ArrowLeft className="w-4 h-4" /> Back to Invoices
+          <ArrowLeft className="w-4 h-4" /> {isGu ? 'ઇનવોઇસ પર પાછા જાઓ' : 'Back to Invoices'}
         </button>
         
         <div className="flex items-center gap-3">
@@ -267,13 +269,13 @@ export default function InvoiceCreatePage() {
             onClick={() => handleSaveInvoice('draft')}
             className="px-4 py-2 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold hover:bg-slate-100"
           >
-            Save as Draft
+            {isGu ? 'ડ્રાફ્ટ તરીકે સાચવો' : 'Save as Draft'}
           </button>
           <button
             onClick={() => handleSaveInvoice('pending')}
             className="px-5 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all flex items-center gap-1.5"
           >
-            <Sparkles className="w-4 h-4" /> Generate & Save Invoice
+            <Sparkles className="w-4 h-4" /> {isGu ? 'ઇનવોઇસ બનાવો અને સાચવો' : 'Generate & Save Invoice'}
           </button>
         </div>
       </div>
@@ -289,7 +291,7 @@ export default function InvoiceCreatePage() {
           </div>
 
           <div className="space-y-2 text-right">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">INVOICE NUMBER</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">{isGu ? 'ઇનવોઇસ નંબર' : 'INVOICE NUMBER'}</span>
             <input
               type="text"
               value={invoiceNumber}
@@ -303,13 +305,13 @@ export default function InvoiceCreatePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">Select Customer</label>
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">{isGu ? 'ગ્રાહક પસંદ કરો' : 'Select Customer'}</label>
               <button
                 type="button"
                 onClick={() => setQuickCustModalOpen(true)}
                 className="text-[11px] font-bold text-accent dark:text-text-muted hover:underline flex items-center gap-1"
               >
-                <UserPlus className="w-3 h-3" /> + Quick Add Customer
+                <UserPlus className="w-3 h-3" /> {isGu ? '+ ઝડપી ગ્રાહક ઉમેરો' : '+ Quick Add Customer'}
               </button>
             </div>
             <select

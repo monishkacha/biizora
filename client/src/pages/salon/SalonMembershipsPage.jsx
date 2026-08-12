@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Award,
   Plus,
@@ -10,10 +11,34 @@ import {
 import { Card } from '../../components/ui/Badge';
 
 export default function SalonMembershipsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
+
   const [plans] = useState([
-    { id: 'silver', name: 'Glow Silver', price: '₹999 / month', discount: '10% Service discount', features: ['Priority booking slots', 'Free wash on birthdays'], activeCount: 18 },
-    { id: 'gold', name: 'Glow Gold', price: '₹2,499 / month', discount: '15% Service discount', features: ['Free Hair Spa every month', 'Complimentary welcome mocktails', 'Dedicated booking hotline'], activeCount: 24 },
-    { id: 'bridal', name: 'Glow Bridal Elite', price: '₹7,999 / 3 months', discount: '20% Service discount', features: ['Complete bridal consultation sessions', 'Dedicated expert stylist', 'Priority weekend styling'], activeCount: 6 },
+    {
+      id: 'silver',
+      name: 'Glow Silver',
+      price: isGu ? '₹૯૯૯ / મહિનો' : '₹999 / month',
+      discount: isGu ? '૧૦% સેવા ડિસ્કાઉન્ટ' : '10% Service discount',
+      features: isGu ? ['પ્રાથમિકતા બુકિંગ સ્લોટ્સ', 'જન્મદિવસે મફત હેર વોશ'] : ['Priority booking slots', 'Free wash on birthdays'],
+      activeCount: 18,
+    },
+    {
+      id: 'gold',
+      name: 'Glow Gold',
+      price: isGu ? '₹૨,૪૯૯ / મહિનો' : '₹2,499 / month',
+      discount: isGu ? '૧૫% સેવા ડિસ્કાઉન્ટ' : '15% Service discount',
+      features: isGu ? ['દર મહિને મફત હેર સ્પા', 'વેલકમ મોકટેલ્સ', 'ખાસ બુકિંગ હોટલાઇન'] : ['Free Hair Spa every month', 'Complimentary welcome mocktails', 'Dedicated booking hotline'],
+      activeCount: 24,
+    },
+    {
+      id: 'bridal',
+      name: 'Glow Bridal Elite',
+      price: isGu ? '₹૭,૯૯૯ / ૩ મહિના' : '₹7,999 / 3 months',
+      discount: isGu ? '૨૦% સેવા ડિસ્કાઉન્ટ' : '20% Service discount',
+      features: isGu ? ['સંપૂર્ણ બ્રાઇડલ કન્સલ્ટેશન સેશન્સ', 'નિષ્ણાત સ્ટાઈલિસ્ટ', 'સપ્તાહાંતે પ્રાથમિકતા સ્ટાઇલ'] : ['Complete bridal consultation sessions', 'Dedicated expert stylist', 'Priority weekend styling'],
+      activeCount: 6,
+    },
   ]);
 
   const [reminders] = useState([
@@ -26,14 +51,18 @@ export default function SalonMembershipsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Club & Loyalty</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">
+            {isGu ? 'ક્લબ અને લોયલ્ટી' : 'Club & Loyalty'}
+          </p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Memberships
+            {isGu ? 'મેમ્બરશિપ' : 'Memberships'}
           </h1>
-          <p className="text-sm text-warm-gray">Configure subscription plans, discount percentages, and active subscriber lists</p>
+          <p className="text-sm text-warm-gray">
+            {isGu ? 'સબ્સ્ક્રિપ્શન પ્લાન, ડિસ્કાઉન્ટ ટકાવારી અને સક્રિય ગ્રાહક યાદીઓ કન્ફિગર કરો' : 'Configure subscription plans, discount percentages, and active subscriber lists'}
+          </p>
         </div>
         <button className="flex items-center gap-1.5 px-4 py-2 bg-green-bottle hover:bg-green-forest text-white rounded-xl text-xs font-bold transition-all">
-          <Plus className="w-4 h-4" /> Add Membership Tier
+          <Plus className="w-4 h-4" /> {isGu ? '+ મેમ્બરશિપ પ્લાન ઉમેરો' : 'Add Membership Tier'}
         </button>
       </div>
 
@@ -47,7 +76,7 @@ export default function SalonMembershipsPage() {
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-green-bottle">{p.name}</span>
                 <span className="text-[10px] font-bold text-charcoal bg-cream px-2 py-0.5 rounded border border-stone">
-                  {p.activeCount} active members
+                  {p.activeCount} {isGu ? 'સક્રિય સભ્યો' : 'active members'}
                 </span>
               </div>
               <p className="text-lg font-bold text-charcoal">{p.price}</p>
@@ -65,7 +94,7 @@ export default function SalonMembershipsPage() {
             </div>
 
             <button className="w-full py-2 bg-ivory border border-stone hover:bg-cream rounded-xl text-xs font-bold text-charcoal transition-colors">
-              Manage Members &rarr;
+              {isGu ? 'સભ્યોનું સંચાલન →' : 'Manage Members →'}
             </button>
           </Card>
         ))}
@@ -74,17 +103,17 @@ export default function SalonMembershipsPage() {
       {/* Renewal alerts */}
       <Card className="p-5 border border-stone bg-white space-y-3">
         <h2 className="text-xs font-bold uppercase tracking-wider text-charcoal flex items-center gap-1.5">
-          <AlertTriangle className="w-4 h-4 text-mustard animate-pulse" /> Renewal Reminders
+          <AlertTriangle className="w-4 h-4 text-mustard animate-pulse" /> {isGu ? 'નવીનીકરણ રિમાઇન્ડર્સ' : 'Renewal Reminders'}
         </h2>
         <div className="divide-y divide-stone/50">
           {reminders.map((r, i) => (
             <div key={i} className="py-2.5 flex justify-between items-center text-xs">
               <div>
                 <span className="font-bold text-charcoal block">{r.name}</span>
-                <span className="text-[10px] text-warm-gray">{r.tier} · Due on {r.date}</span>
+                <span className="text-[10px] text-warm-gray">{r.tier} · {isGu ? `મુદ્દત: ${r.date}` : `Due on ${r.date}`}</span>
               </div>
               <button className="px-3 py-1 bg-green-bottle text-white text-[10px] font-bold rounded-lg hover:bg-green-forest transition-colors">
-                Send Alert
+                {isGu ? 'એલર્ટ મોકલો' : 'Send Alert'}
               </button>
             </div>
           ))}

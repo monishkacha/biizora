@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useBusiness } from '../../context/BusinessContext';
@@ -37,6 +38,8 @@ const predefinedCustomers = [
 const GST_RATE = 0.18;
 
 export default function SalonBillingPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const location = useLocation();
   const navigate = useNavigate();
   const { customers, company } = useBusiness();
@@ -304,27 +307,27 @@ export default function SalonBillingPage() {
         {/* Left Panel */}
         <div className="lg:col-span-7 space-y-6">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Checkout Desk</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">{isGu ? 'ચેકઆઉટ ડેસ્ક' : 'Checkout Desk'}</p>
             <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-              POS Billing Counter
+              {isGu ? 'સલોન POS બિલિંગ કાઉન્ટર' : 'Salon POS Billing Counter'}
             </h1>
-            <p className="text-sm text-warm-gray">Register walk-in bills, apply member discounts, and select modes</p>
+            <p className="text-sm text-warm-gray">{isGu ? 'વોક-ઈન ગ્રાહકના બિલો બનાવો, મેમ્બર ડિસ્કાઉન્ટ ઉમેરો અને ચુકવણી સ્વીકારો' : 'Register walk-in bills, apply member discounts, and select modes'}</p>
           </div>
 
           {/* Customer Selection & Details */}
           <Card className="p-5 border border-stone space-y-4 bg-white">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-charcoal">Client Details</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-charcoal">{isGu ? 'ક્લાયન્ટ વિગત' : 'Client Details'}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-semibold">
               
               {/* Customer Dropdown */}
               <div className="space-y-1 relative">
-                <label className="text-warm-gray font-medium mb-1 block">Customer Name *</label>
+                <label className="text-warm-gray font-medium mb-1 block">{isGu ? 'ગ્રાહકનું નામ *' : 'Customer Name *'}</label>
                 <button
                   type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="w-full flex items-center justify-between px-3.5 py-3 bg-ivory/55 border border-stone rounded-xl outline-none text-left text-xs font-semibold text-charcoal h-12"
                 >
-                  <span>{clientName}</span>
+                  <span>{clientName === 'Select customer' ? (isGu ? 'ગ્રાહક પસંદ કરો' : 'Select customer') : clientName}</span>
                   <ChevronDown className="w-4 h-4 text-warm-gray" />
                 </button>
 
@@ -334,14 +337,14 @@ export default function SalonBillingPage() {
                       <Search className="w-3.5 h-3.5 text-warm-gray absolute left-2.5 top-2.5" />
                       <input
                         type="text"
-                        placeholder="Search name or phone..."
+                        placeholder={isGu ? 'નામ અથવા ફોન દ્વારા શોધો...' : 'Search name or phone...'}
                         value={customerSearch}
                         onChange={(e) => setCustomerSearch(e.target.value)}
                         className="w-full pl-8 pr-3 py-1.5 bg-ivory/55 border border-stone rounded-lg text-xs outline-none"
                       />
                     </div>
                     {filteredCustomers.length === 0 ? (
-                      <p className="text-[11px] text-warm-gray p-2 text-center">No customers found.</p>
+                      <p className="text-[11px] text-warm-gray p-2 text-center">{isGu ? 'કોઈ ગ્રાહક મળ્યા નથી.' : 'No customers found.'}</p>
                     ) : (
                       filteredCustomers.map((c) => (
                         <button
@@ -351,7 +354,7 @@ export default function SalonBillingPage() {
                           className="w-full text-left px-3 py-2 hover:bg-cream rounded-lg flex justify-between items-center text-xs"
                         >
                           <span className="font-bold text-charcoal">{c.name}</span>
-                          <span className="text-[10px] text-warm-gray font-mono">{c.phone || 'No phone'}</span>
+                          <span className="text-[10px] text-warm-gray font-mono">{c.phone || (isGu ? 'ફોન નથી' : 'No phone')}</span>
                         </button>
                       ))
                     )}
@@ -361,7 +364,7 @@ export default function SalonBillingPage() {
 
               {/* Auto-retrieved Saved Customer Phone */}
               <div className="space-y-1">
-                <label className="text-warm-gray font-medium mb-1 block">Saved Customer Phone</label>
+                <label className="text-warm-gray font-medium mb-1 block">{isGu ? 'સાચવેલ ગ્રાહક ફોન' : 'Saved Customer Phone'}</label>
                 <div className="w-full px-3.5 py-3 bg-ivory/55 border border-stone rounded-xl text-xs font-semibold font-mono text-charcoal h-12 flex items-center">
                   {clientPhone ? (
                     <span className="flex items-center gap-1.5">
@@ -370,7 +373,7 @@ export default function SalonBillingPage() {
                     </span>
                   ) : (
                     <span className="text-amber-600 text-[11px] font-sans italic flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> No phone number saved
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {isGu ? 'કોઈ ફોન નંબર સાચવેલ નથી' : 'No phone number saved'}
                     </span>
                   )}
                 </div>
@@ -385,13 +388,13 @@ export default function SalonBillingPage() {
               <Search className="w-4 h-4 text-warm-gray absolute left-3 top-3.5" />
               <input
                 type="text"
-                placeholder="Search services or retail products..."
+                placeholder={isGu ? 'સેવાઓ અથવા રીટેલ ઉત્પાદનો શોધો...' : 'Search services or retail products...'}
                 className="w-full pl-9 pr-4 py-2.5 bg-ivory/55 border border-stone rounded-xl text-xs outline-none focus:border-green-bottle text-charcoal font-sans"
               />
             </div>
 
             <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-warm-gray">Quick add items</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-warm-gray">{isGu ? 'ઝડપી ઉમેરો' : 'Quick add items'}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 {salonCatalog.map((item) => (
                   <button
@@ -401,7 +404,7 @@ export default function SalonBillingPage() {
                   >
                     <div>
                       <span className="font-bold text-charcoal block">{item.name}</span>
-                      <span className="text-[10px] text-warm-gray">{item.type}</span>
+                      <span className="text-[10px] text-warm-gray">{item.type === 'Service' && isGu ? 'સેવા' : item.type === 'Product' && isGu ? 'ઉત્પાદન' : item.type}</span>
                     </div>
                     <span className="font-mono font-bold text-green-forest">₹{item.rate}</span>
                   </button>
@@ -413,7 +416,7 @@ export default function SalonBillingPage() {
           {/* Settings options: Discount & Tip */}
           <Card className="p-5 border border-stone grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white">
             <div className="space-y-1.5 text-xs">
-              <label className="font-semibold text-charcoal block">Member Discount (₹)</label>
+              <label className="font-semibold text-charcoal block">{isGu ? 'મેમ્બર ડિસ્કાઉન્ટ (₹)' : 'Member Discount (₹)'}</label>
               <div className="relative">
                 <Percent className="w-4 h-4 text-warm-gray absolute left-3 top-3" />
                 <input
@@ -426,7 +429,7 @@ export default function SalonBillingPage() {
             </div>
 
             <div className="space-y-1.5 text-xs">
-              <label className="font-semibold text-charcoal block">Stylist Tip (₹)</label>
+              <label className="font-semibold text-charcoal block">{isGu ? 'સ્ટાઈલિસ્ટ ટીપ (₹)' : 'Stylist Tip (₹)'}</label>
               <div className="relative">
                 <Coins className="w-4 h-4 text-warm-gray absolute left-3 top-3" />
                 <input
@@ -446,7 +449,7 @@ export default function SalonBillingPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-stone">
                 <ShoppingCart className="w-5 h-5 text-green-bottle" />
-                <h2 className="text-sm font-bold text-charcoal">Order Summary</h2>
+                <h2 className="text-sm font-bold text-charcoal">{isGu ? 'ઓર્ડર સારાંશ' : 'Order Summary'}</h2>
               </div>
 
               {/* Selected items list */}

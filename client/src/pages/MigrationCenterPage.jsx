@@ -34,11 +34,14 @@ import {
   ChevronRight,
   Info,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { migrationApi } from '../api/client';
 import { useNotification } from '../context/NotificationContext';
 import { useBusiness } from '../context/BusinessContext';
 
 export default function MigrationCenterPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { addNotification } = useNotification();
   const { loadBusinessData } = useBusiness();
   const [activeTab, setActiveTab] = useState('wizard'); // wizard | connectors | history | export
@@ -457,15 +460,17 @@ export default function MigrationCenterPage() {
       <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-green-bottle via-charcoal to-green-bottle p-6 sm:p-8 text-white shadow-card">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-semibold text-cream">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-[11px] font-medium border border-white/15">
               <Sparkles className="w-3.5 h-3.5 text-pastel-yellow" />
-              Enterprise-Grade Data Engine
+              {isGu ? 'એન્ટરપ્રાઇઝ ડેટા એન્જિન' : 'Enterprise-Grade Data Engine'}
             </div>
             <h1 className="text-2xl sm:text-3xl font-display font-bold text-white tracking-tight">
-              Smart Data Migration Center
+              {isGu ? 'સ્માર્ટ ડેટા માઇગ્રેશન સેન્ટર' : 'Smart Data Migration Center'}
             </h1>
             <p className="text-sm text-stone/80 max-w-2xl leading-relaxed">
-              Switch from Tally, Zoho Books, Vyapar, QuickBooks, Excel or legacy ERPs to Biizora in minutes. Zero manual entry with AI-powered auto column matching.
+              {isGu
+                ? 'ટેલી, ઝોહો બુક્સ, વ્યાપાર, ક્વિકબુક્સ, એક્સેલ અથવા જુના ERP માંથી મિનિટોમાં Biizora માં ડેટા શિફ્ટ કરો.'
+                : 'Switch from Tally, Zoho Books, Vyapar, QuickBooks, Excel or legacy ERPs to Biizora in minutes. Zero manual entry with AI-powered auto column matching.'}
             </p>
           </div>
 
@@ -476,7 +481,7 @@ export default function MigrationCenterPage() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-[14px] bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/20 transition-all shadow-subtle"
             >
               <Download className="w-4 h-4 text-pastel-yellow" />
-              Sample Excel Template
+              {isGu ? 'સેમ્પલ એક્સેલ ટેમ્પ્લેટ' : 'Sample Excel Template'}
             </button>
             <button
               type="button"
@@ -484,7 +489,7 @@ export default function MigrationCenterPage() {
               className="flex items-center gap-2 px-4 py-2.5 rounded-[14px] bg-pastel-yellow text-green-bottle hover:bg-pastel-yellow/90 text-xs font-semibold shadow-subtle transition-all"
             >
               <Zap className="w-4 h-4" />
-              Export Center
+              {isGu ? 'એક્સપોર્ટ સેન્ટર' : 'Export Center'}
             </button>
           </div>
         </div>
@@ -502,7 +507,7 @@ export default function MigrationCenterPage() {
           }`}
         >
           <Wand2 className="w-4 h-4" />
-          9-Step Import Wizard
+          {isGu ? '૯-સ્ટેપ ઈમ્પોર્ટ વિઝાર્ડ' : '9-Step Import Wizard'}
         </button>
 
         <button
@@ -515,7 +520,7 @@ export default function MigrationCenterPage() {
           }`}
         >
           <Layers className="w-4 h-4" />
-          ERP Connectors (10)
+          {isGu ? 'ERP કનેક્ટર્સ (૧૦)' : 'ERP Connectors (10)'}
         </button>
 
         <button
@@ -528,7 +533,7 @@ export default function MigrationCenterPage() {
           }`}
         >
           <History className="w-4 h-4" />
-          Recent Imports & Undo ({historyLogs.length})
+          {isGu ? `તાજેતરના ઈમ્પોર્ટ અને અનડૂ (${historyLogs.length})` : `Recent Imports & Undo (${historyLogs.length})`}
         </button>
 
         <button
@@ -541,7 +546,7 @@ export default function MigrationCenterPage() {
           }`}
         >
           <Download className="w-4 h-4" />
-          Full Data Export
+          {isGu ? 'સંપૂર્ણ ડેટા એક્સપોર્ટ' : 'Full Data Export'}
         </button>
       </div>
 
@@ -552,18 +557,18 @@ export default function MigrationCenterPage() {
           <div className="p-4 sm:p-6 bg-white border border-stone rounded-[20px] shadow-subtle space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-wider text-green-forest">
-                Step {step} of 9
+                {isGu ? `સ્ટેપ ${step} / ૯` : `Step ${step} of 9`}
               </span>
               <span className="text-xs text-warm-gray">
-                {step === 1 && 'Select Import Type'}
-                {step === 2 && 'Choose Source File'}
-                {step === 3 && 'Automatic Format & Encoding Detection'}
-                {step === 4 && 'Smart AI Column Mapping'}
-                {step === 5 && 'Interactive Record Preview & AI Row Fixer'}
-                {step === 6 && 'Deep Validation Engine'}
-                {step === 7 && 'Import Strategy & Cloud Backup'}
-                {step === 8 && 'Processing Real-Time Migration'}
-                {step === 9 && 'Migration Summary Report'}
+                {step === 1 && (isGu ? 'ઈમ્પોર્ટ પ્રકાર પસંદ કરો' : 'Select Import Type')}
+                {step === 2 && (isGu ? 'ફાઇલ પસંદ કરો' : 'Choose Source File')}
+                {step === 3 && (isGu ? 'ઓટોમેટિક ફોર્મેટ ડિટેક્શન' : 'Automatic Format & Encoding Detection')}
+                {step === 4 && (isGu ? 'સ્માર્ટ AI કોલમ મેપિંગ' : 'Smart AI Column Mapping')}
+                {step === 5 && (isGu ? 'રેકોર્ડ પ્રિવ્યૂ અને AI રો ફિક્સર' : 'Interactive Record Preview & AI Row Fixer')}
+                {step === 6 && (isGu ? 'વેલિડેશન એન્જિન' : 'Deep Validation Engine')}
+                {step === 7 && (isGu ? 'ઈમ્પોર્ટ સ્ટ્રેટેજી અને બેકઅપ' : 'Import Strategy & Cloud Backup')}
+                {step === 8 && (isGu ? 'લાઇવ માઇગ્રેશન પ્રક્રિયા' : 'Processing Real-Time Migration')}
+                {step === 9 && (isGu ? 'માઇગ્રેશન સમરી રિપોર્ટ' : 'Migration Summary Report')}
               </span>
             </div>
 
@@ -588,18 +593,22 @@ export default function MigrationCenterPage() {
           {step === 1 && (
             <div className="p-6 bg-white border border-stone rounded-[20px] shadow-subtle space-y-6">
               <div className="space-y-1">
-                <h3 className="text-lg font-bold text-charcoal">Step 1: Select What You Want to Import</h3>
-                <p className="text-xs text-warm-gray">Choose the primary data module or perform a 1-click complete business migration.</p>
+                <h3 className="text-lg font-bold text-charcoal">
+                  {isGu ? 'સ્ટેપ ૧: તમે શું ઈમ્પોર્ટ કરવા માંગો છો તે પસંદ કરો' : 'Step 1: Select What You Want to Import'}
+                </h3>
+                <p className="text-xs text-warm-gray">
+                  {isGu ? 'પ્રાથમિક ડેટા મોડ્યુલ પસંદ કરો અથવા ૧-ક્લિકમાં સંપૂર્ણ બિઝનેસ માઇગ્રેશન કરો.' : 'Choose the primary data module or perform a 1-click complete business migration.'}
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
-                  { id: 'inventory', title: 'Inventory & Products', desc: 'Items, SKU, Stock, MRP, Cost Price, HSN, Tax rates', icon: Boxes },
-                  { id: 'customers', title: 'Customers & Receivables', desc: 'Customer list, Phone, Email, GSTIN, Balances', icon: Users },
-                  { id: 'suppliers', title: 'Suppliers & Vendors', desc: 'Supplier list, Payables, GSTIN, Addresses', icon: Building2 },
-                  { id: 'orders', title: 'Purchase & Sales Orders', desc: 'Pending orders, Quotations, Bills', icon: FileCheck },
-                  { id: 'transactions', title: 'Expenses & Transactions', desc: 'Payment history, Cash flow, Category expenses', icon: SlidersHorizontal },
-                  { id: 'complete', title: 'Complete Business Migration', desc: '1-Click full ERP data import across all modules', icon: Zap, badge: 'Popular' },
+                  { id: 'inventory', title: isGu ? 'ઇન્વેન્ટરી અને ઉત્પાદનો' : 'Inventory & Products', desc: isGu ? 'ઉત્પાદનો, SKU, સ્ટોક, MRP, કિંમત, HSN, ટેક્સ દરો' : 'Items, SKU, Stock, MRP, Cost Price, HSN, Tax rates', icon: Boxes },
+                  { id: 'customers', title: isGu ? 'ગ્રાહકો અને બાકી રકમ' : 'Customers & Receivables', desc: isGu ? 'ગ્રાહક યાદી, ફોન, ઈમેઈલ, GSTIN, બાકી રકમ' : 'Customer list, Phone, Email, GSTIN, Balances', icon: Users },
+                  { id: 'suppliers', title: isGu ? 'સપ્લાયર્સ અને વિક્રેતાઓ' : 'Suppliers & Vendors', desc: isGu ? 'સપ્લાયર યાદી, દેવાં, GSTIN, સરનામાં' : 'Supplier list, Payables, GSTIN, Addresses', icon: Building2 },
+                  { id: 'orders', title: isGu ? 'ખરીદી અને વેચાણ ઓર્ડર' : 'Purchase & Sales Orders', desc: isGu ? 'બાકી ઓર્ડર, ક્વોટેશન, બિલો' : 'Pending orders, Quotations, Bills', icon: FileCheck },
+                  { id: 'transactions', title: isGu ? 'ખર્ચ અને લેવડદેવડ' : 'Expenses & Transactions', desc: isGu ? 'ચુકવણી ઇતિહાસ, કેશ ફ્લો, ખર્ચ' : 'Payment history, Cash flow, Category expenses', icon: SlidersHorizontal },
+                  { id: 'complete', title: isGu ? 'સંપૂર્ણ બિઝનેસ માઇગ્રેશન' : 'Complete Business Migration', desc: isGu ? '૧-ક્લિકમાં તમામ મોડ્યુલ્સનો સંપૂર્ણ ERP ડેટા ઈમ્પોર્ટ' : '1-Click full ERP data import across all modules', icon: Zap, badge: isGu ? 'લોકપ્રિય' : 'Popular' },
                 ].map((type) => {
                   const Icon = type.icon;
                   const selected = importType === type.id;

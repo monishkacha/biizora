@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../../context/BusinessContext';
 import {
   IndianRupee,
@@ -15,10 +16,13 @@ import {
   FileText,
   Clock,
   TrendingUp,
+  Brain,
+  Sparkles,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function StationeryDashboardComponent() {
+  const { t, i18n } = useTranslation();
   const {
     invoices,
     products,
@@ -55,9 +59,9 @@ export default function StationeryDashboardComponent() {
 
   const kpiCards = [
     {
-      title: "Today's Sales",
+      title: t('retail.todaysSales', "Today's Sales"),
       value: `₹${Number(todaySales).toLocaleString('en-IN')}`,
-      hint: `${billsToday} bills generated today`,
+      hint: `${billsToday} ${t('stationery.bills', 'bills')} generated today`,
       icon: IndianRupee,
       color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       action: () => navigate('/app/stationery/bills'),
@@ -119,24 +123,66 @@ export default function StationeryDashboardComponent() {
             onClick={() => navigate('/app/stationery/billing')}
             className="px-4 py-2.5 bg-yellow-butter hover:bg-yellow-honey text-charcoal font-semibold rounded-[14px] text-sm flex items-center gap-2 shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
-            <Plus className="w-4 h-4" /> New Bill
+            <Plus className="w-4 h-4" /> {t('stationery.newBill', 'New Bill')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/stationery/products')}
             className="px-3.5 py-2.5 bg-white/15 hover:bg-white/25 text-white font-medium rounded-[14px] text-sm flex items-center gap-1.5 backdrop-blur-sm transition-all"
           >
-            <Package className="w-4 h-4" /> Product
+            <Package className="w-4 h-4" /> {t('stationery.products', 'Product')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/stationery/school-orders')}
             className="px-3.5 py-2.5 bg-white/15 hover:bg-white/25 text-white font-medium rounded-[14px] text-sm flex items-center gap-1.5 backdrop-blur-sm transition-all"
           >
-            <GraduationCap className="w-4 h-4" /> School Order
+            <GraduationCap className="w-4 h-4" /> {t('stationery.schoolOrders', 'School Order')}
           </button>
         </div>
       </div>
+
+      {/* Redesigned Premium High-Contrast Bizz AI Welcome Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-[22px] bg-gradient-to-r from-green-bottle via-[#1B362F] to-[#122722] p-6 text-white shadow-elev border border-green-forest/40 flex flex-col md:flex-row gap-5 items-start md:items-center justify-between"
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-butter/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-start gap-4 z-10 flex-1">
+          <div className="w-12 h-12 rounded-[16px] bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-subtle mt-0.5">
+            <Brain className="w-6 h-6 text-yellow-butter animate-pulse" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-yellow-butter/20 text-yellow-butter px-2.5 py-0.5 rounded-full border border-yellow-butter/30">
+                {t('bizz.title', 'BIZZ AI CO-PILOT')}
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-xs text-emerald-200 font-medium">
+                {t('bizz.dailySnapshot', 'Daily Snapshot Generated')} · <strong className="text-white">{i18n.language?.startsWith('gu') ? 'ગુજરાતી' : 'English'}</strong>
+              </span>
+            </div>
+
+            <p className="text-sm sm:text-base font-semibold text-white leading-relaxed">
+              {t('bizz.welcomeStationery', "Hi! I'm Bizz, your business pilot. I'll help you manage fast POS billing, school bulk orders, stock reordering, and Xerox services.")}
+            </p>
+          </div>
+        </div>
+
+        <div className="z-10 shrink-0 self-end md:self-center">
+          <button
+            type="button"
+            onClick={() => navigate('/app/ai-suite')}
+            className="px-4 py-2.5 bg-yellow-butter hover:bg-yellow-honey text-charcoal rounded-[14px] text-xs font-bold shadow-yellow transition-all duration-200 flex items-center gap-2 active:scale-95 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-green-bottle" />
+            <span>{t('bizz.openSuite', 'Open Bizz AI Suite')}</span>
+          </button>
+        </div>
+      </motion.div>
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -168,42 +214,42 @@ export default function StationeryDashboardComponent() {
 
       {/* Quick Action Shortcuts Bar */}
       <div className="bg-cream/60 border border-stone p-4 rounded-[18px] flex flex-wrap items-center justify-between gap-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-charcoal">Quick Actions:</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-charcoal">{t('common.quickActions', 'Quick Actions')}:</span>
         <div className="flex flex-wrap gap-2 text-xs">
           <button
             type="button"
             onClick={() => navigate('/app/stationery/billing')}
             className="px-3.5 py-2 rounded-xl bg-white border border-stone text-charcoal font-semibold hover:bg-green-bottle hover:text-white transition-all flex items-center gap-1.5 shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5" /> + New Bill
+            <Plus className="w-3.5 h-3.5" /> {t('stationery.newBill', '+ New Bill')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/stationery/products')}
             className="px-3.5 py-2 rounded-xl bg-white border border-stone text-charcoal font-medium hover:bg-cream transition-all flex items-center gap-1.5"
           >
-            <Package className="w-3.5 h-3.5" /> + Add Product
+            <Package className="w-3.5 h-3.5" /> + {t('common.products', 'Add Product')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/stationery/customers')}
             className="px-3.5 py-2 rounded-xl bg-white border border-stone text-charcoal font-medium hover:bg-cream transition-all flex items-center gap-1.5"
           >
-            <Users className="w-3.5 h-3.5" /> + Add Customer
+            <Users className="w-3.5 h-3.5" /> + {t('common.customers', 'Add Customer')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/stationery/school-orders')}
             className="px-3.5 py-2 rounded-xl bg-white border border-stone text-charcoal font-medium hover:bg-cream transition-all flex items-center gap-1.5"
           >
-            <GraduationCap className="w-3.5 h-3.5" /> + School Order
+            <GraduationCap className="w-3.5 h-3.5" /> + {t('stationery.schoolOrders', 'School Order')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/stationery/print-xerox')}
             className="px-3.5 py-2 rounded-xl bg-white border border-stone text-charcoal font-medium hover:bg-cream transition-all flex items-center gap-1.5"
           >
-            <Printer className="w-3.5 h-3.5" /> + Xerox Job
+            <Printer className="w-3.5 h-3.5" /> + {t('stationery.printXerox', 'Print & Xerox')}
           </button>
         </div>
       </div>

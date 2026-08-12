@@ -78,23 +78,25 @@ import StationeryPrintXeroxPage from './pages/stationery/StationeryPrintXeroxPag
 import StationeryReportsPage from './pages/stationery/StationeryReportsPage';
 import StationerySettingsPage from './pages/stationery/StationerySettingsPage';
 
-// Manufacturing Modules
+// Standalone Manufacturing Pages
+import SuppliersPage from './pages/manufacturing/SuppliersPage';
+import RawMaterialsPage from './pages/manufacturing/RawMaterialsPage';
+import ProductionOrdersPage from './pages/manufacturing/ProductionOrdersPage';
+import MachinesPage from './pages/manufacturing/MachinesPage';
+import WarehousePage from './pages/manufacturing/WarehousePage';
+import QCPage from './pages/manufacturing/QCPage';
+
+// Demo Modules
 import {
-  ManufacturingProductionOrdersPage,
   BillOfMaterialsPage,
-  MachinesStatusPage,
-  RawMaterialsPage,
   QualityControlPage
 } from './pages/demoModules/ManufacturingPages';
 
-// Retail Modules
 import {
   RetailBillingPage,
-  StockAlertsPage,
-  SuppliersPage
+  StockAlertsPage
 } from './pages/demoModules/RetailPages';
 
-// AI & Integration Feature Modules
 import {
   AIHairRecommendationPage,
   AIForecastingPage,
@@ -102,6 +104,48 @@ import {
   GSTBillingPage,
   IntegrationsHubPage
 } from './pages/demoModules/AIFeaturePages';
+
+import { useAuth } from './context/AuthContext';
+import { useBusiness } from './context/BusinessContext';
+
+function DynamicBillingPage() {
+  const { company } = useBusiness();
+  const { activeWorkspace } = useAuth();
+  const type = (company?.businessType || activeWorkspace?.businessType || 'general').toLowerCase();
+
+  if (type === 'salon') return <SalonBillingPage />;
+  if (type === 'stationery') return <StationeryPOSBillingPage />;
+  return <RestaurantBillingPage />;
+}
+
+function DynamicPOSPage() {
+  const { company } = useBusiness();
+  const { activeWorkspace } = useAuth();
+  const type = (company?.businessType || activeWorkspace?.businessType || 'general').toLowerCase();
+
+  if (type === 'salon') return <SalonBillingPage />;
+  if (type === 'stationery') return <StationeryPOSBillingPage />;
+  return <RestaurantOrdersPOSPage />;
+}
+
+function DynamicCustomersPage() {
+  const { company } = useBusiness();
+  const { activeWorkspace } = useAuth();
+  const type = (company?.businessType || activeWorkspace?.businessType || 'general').toLowerCase();
+
+  if (type === 'salon') return <SalonCustomersPage />;
+  if (type === 'stationery') return <StationeryCustomersPage />;
+  return <CustomersPage />;
+}
+
+function DynamicMembershipPage() {
+  const { company } = useBusiness();
+  const { activeWorkspace } = useAuth();
+  const type = (company?.businessType || activeWorkspace?.businessType || 'general').toLowerCase();
+
+  if (type === 'salon') return <SalonMembershipsPage />;
+  return <MembershipPage />;
+}
 
 export default function App() {
   return (
@@ -136,13 +180,14 @@ export default function App() {
 
                   <Route path="/app" element={<AppLayout />}>
                     <Route index element={<DashboardPage />} />
-                    <Route path="pending" element={<MembershipPage />} />
-                    <Route path="membership" element={<MembershipPage />} />
+                    <Route path="pending" element={<DynamicMembershipPage />} />
+                    <Route path="membership" element={<DynamicMembershipPage />} />
+                    <Route path="memberships" element={<DynamicMembershipPage />} />
                     <Route path="onboarding" element={<OnboardingPage />} />
                     <Route path="admin" element={<SuperAdminPage />} />
                     <Route path="invoices" element={<InvoiceListPage />} />
                     <Route path="invoices/new" element={<InvoiceCreatePage />} />
-                    <Route path="customers" element={<CustomersPage />} />
+                    <Route path="customers" element={<DynamicCustomersPage />} />
                     <Route path="products" element={<ProductsPage />} />
                     <Route path="inventory" element={<InventoryPage />} />
                     <Route path="expenses" element={<ExpensePage />} />
@@ -151,7 +196,8 @@ export default function App() {
                     <Route path="ai-suite" element={<AIPowerSuitePage />} />
                     <Route path="migration" element={<MigrationCenterPage />} />
                     <Route path="payments" element={<PaymentsPage />} />
-                    <Route path="billing" element={<RestaurantBillingPage />} />
+                    <Route path="billing" element={<DynamicBillingPage />} />
+                    <Route path="pos" element={<DynamicPOSPage />} />
                     <Route path="team" element={<TeamPage />} />
                     <Route path="activity" element={<ActivityLogPage />} />
                     <Route path="settings" element={<SettingsPage />} />
@@ -182,25 +228,32 @@ export default function App() {
                     <Route path="stationery/reports" element={<StationeryReportsPage />} />
                     <Route path="stationery/settings" element={<StationerySettingsPage />} />
 
+                    {/* Salon Dedicated Routes */}
+                    <Route path="calendar" element={<SalonCalendarPage />} />
+                    <Route path="appointments" element={<SalonAppointmentsPage />} />
+                    <Route path="stylists" element={<SalonStylistsPage />} />
+                    <Route path="services" element={<SalonServicesPage />} />
+                    <Route path="memberships" element={<SalonMembershipsPage />} />
+                    <Route path="reviews" element={<SalonReviewsPage />} />
+                    <Route path="salon-reports" element={<SalonReportsPage />} />
+
                     {/* Restaurant Routes */}
                     <Route path="tables" element={<RestaurantTablesPage />} />
                     <Route path="reservations" element={<RestaurantReservationsPage />} />
                     <Route path="kitchen" element={<RestaurantKitchenDisplayPage />} />
                     <Route path="orders" element={<RestaurantOrdersPOSPage />} />
-                    <Route path="pos" element={<RestaurantOrdersPOSPage />} />
                     <Route path="menu" element={<RestaurantMenuPage />} />
                     <Route path="offers" element={<RestaurantOffersPage />} />
-
                     {/* Manufacturing Routes */}
-                    <Route path="production-orders" element={<ManufacturingProductionOrdersPage />} />
+                    <Route path="production-orders" element={<ProductionOrdersPage />} />
                     <Route path="bom" element={<BillOfMaterialsPage />} />
-                    <Route path="machines" element={<MachinesStatusPage />} />
-                    <Route path="maintenance" element={<MachinesStatusPage />} />
-                    <Route path="warehouse" element={<RawMaterialsPage />} />
-                    <Route path="qc" element={<QualityControlPage />} />
+                    <Route path="machines" element={<MachinesPage />} />
+                    <Route path="maintenance" element={<MachinesPage />} />
+                    <Route path="warehouse" element={<WarehousePage />} />
+                    <Route path="qc" element={<QCPage />} />
                     <Route path="raw-materials" element={<RawMaterialsPage />} />
-                    <Route path="finished-goods" element={<ManufacturingProductionOrdersPage />} />
-                    <Route path="production-reports" element={<ManufacturingProductionOrdersPage />} />
+                    <Route path="finished-goods" element={<ProductionOrdersPage />} />
+                    <Route path="production-reports" element={<ProductionOrdersPage />} />
 
                     {/* Retail Routes */}
                     <Route path="retail-billing" element={<RetailBillingPage />} />

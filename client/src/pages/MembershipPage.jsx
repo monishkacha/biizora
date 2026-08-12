@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { getPlan } from '../lib/plans';
 import {
@@ -17,6 +18,8 @@ import {
 const PLAN_ORDER = ['starter', 'growth', 'professional', 'enterprise'];
 
 export default function MembershipPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { business, activeWorkspace, logout, user } = useAuth();
   const biz = business || activeWorkspace;
   const isDemo = Boolean(biz?.isDemoAccount || user?.isDemoAccount);

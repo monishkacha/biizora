@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { useNotification } from '../context/NotificationContext';
 import { customersApi } from '../api/client';
@@ -25,6 +26,7 @@ import { useAuth } from '../context/AuthContext';
 import SalonCustomersPage from './salon/SalonCustomersPage';
 
 export default function CustomersPage() {
+  const { t } = useTranslation();
   const { activeWorkspace } = useAuth();
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useBusiness();
 

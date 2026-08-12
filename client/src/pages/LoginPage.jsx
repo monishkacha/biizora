@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, Eye, EyeOff, ArrowRight, ChevronDown, Mail, KeyRound, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
-function DemoWorkspaceDropdown({ onSelect, disabled }) {
+function DemoWorkspaceDropdown({ onSelect, disabled, t }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState("");
 
@@ -22,7 +23,7 @@ function DemoWorkspaceDropdown({ onSelect, disabled }) {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full h-[52px] px-4 rounded-[16px] bg-[#F5F4F0] border border-[#E5E3DD] text-warm-gray text-xs font-semibold flex items-center justify-between hover:bg-[#EAE8E2] focus:border-green-bottle transition-all duration-[220ms] focus:outline-none disabled:opacity-60"
       >
-        <span className="text-charcoal font-sans">{selectedLabel || "Choose a demo workspace"}</span>
+        <span className="text-charcoal font-sans">{selectedLabel || t('auth.chooseDemoWorkspace', 'Choose a demo workspace')}</span>
         <ChevronDown className={`w-4 h-4 text-warm-gray transition-transform duration-220 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
@@ -73,6 +74,7 @@ const DEMO_ACCOUNTS = [
 ];
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [loginMode, setLoginMode] = useState('password'); // 'password' | 'otp'
   const [email, setEmail] = useState(DEMO_ACCOUNTS[0].email);
   const [password, setPassword] = useState(DEMO_ACCOUNTS[0].password);
@@ -92,7 +94,7 @@ export default function LoginPage() {
       await login(loginEmail, loginPassword);
       navigate('/app');
     } catch (err) {
-      setError(err.message || 'Login failed');
+      setError(err.message || t('errors.loginFailed', 'Login failed'));
     } finally {
       setLoading(false);
     }
@@ -186,19 +188,20 @@ export default function LoginPage() {
             <span className="text-xl font-display font-semibold tracking-tight">Biizora</span>
           </Link>
           <div>
-            <h1 className="text-2xl font-display font-semibold tracking-tight">Welcome back</h1>
-            <p className="mt-1.5 text-sm text-warm-gray">Sign in to your business operating system</p>
+            <h1 className="text-2xl font-display font-semibold tracking-tight">{t('auth.welcomeBack', 'Welcome back')}</h1>
+            <p className="mt-1.5 text-sm text-warm-gray">{t('auth.signInSubtitle', 'Sign in to your business operating system')}</p>
           </div>
         </div>
 
         <div className="bz-card p-7 sm:p-8 space-y-5">
           <div className="relative w-full">
             <label className="block space-y-1.5 mb-2">
-              <span className="text-xs font-medium text-warm-gray font-sans">Quick Demo Access</span>
+              <span className="text-xs font-medium text-warm-gray font-sans">{t('auth.quickDemoAccess', 'Quick Demo Access')}</span>
             </label>
             <DemoWorkspaceDropdown
               disabled={loading}
               onSelect={handleDemoLogin}
+              t={t}
             />
           </div>
 
@@ -237,7 +240,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <label className="block space-y-1.5">
-              <span className="text-xs font-medium text-warm-gray">Work email</span>
+              <span className="text-xs font-medium text-warm-gray">{t('auth.workEmail', 'Work email')}</span>
               <div className="relative">
                 <input
                   type="email"
@@ -305,19 +308,19 @@ export default function LoginPage() {
 
             <Button type="submit" loading={loading} className="w-full" size="lg">
               {loginMode === 'password' ? (
-                <>Sign in <ArrowRight className="w-4 h-4" /></>
+                <>{t('auth.signInBtn', 'Sign in')} <ArrowRight className="w-4 h-4" /></>
               ) : otpSent ? (
-                <>Verify OTP & Sign in <ArrowRight className="w-4 h-4" /></>
+                <>{t('auth.verifyOtpBtn', 'Verify OTP & Sign in')} <ArrowRight className="w-4 h-4" /></>
               ) : (
-                <>Send Verification Code <Mail className="w-4 h-4" /></>
+                <>{t('auth.sendCodeBtn', 'Send Verification Code')} <Mail className="w-4 h-4" /></>
               )}
             </Button>
           </form>
         </div>
 
         <p className="text-center text-sm text-warm-gray">
-          New to Biizora?{' '}
-          <Link to="/register" className="font-semibold text-green-bottle hover:underline">Create account</Link>
+          {t('auth.newToBiizora', 'New to Biizora?')}{' '}
+          <Link to="/register" className="font-semibold text-green-bottle hover:underline">{t('auth.createAccount', 'Create account')}</Link>
         </p>
       </div>
     </div>

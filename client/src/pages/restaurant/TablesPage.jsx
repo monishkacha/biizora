@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../../context/BusinessContext';
 import {
   Users,
@@ -17,6 +18,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 export default function TablesPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const navigate = useNavigate();
   const { tables, orders, updateTableStatus, createTable, showToast } = useBusiness();
 

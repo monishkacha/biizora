@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import {
   TrendingUp,
@@ -32,6 +33,8 @@ import {
 } from 'recharts';
 
 export default function RestaurantDashboardComponent() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const navigate = useNavigate();
   const {
     company,
@@ -128,10 +131,10 @@ export default function RestaurantDashboardComponent() {
             <Calendar className="w-4 h-4" /> {formattedDate}
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            {greeting}, {restaurantName}
+            {isGu ? (hour < 12 ? 'શુભ સવાર' : hour < 17 ? 'શુભ બપોર' : 'શુભ સંધ્યા') : greeting}, {restaurantName}
           </h1>
           <p className="text-sm text-emerald-100/80">
-            Welcome to your Restaurant Operations Control Center.
+            {isGu ? 'તમારા રેસ્ટોરન્ટ ઓપરેશન્સ કંટ્રોલ સેન્ટરમાં જી આવકારો.' : 'Welcome to your Restaurant Operations Control Center.'}
           </p>
         </div>
 
@@ -141,25 +144,25 @@ export default function RestaurantDashboardComponent() {
             onClick={() => navigate('/app/orders')}
             className="flex items-center gap-2 bg-white text-green-bottle px-4 py-2.5 rounded-xl text-xs font-extrabold hover:bg-emerald-50 transition-all shadow-md"
           >
-            <Plus className="w-4 h-4" /> New POS Order
+            <Plus className="w-4 h-4" /> {isGu ? 'નવો POS ઓર્ડર' : 'New POS Order'}
           </button>
           <button
             onClick={() => navigate('/app/reservations')}
             className="flex items-center gap-2 bg-emerald-700/80 text-white border border-emerald-500/50 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all"
           >
-            <Calendar className="w-4 h-4" /> + Reservation
+            <Calendar className="w-4 h-4" /> + {isGu ? 'રિઝર્વેશન' : 'Reservation'}
           </button>
           <button
             onClick={() => navigate('/app/customers')}
             className="flex items-center gap-2 bg-emerald-700/80 text-white border border-emerald-500/50 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all"
           >
-            <Users className="w-4 h-4" /> + Customer
+            <Users className="w-4 h-4" /> + {isGu ? 'ગ્રાહક' : 'Customer'}
           </button>
           <button
             onClick={() => navigate('/app/menu')}
             className="flex items-center gap-2 bg-emerald-700/80 text-white border border-emerald-500/50 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all"
           >
-            <Utensils className="w-4 h-4" /> + Menu Item
+            <Utensils className="w-4 h-4" /> + {isGu ? 'મેનૂ આઇટમ' : 'Menu Item'}
           </button>
         </div>
 
@@ -175,12 +178,12 @@ export default function RestaurantDashboardComponent() {
           className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm hover:shadow-md hover:border-green-bottle/40 transition-all cursor-pointer space-y-2"
         >
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Today's Revenue</span>
+            <span>{isGu ? 'આજની આવક' : "Today's Revenue"}</span>
             <TrendingUp className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-black text-charcoal">₹{todayRevenue.toLocaleString('en-IN')}</div>
           <div className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-            <ArrowUpRight className="w-3.5 h-3.5" /> +12.4% vs yesterday
+            <ArrowUpRight className="w-3.5 h-3.5" /> {isGu ? 'ગઈકાલ કરતાં +૧૨.૪%' : '+12.4% vs yesterday'}
           </div>
         </div>
 
@@ -190,11 +193,11 @@ export default function RestaurantDashboardComponent() {
           className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm hover:shadow-md hover:border-green-bottle/40 transition-all cursor-pointer space-y-2"
         >
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Today's Orders</span>
+            <span>{isGu ? 'આજના ઓર્ડર' : "Today's Orders"}</span>
             <ShoppingBag className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-2xl font-black text-charcoal">{todayOrders.length}</div>
-          <div className="text-[11px] font-medium text-warm-gray">Active & Completed</div>
+          <div className="text-[11px] font-medium text-warm-gray">{isGu ? 'સક્રિય અને પૂર્ણ' : 'Active & Completed'}</div>
         </div>
 
         {/* Active Tables */}
@@ -203,25 +206,25 @@ export default function RestaurantDashboardComponent() {
           className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm hover:shadow-md hover:border-green-bottle/40 transition-all cursor-pointer space-y-2"
         >
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Active Tables</span>
+            <span>{isGu ? 'સક્રિય ટેબલ્સ' : 'Active Tables'}</span>
             <Utensils className="w-4 h-4 text-amber-600" />
           </div>
           <div className="text-2xl font-black text-charcoal">
             {occupiedTablesCount} / {totalTablesCount}
           </div>
           <div className="text-[11px] font-medium text-amber-700 font-semibold">
-            {Math.round((occupiedTablesCount / totalTablesCount) * 100)}% Occupancy
+            {Math.round((occupiedTablesCount / totalTablesCount) * 100)}% {isGu ? 'ઓક્યુપન્સી' : 'Occupancy'}
           </div>
         </div>
 
         {/* Average Order Value */}
         <div className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm space-y-2">
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Avg Order Value (AOV)</span>
+            <span>{isGu ? 'સરેરાશ ઓર્ડર મૂલ્ય (AOV)' : 'Avg Order Value (AOV)'}</span>
             <Receipt className="w-4 h-4 text-purple-600" />
           </div>
           <div className="text-2xl font-black text-charcoal">₹{avgOrderValue}</div>
-          <div className="text-[11px] font-medium text-warm-gray">Per Paid Table/Order</div>
+          <div className="text-[11px] font-medium text-warm-gray">{isGu ? 'પ્રતિ ચુકવાયેલ ટેબલ / ઓર્ડર' : 'Per Paid Table/Order'}</div>
         </div>
 
         {/* Pending Kitchen Orders */}
@@ -230,11 +233,11 @@ export default function RestaurantDashboardComponent() {
           className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm hover:shadow-md hover:border-green-bottle/40 transition-all cursor-pointer space-y-2"
         >
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Pending Kitchen Orders</span>
+            <span>{isGu ? 'બાકી કિચન ઓર્ડર' : 'Pending Kitchen Orders'}</span>
             <ChefHat className="w-4 h-4 text-rose-600" />
           </div>
           <div className="text-2xl font-black text-rose-600">{pendingKitchenOrders}</div>
-          <div className="text-[11px] font-semibold text-rose-700">Orders in KDS Queue</div>
+          <div className="text-[11px] font-semibold text-rose-700">{isGu ? 'KDS લાઇન માં ઓર્ડર' : 'Orders in KDS Queue'}</div>
         </div>
 
         {/* Reservations Today */}
@@ -243,31 +246,31 @@ export default function RestaurantDashboardComponent() {
           className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm hover:shadow-md hover:border-green-bottle/40 transition-all cursor-pointer space-y-2"
         >
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Reservations Today</span>
+            <span>{isGu ? 'આજના રિઝર્વેશન' : 'Reservations Today'}</span>
             <Calendar className="w-4 h-4 text-blue-600" />
           </div>
           <div className="text-2xl font-black text-charcoal">{reservationsToday}</div>
-          <div className="text-[11px] font-medium text-warm-gray">Confirmed Bookings</div>
+          <div className="text-[11px] font-medium text-warm-gray">{isGu ? 'કન્ફર્મ થયેલ બુકિંગ' : 'Confirmed Bookings'}</div>
         </div>
 
         {/* Walk-ins Today */}
         <div className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm space-y-2">
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Walk-ins Today</span>
+            <span>{isGu ? 'આજના વોક-ઈન્સ' : 'Walk-ins Today'}</span>
             <Users className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-black text-charcoal">{walkInsToday || 8}</div>
-          <div className="text-[11px] font-medium text-warm-gray">Direct Seated Guests</div>
+          <div className="text-[11px] font-medium text-warm-gray">{isGu ? 'ડાયરેક્ટ સીટેડ મહેમાનો' : 'Direct Seated Guests'}</div>
         </div>
 
         {/* Cancelled Orders */}
         <div className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm space-y-2">
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
-            <span>Cancelled Orders</span>
+            <span>{isGu ? 'રદ થયેલા ઓર્ડર્સ' : 'Cancelled Orders'}</span>
             <AlertTriangle className="w-4 h-4 text-rose-500" />
           </div>
           <div className="text-2xl font-black text-charcoal">{cancelledOrdersCount}</div>
-          <div className="text-[11px] font-medium text-warm-gray">Voided / Cancelled</div>
+          <div className="text-[11px] font-medium text-warm-gray">{isGu ? 'રદ / કેન્સલ' : 'Voided / Cancelled'}</div>
         </div>
       </div>
 
@@ -275,39 +278,43 @@ export default function RestaurantDashboardComponent() {
       <div className="bg-gradient-to-br from-cream via-white to-amber-500/5 p-6 rounded-3xl border border-stone/50 shadow-sm space-y-4">
         <div className="flex items-center gap-2 border-b border-stone/40 pb-3">
           <Sparkles className="w-5 h-5 text-amber-600" />
-          <h2 className="text-base font-extrabold text-charcoal">Restaurant Operations Insights</h2>
+          <h2 className="text-base font-extrabold text-charcoal">
+            {isGu ? 'રેસ્ટોરન્ટ ઓપરેશન્સ ઇનસાઇટ્સ' : 'Restaurant Operations Insights'}
+          </h2>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
           <div className="bg-white p-3.5 rounded-2xl border border-stone/40 space-y-1">
-            <span className="text-warm-gray font-semibold block">Peak Hours</span>
+            <span className="text-warm-gray font-semibold block">{isGu ? 'પીક અવર્સ' : 'Peak Hours'}</span>
             <span className="font-extrabold text-charcoal text-sm">12 PM – 2 PM & 8 PM</span>
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-stone/40 space-y-1">
-            <span className="text-warm-gray font-semibold block">Top Selling Item</span>
+            <span className="text-warm-gray font-semibold block">{isGu ? 'સૌથી વધુ વેચાતી આઇટમ' : 'Top Selling Item'}</span>
             <span className="font-extrabold text-green-bottle text-sm truncate block">{topSellingItem}</span>
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-stone/40 space-y-1">
-            <span className="text-warm-gray font-semibold block">Top Revenue Category</span>
-            <span className="font-extrabold text-charcoal text-sm">Main Course</span>
+            <span className="text-warm-gray font-semibold block">{isGu ? 'સૌથી વધુ આવક કેટેગરી' : 'Top Revenue Category'}</span>
+            <span className="font-extrabold text-charcoal text-sm">{isGu ? 'મુખ્ય વાનગીઓ' : 'Main Course'}</span>
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-stone/40 space-y-1">
-            <span className="text-warm-gray font-semibold block">Busiest Table</span>
-            <span className="font-extrabold text-charcoal text-sm">Table 8 (Outdoor)</span>
+            <span className="text-warm-gray font-semibold block">{isGu ? 'સૌથી વ્યસ્ત ટેબલ' : 'Busiest Table'}</span>
+            <span className="font-extrabold text-charcoal text-sm">{isGu ? 'ટેબલ ૮ (આઉટડોર)' : 'Table 8 (Outdoor)'}</span>
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-stone/40 space-y-1">
-            <span className="text-warm-gray font-semibold block">Kitchen Queue</span>
-            <span className="font-extrabold text-amber-700 text-sm">{pendingKitchenOrders} Orders Waiting</span>
+            <span className="text-warm-gray font-semibold block">{isGu ? 'કિચન કતાર' : 'Kitchen Queue'}</span>
+            <span className="font-extrabold text-amber-700 text-sm">
+              {pendingKitchenOrders} {isGu ? 'ઓર્ડર બાકી' : 'Orders Waiting'}
+            </span>
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border border-stone/40 space-y-1">
-            <span className="text-warm-gray font-semibold block">Low Stock Alert</span>
+            <span className="text-warm-gray font-semibold block">{isGu ? 'ઓછા સ્ટોકની ચેતવણી' : 'Low Stock Alert'}</span>
             <span className="font-extrabold text-rose-600 text-sm">
-              {inventoryItems.filter((i) => i.currentStock <= i.minimumStock).length || 2} Ingredients
+              {inventoryItems.filter((i) => i.currentStock <= i.minimumStock).length || 2} {isGu ? 'સામગ્રીઓ' : 'Ingredients'}
             </span>
           </div>
         </div>
@@ -318,12 +325,12 @@ export default function RestaurantDashboardComponent() {
         {/* Floor Status Snapshot (5 cols) */}
         <div className="lg:col-span-5 bg-white p-5 rounded-3xl border border-stone/40 shadow-sm space-y-4">
           <div className="flex justify-between items-center border-b border-stone/40 pb-3">
-            <h3 className="font-extrabold text-charcoal text-base">Today's Floor Status</h3>
+            <h3 className="font-extrabold text-charcoal text-base">{isGu ? 'આજની ફ્લોર સ્થિતિ' : "Today's Floor Status"}</h3>
             <button
               onClick={() => navigate('/app/tables')}
               className="text-xs font-bold text-green-bottle hover:underline flex items-center gap-1"
             >
-              Full Floor Plan <ChevronRight className="w-3.5 h-3.5" />
+              {isGu ? 'સંપૂર્ણ ફ્લોર પ્લાન' : 'Full Floor Plan'} <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 

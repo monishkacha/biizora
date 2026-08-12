@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import {
   FileText,
@@ -19,6 +20,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
 function numberToIndianWords(num) {
   if (num === null || num === undefined) return '';
   const ones = [
@@ -38,15 +40,9 @@ function numberToIndianWords(num) {
 
   const parts = num.toFixed(2).split('.');
   const integerPart = Math.floor(num);
-  const decimalPart = parseInt(parts[1], 10);
-
-  let words = '';
-  if (integerPart === 0) {
-    words = 'Zero Rupees';
-  } else {
-    words = convert(integerPart) + ' Rupees';
-  }
-
+  const decimalPart = Math.round((num - integerPart) * 100);
+  
+  let words = convert(integerPart);
   if (decimalPart > 0) {
     words += ' and ' + convert(decimalPart) + ' Paise';
   }
@@ -55,6 +51,8 @@ function numberToIndianWords(num) {
 }
 
 export default function InvoiceListPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { invoices, company, customers, updateInvoiceStatus, showToast } = useBusiness();
   const navigate = useNavigate();
 
@@ -133,16 +131,18 @@ export default function InvoiceListPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <FileText className="w-6 h-6 text-accent" /> GST Invoice Management
+            <FileText className="w-6 h-6 text-accent" /> {isGu ? 'જીએસટી ઇનવોઇસ મેનેજમેન્ટ' : 'GST Invoice Management'}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Generate, track, print & export compliant GST invoices.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {isGu ? 'જીએસટી ઇનવોઇસ બનાવો, ટ્રૅક કરો, પ્રિન્ટ કરો અને એક્સપોર્ટ કરો.' : 'Generate, track, print & export compliant GST invoices.'}
+          </p>
         </div>
 
         <button
           onClick={() => navigate('/app/invoices/new')}
           className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all hover:scale-[1.02]"
         >
-          <Plus className="w-4 h-4" /> Create New Invoice
+          <Plus className="w-4 h-4" /> {isGu ? '+ નવું ઇનવોઇસ બનાવો' : 'Create New Invoice'}
         </button>
       </div>
 
@@ -152,7 +152,7 @@ export default function InvoiceListPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
-            placeholder="Search invoice # or customer..."
+            placeholder={isGu ? 'ઇનવોઇસ નંબર અથવા ગ્રાહકના નામથી શોધો...' : 'Search invoice # or customer...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
@@ -160,17 +160,16 @@ export default function InvoiceListPage() {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-slate-400 font-medium">Status:</span>
+          <span className="text-xs text-slate-400 font-medium">{isGu ? 'સ્થિતિ:' : 'Status:'}</span>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
           >
-            <option value="All">All Invoices</option>
-            <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
-            <option value="overdue">Overdue</option>
-            <option value="draft">Draft</option>
+            <option value="All">{isGu ? 'બધા ઇનવોઇસ' : 'All Invoices'}</option>
+            <option value="paid">{isGu ? 'ચૂકવેલ (Paid)' : 'Paid'}</option>
+            <option value="pending">{isGu ? 'પેન્ડિંગ (Pending)' : 'Pending'}</option>
+            <option value="overdue">{isGu ? 'મુદ્દત વિતેલ (Overdue)' : 'Overdue'}</option>
           </select>
         </div>
       </div>
@@ -181,13 +180,13 @@ export default function InvoiceListPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 text-slate-500 font-bold uppercase tracking-wider">
-                <th className="py-3.5 px-4">Invoice #</th>
-                <th className="py-3.5 px-4">Customer Name</th>
-                <th className="py-3.5 px-4">Issue Date</th>
-                <th className="py-3.5 px-4">Due Date</th>
-                <th className="py-3.5 px-4 text-right">Amount (₹)</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-4">{isGu ? 'ઇનવોઇસ #' : 'Invoice #'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ગ્રાહકનું નામ' : 'Customer Name'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'તારીખ' : 'Issue Date'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'છેલ્લી તારીખ' : 'Due Date'}</th>
+                <th className="py-3.5 px-4 text-right">{isGu ? 'રકમ (₹)' : 'Amount (₹)'}</th>
+                <th className="py-3.5 px-4 text-center">{isGu ? 'સ્થિતિ' : 'Status'}</th>
+                <th className="py-3.5 px-4 text-right">{isGu ? 'ક્રિયાઓ' : 'Actions'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300 font-medium">

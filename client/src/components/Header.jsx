@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useBusiness } from '../context/BusinessContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useCommandPalette } from '../context/CommandPaletteContext';
+import LanguageSwitcher from './LanguageSwitcher';
 import { WhatsAppIcon } from './SupportTopBar';
 import {
   Search,
@@ -36,6 +38,7 @@ function timeAgo(date) {
 }
 
 export default function Header({ setMobileOpen }) {
+  const { t } = useTranslation();
   const { user, logout, business, activeWorkspace } = useAuth();
   const biz = business || activeWorkspace;
   const { metrics, company } = useBusiness();
@@ -70,7 +73,7 @@ export default function Header({ setMobileOpen }) {
           className="flex items-center gap-3 px-3.5 py-2 bg-ivory hover:bg-cream text-warm-gray rounded-[14px] border border-stone text-xs transition-all duration-[220ms] w-40 sm:w-72"
         >
           <Search className="w-4 h-4 text-text-disabled shrink-0" strokeWidth={1.75} />
-          <span className="truncate flex-1 text-left">Search…</span>
+          <span className="truncate flex-1 text-left">{t('common.search', 'Search invoices, customers, products...')}</span>
           <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white rounded-md border border-stone font-mono text-[10px] text-text-disabled">
             <Command className="w-3 h-3" /> K
           </kbd>
@@ -79,7 +82,7 @@ export default function Header({ setMobileOpen }) {
         {(biz?.isDemoAccount || user?.isDemoAccount) && (
           <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-900 rounded-[14px] text-xs font-semibold">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
-            Demo Workspace
+            {t('common.demoWorkspace', 'Demo Workspace')}
           </div>
         )}
 
@@ -91,7 +94,10 @@ export default function Header({ setMobileOpen }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
+        {/* Global Language Switcher */}
+        <LanguageSwitcher />
+
         {biz?.businessType !== 'salon' && (
           <button
             type="button"
@@ -99,7 +105,7 @@ export default function Header({ setMobileOpen }) {
             className="flex items-center gap-1.5 px-3.5 py-2 bg-yellow-butter hover:bg-yellow-honey text-charcoal rounded-[14px] text-xs font-semibold shadow-yellow transition-all duration-[220ms]"
           >
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New invoice</span>
+            <span className="hidden sm:inline">{t('common.newInvoice', 'New invoice')}</span>
           </button>
         )}
 
@@ -111,7 +117,7 @@ export default function Header({ setMobileOpen }) {
             title="Customer Support & Remote Assistance"
           >
             <Headphones className="w-5 h-5 text-green-bottle" strokeWidth={1.75} />
-            <span className="hidden xl:inline text-xs font-semibold text-charcoal">Support</span>
+            <span className="hidden xl:inline text-xs font-semibold text-charcoal">{t('common.helpSupport', 'Support')}</span>
           </button>
 
           {supportOpen && (
@@ -214,7 +220,7 @@ export default function Header({ setMobileOpen }) {
           {notificationsOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-white border border-stone rounded-[18px] shadow-elev p-3 z-50">
               <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone">
-                <h4 className="text-xs font-semibold text-charcoal">Notifications</h4>
+                <h4 className="text-xs font-semibold text-charcoal">{t('common.notifications', 'Notifications')}</h4>
                 <button type="button" onClick={markAllRead} className="text-[10px] text-warm-gray hover:text-green-bottle">
                   Mark all read
                 </button>
@@ -266,14 +272,14 @@ export default function Header({ setMobileOpen }) {
                 <p className="text-[10px] text-warm-gray">GSTIN: {company?.gstin || '—'}</p>
               </div>
               <button type="button" onClick={() => { setProfileOpen(false); navigate('/app/settings'); }} className="w-full text-left px-3 py-2 rounded-[12px] text-xs text-warm-gray hover:bg-cream hover:text-charcoal flex items-center gap-2">
-                <User className="w-4 h-4" /> Settings
+                <User className="w-4 h-4" /> {t('common.profile', 'My Profile')}
               </button>
               <button type="button" onClick={() => { setProfileOpen(false); navigate('/app/billing'); }} className="w-full text-left px-3 py-2 rounded-[12px] text-xs text-warm-gray hover:bg-cream hover:text-charcoal flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4" /> Billing
+                <ShieldCheck className="w-4 h-4" /> {t('common.companySettings', 'Company Settings')}
               </button>
               <div className="pt-1 border-t border-stone">
                 <button type="button" onClick={logout} className="w-full text-left px-3 py-2 rounded-[12px] text-xs text-charcoal hover:bg-cream flex items-center gap-2 font-medium">
-                  <LogOut className="w-4 h-4" /> Sign out
+                  <LogOut className="w-4 h-4" /> {t('common.signOut', 'Sign Out')}
                 </button>
               </div>
             </div>
@@ -283,3 +289,4 @@ export default function Header({ setMobileOpen }) {
     </header>
   );
 }
+

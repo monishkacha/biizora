@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import {
   CreditCard,
@@ -14,6 +15,8 @@ import {
 } from 'lucide-react';
 
 export default function ExpensePage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { expenses, addExpense, deleteExpense, metrics } = useBusiness();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
@@ -53,16 +56,18 @@ export default function ExpensePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <CreditCard className="w-6 h-6 text-accent" /> Expense Tracker & Bill Scanner
+            <CreditCard className="w-6 h-6 text-accent" /> {isGu ? 'ખર્ચ ટ્રૅકર અને બિલ સ્કેનર' : 'Expense Tracker & Bill Scanner'}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Track operating costs, vendor receipts, and claimable Input Tax Credit (ITC).</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {isGu ? 'સંચાલન ખર્ચ, વેન્ડર રસીદો અને કલેઇમ કરવા યોગ્ય ITC ટ્રૅક કરો' : 'Track operating costs, vendor receipts, and claimable Input Tax Credit (ITC).'}
+          </p>
         </div>
 
         <button
           onClick={() => setModalOpen(true)}
           className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md shadow-subtle transition-all"
         >
-          <Plus className="w-4 h-4" /> Record New Expense
+          <Plus className="w-4 h-4" /> {isGu ? '+ નવો ખર્ચ નોંધો' : 'Record New Expense'}
         </button>
       </div>
 
@@ -70,27 +75,27 @@ export default function ExpensePage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
-          <span className="text-xs font-semibold text-slate-400">Total Expenses Recorded</span>
+          <span className="text-xs font-semibold text-slate-400">{isGu ? 'નોંધાયેલ કુલ ખર્ચ' : 'Total Expenses Recorded'}</span>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
             ₹{metrics.totalExpenses.toLocaleString('en-IN')}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">{expenses.length} operating bills</p>
+          <p className="text-[11px] text-slate-400 mt-1">{expenses.length} {isGu ? 'બિલો' : 'operating bills'}</p>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
-          <span className="text-xs font-semibold text-slate-400">Claimable Input Tax Credit (ITC)</span>
+          <span className="text-xs font-semibold text-slate-400">{isGu ? 'ITC ટેક્સ ક્રેડિટ' : 'Claimable Input Tax Credit (ITC)'}</span>
           <p className="text-2xl font-extrabold text-accent-soft dark:text-text-muted mt-1">
             ₹{totalGstClaimable.toLocaleString('en-IN')}
           </p>
-          <p className="text-[11px] text-accent-soft font-semibold mt-1">Deductible from Output GST</p>
+          <p className="text-[11px] text-accent-soft font-semibold mt-1">{isGu ? 'આઉટપુટ GST માંથી બાદ કરવા પાત્ર' : 'Deductible from Output GST'}</p>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
-          <span className="text-xs font-semibold text-slate-400">Highest Expense Category</span>
+          <span className="text-xs font-semibold text-slate-400">{isGu ? 'મુખ્ય ખર્ચ શ્રેણી' : 'Highest Expense Category'}</span>
           <p className="text-2xl font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">
-            {expenses.length > 0 ? expenses[0].category : 'Office'}
+            {expenses.length > 0 ? expenses[0].category : (isGu ? 'ઓફિસ' : 'Office')}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">Monthly recurring cost</p>
+          <p className="text-[11px] text-slate-400 mt-1">{isGu ? 'માસિક ખર્ચ' : 'Monthly recurring cost'}</p>
         </div>
 
       </div>
@@ -101,7 +106,7 @@ export default function ExpensePage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
-            placeholder="Search by expense name or vendor..."
+            placeholder={isGu ? 'ખર્ચના નામ અથવા વેન્ડર દ્વારા શોધો...' : 'Search by expense name or vendor...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:shadow-focus text-slate-900 dark:text-slate-100"
@@ -109,17 +114,17 @@ export default function ExpensePage() {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-slate-400 font-medium">Category:</span>
+          <span className="text-xs text-slate-400 font-medium">{isGu ? 'કેટેગરી:' : 'Category:'}</span>
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none"
           >
-            <option value="All">All Categories</option>
+            <option value="All">{isGu ? 'બધી કેટેગરીઓ' : 'All Categories'}</option>
             <option value="Office & Tech">Office & Tech</option>
-            <option value="Rent">Rent</option>
-            <option value="Salary">Salary</option>
-            <option value="Marketing">Marketing</option>
+            <option value="Rent">{isGu ? 'ભાડું (Rent)' : 'Rent'}</option>
+            <option value="Salary">{isGu ? 'પગાર (Salary)' : 'Salary'}</option>
+            <option value="Marketing">{isGu ? 'માર્કેટિંગ (Marketing)' : 'Marketing'}</option>
           </select>
         </div>
       </div>
@@ -130,13 +135,13 @@ export default function ExpensePage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/50">
-                <th className="py-3.5 px-4">Title / Vendor</th>
-                <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4">Date</th>
-                <th className="py-3.5 px-4">Payment Mode</th>
-                <th className="py-3.5 px-4">ITC Claimable</th>
-                <th className="py-3.5 px-4">Amount</th>
-                <th className="py-3.5 px-4 text-right">Action</th>
+                <th className="py-3.5 px-4">{isGu ? 'શીર્ષક / વેન્ડર' : 'Title / Vendor'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'કેટેગરી' : 'Category'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'તારીખ' : 'Date'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ચુકવણીનો પ્રકાર' : 'Payment Mode'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ITC ક્રેડિટ' : 'ITC Claimable'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'રકમ' : 'Amount'}</th>
+                <th className="py-3.5 px-4 text-right">{isGu ? 'ક્રિયા' : 'Action'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { membersApi } from '../api/client';
 import { useBusiness } from '../context/BusinessContext';
 import { can } from '../lib/permissions';
@@ -18,6 +19,8 @@ const ROLE_HELP = {
 };
 
 export default function TeamPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { permissions, showToast, role } = useBusiness();
   const [members, setMembers] = useState([]);
   const [invites, setInvites] = useState([]);
@@ -83,12 +86,12 @@ export default function TeamPage() {
   return (
     <div>
       <PageHeader
-        title="Team"
-        description="Invite teammates and manage roles across this business."
+        title={isGu ? 'ટીમ અને કર્મચારીઓ' : 'Team'}
+        description={isGu ? 'ટીમ સભ્યોને આમંત્રિત કરો અને ભૂમિકાઓ સંચાલિત કરો.' : 'Invite teammates and manage roles across this business.'}
         actions={
           can(permissions, 'members', 'write') ? (
             <Button onClick={() => { setInviteOpen(true); setInviteToken(''); }}>
-              <UserPlus className="w-4 h-4" /> Invite member
+              <UserPlus className="w-4 h-4" /> {isGu ? '+ સભ્ય ઉમેરો' : 'Invite member'}
             </Button>
           ) : null
         }
@@ -101,7 +104,7 @@ export default function TeamPage() {
         </div>
       ) : members.length === 0 ? (
         <Card>
-          <EmptyState icon={Shield} title="No team members yet" description="Invite your first teammate to collaborate." />
+          <EmptyState icon={Shield} title={isGu ? 'હજી કોઈ ટીમ સભ્યો નથી' : 'No team members yet'} description={isGu ? 'તમારા પ્રથમ ટીમ સભ્યને આમંત્રિત કરો.' : 'Invite your first teammate to collaborate.'} />
         </Card>
       ) : (
         <div className="space-y-3">
@@ -140,7 +143,7 @@ export default function TeamPage() {
 
       {invites.length > 0 ? (
         <div className="mt-8">
-          <h2 className="text-sm font-semibold text-ink mb-3">Pending invites</h2>
+          <h2 className="text-sm font-semibold text-ink mb-3">{isGu ? 'પેન્ડિંગ આમંત્રણો' : 'Pending invites'}</h2>
           <div className="space-y-2">
             {invites.map((i) => (
               <Card key={i.id} className="p-3 flex items-center justify-between text-sm">
@@ -155,17 +158,17 @@ export default function TeamPage() {
       <Modal
         open={inviteOpen}
         onClose={() => setInviteOpen(false)}
-        title="Invite team member"
+        title={isGu ? 'ટીમ સભ્યને આમંત્રિત કરો' : 'Invite team member'}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setInviteOpen(false)}>Close</Button>
-            <Button loading={saving} onClick={invite}>Send invite</Button>
+            <Button variant="secondary" onClick={() => setInviteOpen(false)}>{isGu ? 'બંધ કરો' : 'Close'}</Button>
+            <Button loading={saving} onClick={invite}>{isGu ? 'આમંત્રણ મોકલો' : 'Send invite'}</Button>
           </>
         }
       >
         <div className="space-y-4">
-          <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="teammate@company.com" />
-          <Select label="Role" value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
+          <Input label={isGu ? 'ઈમેઈલ' : 'Email'} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="teammate@company.com" />
+          <Select label={isGu ? 'ભૂમિકા (રોલ)' : 'Role'} value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}>
             {Object.entries(ROLE_HELP).filter(([r]) => r !== 'Owner').map(([r, help]) => (
               <option key={r} value={r}>{r} — {help}</option>
             ))}

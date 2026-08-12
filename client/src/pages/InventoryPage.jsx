@@ -1,8 +1,11 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { Boxes, AlertTriangle, TrendingUp, Package, Plus, CheckCircle2 } from 'lucide-react';
 
 export default function InventoryPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { products, updateProduct } = useBusiness();
 
   const physicalProducts = products.filter(p => p.type === 'product');
@@ -24,36 +27,38 @@ export default function InventoryPage() {
       {/* Header Bar */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <Boxes className="w-6 h-6 text-accent" /> Stock & Inventory Valuation
+          <Boxes className="w-6 h-6 text-accent" /> {isGu ? 'સ્ટોક અને ઇન્વેન્ટરી મૂલ્યાંકન' : 'Stock & Inventory Valuation'}
         </h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400">Track warehouse stock levels, inventory asset values, and reorder thresholds.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          {isGu ? 'વેરહાઉસ સ્ટોક સ્તર, ઇન્વેન્ટરી મિલકત મૂલ્ય અને ઓર્ડર મર્યાદા મોનિટર કરો' : 'Track warehouse stock levels, inventory asset values, and reorder thresholds.'}
+        </p>
       </div>
 
       {/* Valuation KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
-          <span className="text-xs font-semibold text-slate-400">Total Inventory Cost Value</span>
+          <span className="text-xs font-semibold text-slate-400">{isGu ? 'કુલ ઇન્વેન્ટરી ખરીદ મૂલ્ય' : 'Total Inventory Cost Value'}</span>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white mt-1">
             ₹{totalCostValuation.toLocaleString('en-IN')}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">Cost price asset valuation</p>
+          <p className="text-[11px] text-slate-400 mt-1">{isGu ? 'મૂળ કિંમત મિલકત મૂલ્યાંકન' : 'Cost price asset valuation'}</p>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
-          <span className="text-xs font-semibold text-slate-400">Retail Sales Valuation</span>
+          <span className="text-xs font-semibold text-slate-400">{isGu ? 'રિટેલ વેચાણ મૂલ્યાંકન' : 'Retail Sales Valuation'}</span>
           <p className="text-2xl font-extrabold text-accent dark:text-text-muted mt-1">
             ₹{totalRetailValuation.toLocaleString('en-IN')}
           </p>
-          <p className="text-[11px] text-accent-soft font-semibold mt-1">Potential Profit: ₹{(totalRetailValuation - totalCostValuation).toLocaleString('en-IN')}</p>
+          <p className="text-[11px] text-accent-soft font-semibold mt-1">{isGu ? 'સંભવિત નફો:' : 'Potential Profit:'} ₹{(totalRetailValuation - totalCostValuation).toLocaleString('en-IN')}</p>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-card">
-          <span className="text-xs font-semibold text-slate-400">Stock Alerts Triggered</span>
+          <span className="text-xs font-semibold text-slate-400">{isGu ? 'સ્ટોક એલર્ટ્સ' : 'Stock Alerts Triggered'}</span>
           <p className={`text-2xl font-extrabold mt-1 ${lowStockItems.length > 0 ? 'text-accent-soft' : 'text-accent-soft'}`}>
-            {lowStockItems.length} Low Stock Alert{lowStockItems.length === 1 ? '' : 's'}
+            {lowStockItems.length} {isGu ? 'ઓછા સ્ટોકની ચેતવણીઓ' : `Low Stock Alert${lowStockItems.length === 1 ? '' : 's'}`}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">{physicalProducts.length} physical SKUs tracked</p>
+          <p className="text-[11px] text-slate-400 mt-1">{physicalProducts.length} {isGu ? 'વસ્તુઓ ટ્રૅક થઈ રહી છે' : 'physical SKUs tracked'}</p>
         </div>
 
       </div>
@@ -64,9 +69,9 @@ export default function InventoryPage() {
           <div className="flex items-center gap-3">
             <AlertTriangle className="w-5 h-5 text-text dark:text-red-400 shrink-0" />
             <div>
-              <h4 className="text-xs font-bold text-red-900 dark:text-red-200">Critical Low Stock Threshold Detected</h4>
+              <h4 className="text-xs font-bold text-red-900 dark:text-red-200">{isGu ? 'ઓછા સ્ટોકની ચેતવણીઓ મળી' : 'Critical Low Stock Threshold Detected'}</h4>
               <p className="text-[11px] text-red-700 dark:text-red-300">
-                {lowStockItems.map(i => i.name).join(', ')} stock levels are below min threshold.
+                {lowStockItems.map(i => i.name).join(', ')} {isGu ? 'સ્ટોક મર્યાદા કરતાં ઓછો છે.' : 'stock levels are below min threshold.'}
               </p>
             </div>
           </div>
@@ -76,16 +81,16 @@ export default function InventoryPage() {
       {/* Stock Level Table */}
       <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Physical Inventory Logs</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">{isGu ? 'ભૌતિક ઇન્વેન્ટરી લોગ' : 'Physical Inventory Logs'}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/50">
-                <th className="py-3.5 px-4">Item Name</th>
+                <th className="py-3.5 px-4">{isGu ? 'વસ્તુનું નામ' : 'Item Name'}</th>
                 <th className="py-3.5 px-4">SKU</th>
-                <th className="py-3.5 px-4">Current Stock</th>
-                <th className="py-3.5 px-4">Min Threshold</th>
+                <th className="py-3.5 px-4">{isGu ? 'હાલનો સ્ટોક' : 'Current Stock'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ન્યૂનતમ મર્યાદા' : 'Min Threshold'}</th>
                 <th className="py-3.5 px-4">Asset Value (Cost)</th>
                 <th className="py-3.5 px-4 text-right">Quick Restock</th>
               </tr>

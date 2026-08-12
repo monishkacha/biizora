@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
@@ -20,6 +21,8 @@ import {
 } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { company, updateCompany, showToast } = useBusiness();
   const { user, updateProfile } = useAuth();
   const { bgStyle } = useTheme();
@@ -33,7 +36,7 @@ export default function SettingsPage() {
 
   const copyBookingLink = () => {
     navigator.clipboard.writeText(bookingUrl);
-    showToast('Booking link copied to clipboard!');
+    showToast(isGu ? 'બુકિંગ લિંક ક્લિપબોર્ડ પર કોપી થઈ ગઈ!' : 'Booking link copied to clipboard!');
   };
 
   const [companyForm, setCompanyForm] = useState(company);
@@ -104,7 +107,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await updateProfile(profileForm);
-      showToast('Profile updated');
+      showToast(isGu ? 'પ્રોફાઇલ અપડેટ થઈ ગઈ' : 'Profile updated');
     } catch (err) {
       showToast(err.message || 'Failed', 'error');
     } finally {
@@ -127,7 +130,7 @@ export default function SettingsPage() {
       await updateCompany({
         branding: { brandColor: prefs.brandColor, invoiceTheme: companyForm.invoiceTheme || 'modern' },
       });
-      showToast('Preferences saved');
+      showToast(isGu ? 'પસંદગીઓ સાચવવામાં આવી' : 'Preferences saved');
     } catch (err) {
       showToast(err.message || 'Failed', 'error');
     } finally {
@@ -147,17 +150,17 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Settings"
-        description="Organization, profile, and business preferences."
+        title={isGu ? 'સેટિંગ્સ' : 'Settings'}
+        description={isGu ? 'સંસ્થા, પ્રોફાઇલ અને બિઝનેસ પસંદગીઓ.' : 'Organization, profile, and business preferences.'}
       />
 
       <Tabs
         tabs={[
-          { id: 'organization', label: 'Organization' },
-          { id: 'profile', label: 'Profile' },
-          { id: 'preferences', label: 'Preferences' },
-          { id: 'themes', label: 'Invoice theme' },
-          ...(company?.businessType === 'salon' ? [{ id: 'booking', label: 'Online Booking' }] : []),
+          { id: 'organization', label: isGu ? 'સંસ્થા (ઓર્ગેનાઇઝેશન)' : 'Organization' },
+          { id: 'profile', label: isGu ? 'પ્રોફાઇલ' : 'Profile' },
+          { id: 'preferences', label: isGu ? 'પસંદગીઓ' : 'Preferences' },
+          { id: 'themes', label: isGu ? 'ઇનવોઇસ થીમ' : 'Invoice theme' },
+          ...(company?.businessType === 'salon' ? [{ id: 'booking', label: isGu ? 'ઓનલાઇન બુકિંગ' : 'Online Booking' }] : []),
         ]}
         active={activeTab}
         onChange={setActiveTab}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../context/NotificationContext';
 import {
   Users,
@@ -39,6 +40,8 @@ const roleOptions = [
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function SalonStylistsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { addNotification } = useNotification();
 
   const [stylists, setStylists] = useState(() => {
@@ -200,17 +203,17 @@ export default function SalonStylistsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Team Management</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">{isGu ? 'ટીમ મેનેજમેન્ટ' : 'Team Management'}</p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Stylists & Staff
+            {isGu ? 'સ્ટાઈલિસ્ટ્સ અને સ્ટાફ' : 'Stylists & Staff'}
           </h1>
-          <p className="text-sm text-warm-gray">Monitor stylist commissions, performance metrics, and shifts</p>
+          <p className="text-sm text-warm-gray">{isGu ? 'સ્ટાઈલિસ્ટ કમિશન, કામગીરીના માપદંડો અને શિફ્ટનું ધ્યાન રાખો' : 'Monitor stylist commissions, performance metrics, and shifts'}</p>
         </div>
         <button
           onClick={handleOpenModal}
           className="flex items-center justify-center gap-1.5 px-4 py-2 bg-green-bottle hover:bg-green-forest text-white rounded-xl text-xs font-bold transition-all"
         >
-          <Plus className="w-4 h-4" /> Add New Stylist
+          <Plus className="w-4 h-4" /> {isGu ? 'નવા સ્ટાઈલિસ્ટ ઉમેરો' : 'Add New Stylist'}
         </button>
       </div>
 
@@ -237,15 +240,15 @@ export default function SalonStylistsPage() {
 
               <div className="pt-2 border-t border-stone/50 space-y-1.5 text-xs text-charcoal font-semibold">
                 <div className="flex justify-between">
-                  <span className="text-warm-gray font-medium">Commission:</span>
+                  <span className="text-warm-gray font-medium">{isGu ? 'કમિશન દર:' : 'Commission:'}</span>
                   <span>{st.commissionRate}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-warm-gray font-medium">Bookings Today:</span>
+                  <span className="text-warm-gray font-medium">{isGu ? 'આજના બુકિંગ:' : 'Bookings Today:'}</span>
                   <span>{st.activeBookings}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-warm-gray font-medium">Revenue generated:</span>
+                  <span className="text-warm-gray font-medium">{isGu ? 'આવક જનરેટ થયેલ:' : 'Revenue generated:'}</span>
                   <span className="font-mono text-green-forest">{st.todayRevenue}</span>
                 </div>
               </div>
@@ -256,7 +259,7 @@ export default function SalonStylistsPage() {
                 <Sparkles className="w-3.5 h-3.5 fill-yellow-champagne" /> {st.rating}
               </span>
               <button className="text-green-bottle hover:underline flex items-center gap-1 font-semibold">
-                <Settings className="w-3.5 h-3.5" /> Shifts &rarr;
+                <Settings className="w-3.5 h-3.5" /> {isGu ? 'શિફ્ટ સંચાલન →' : 'Shifts →'}
               </button>
             </div>
           </Card>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
@@ -46,6 +47,7 @@ import { Button } from '../components/ui/Button';
 import { Badge, Card } from '../components/ui/Badge';
 
 export default function DashboardPage() {
+  const { t, i18n } = useTranslation();
   const { metrics, invoices, customers, aiInsights, company } = useBusiness();
   const { user, activeWorkspace, business } = useAuth();
   const navigate = useNavigate();
@@ -150,14 +152,6 @@ export default function DashboardPage() {
   const [healthBreakdown, setHealthBreakdown] = useState([]);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
-  // Chat States
-  const [chatOpen, setChatOpen] = useState(false);
-  const [chatMessage, setChatMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState([
-    { role: 'assistant', text: `Hi! I'm Bizz, your AI assistant. Ask me anything about your ${businessType} metrics.` }
-  ]);
-  const [chatLoading, setChatLoading] = useState(false);
-
   useEffect(() => {
     async function loadBriefing() {
       try {
@@ -174,24 +168,14 @@ export default function DashboardPage() {
     loadBriefing();
   }, []);
 
-  const handleSendChat = async (e) => {
-    e.preventDefault();
-    if (!chatMessage.trim()) return;
-    const msg = chatMessage;
-    setChatMessage('');
-    setChatHistory(prev => [...prev, { role: 'user', text: msg }]);
-    setChatLoading(true);
-    try {
-      const res = await api('/bizz/chat', {
-        method: 'POST',
-        body: JSON.stringify({ message: msg })
-      });
-      setChatHistory(prev => [...prev, { role: 'assistant', text: res.reply }]);
-    } catch (err) {
-      setChatHistory(prev => [...prev, { role: 'assistant', text: "Sorry, I couldn't reach the AI server. Please try again." }]);
-    } finally {
-      setChatLoading(false);
-    }
+  const getBizzWelcomeMessage = () => {
+    const type = (businessType || '').toLowerCase();
+    if (type === 'retail') return t('bizz.welcomeRetail');
+    if (type === 'salon') return t('bizz.welcomeSalon');
+    if (type === 'restaurant' || type === 'cafe') return t('bizz.welcomeRestaurant');
+    if (type === 'manufacturing') return t('bizz.welcomeManufacturing');
+    if (type === 'stationery') return t('bizz.welcomeStationery');
+    return t('bizz.welcomeGeneral');
   };
 
   const industryHint = {
@@ -221,33 +205,33 @@ export default function DashboardPage() {
 
   const kpis = [
     {
-      label: 'Paid revenue',
+      label: t('dashboard.paidRevenue', 'Paid revenue'),
       value: `₹${metrics.totalRevenue.toLocaleString('en-IN')}`,
-      hint: 'Collected this period',
+      hint: t('dashboard.collectedThisPeriod', 'Collected this period'),
       icon: TrendingUp,
       tint: 'bg-green-sage/25 text-green-bottle',
       onClick: null
     },
     {
-      label: 'Receivables',
+      label: t('dashboard.pendingInvoices', 'Receivables'),
       value: `₹${metrics.pendingRevenue.toLocaleString('en-IN')}`,
-      hint: `${metrics.pendingInvoicesCount} open invoices`,
+      hint: `${metrics.pendingInvoicesCount} ${t('dashboard.openInvoices', 'open invoices')}`,
       icon: Clock,
       tint: 'bg-yellow-champagne text-mustard',
       onClick: null
     },
     {
-      label: 'Net profit',
+      label: t('common.netProfit', 'Net profit'),
       value: `₹${metrics.netProfit.toLocaleString('en-IN')}`,
-      hint: 'Revenue − expenses',
+      hint: t('dashboard.revenueMinusExpenses', 'Revenue − expenses'),
       icon: FileText,
       tint: 'bg-cream text-green-forest',
       onClick: null
     },
     {
-      label: 'Health score',
+      label: t('dashboard.healthScore', 'Health score'),
       value: `${healthScore}`,
-      hint: 'Click to expand scorecard breakdown',
+      hint: t('dashboard.scorecardHint', 'Click to expand scorecard breakdown'),
       icon: Sparkles,
       tint: 'bg-yellow-butter/40 text-green-bottle cursor-pointer hover:scale-105 transition-transform duration-[220ms]',
       onClick: () => setShowBreakdown(!showBreakdown)
@@ -804,85 +788,6 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
-
-        {/* Floating Bizz AI Chat Assistant Widget */}
-        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
-          <AnimatePresence>
-            {chatOpen && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="w-80 h-96 bg-white border border-stone rounded-[20px] shadow-elev flex flex-col mb-3 overflow-hidden"
-              >
-                <div className="bg-green-bottle text-white p-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
-                      <Brain className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold leading-tight">Bizz Assistant</h4>
-                      <p className="text-[10px] text-white/70">Online · Salon Specialist</p>
-                    </div>
-                  </div>
-                  <button type="button" onClick={() => setChatOpen(false)} className="p-1 rounded-full hover:bg-white/15">
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <div className="flex-1 p-3 overflow-y-auto space-y-2 bg-ivory/20">
-                  {chatHistory.map((chat, idx) => (
-                    <div key={idx} className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div
-                        className={`max-w-[85%] rounded-[15px] px-3.5 py-2 text-xs leading-relaxed ${
-                          chat.role === 'user'
-                            ? 'bg-green-bottle text-white rounded-tr-none'
-                            : 'bg-white border border-stone text-charcoal rounded-tl-none'
-                        }`}
-                      >
-                        {chat.text}
-                      </div>
-                    </div>
-                  ))}
-                  {chatLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-white border border-stone rounded-[15px] rounded-tl-none px-3.5 py-2 text-xs text-warm-gray flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-warm-gray animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full bg-warm-gray animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full bg-warm-gray animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <form onSubmit={handleSendChat} className="border-t border-stone p-2 bg-white flex gap-1.5">
-                  <input
-                    type="text"
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    placeholder="Ask Bizz about stylists, revenue..."
-                    className="flex-1 px-3 py-2 border border-stone rounded-[12px] text-xs outline-none focus:border-green-bottle transition-colors"
-                  />
-                  <button
-                    type="submit"
-                    disabled={chatLoading}
-                    className="p-2 bg-green-bottle hover:bg-green-forest text-white rounded-[12px] disabled:opacity-50 flex items-center justify-center"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button
-            type="button"
-            onClick={() => setChatOpen(!chatOpen)}
-            className="w-12 h-12 rounded-full bg-green-bottle hover:bg-green-forest text-white shadow-elev flex items-center justify-center transition-all duration-[220ms] hover:scale-105 active:scale-95"
-          >
-            <MessageSquare className="w-5 h-5" />
-          </button>
-        </div>
       </div>
     );
   }
@@ -895,9 +800,9 @@ export default function DashboardPage() {
         className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5"
       >
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wider text-green-forest">Overview</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-green-forest">{t('common.dashboard', 'Overview')}</p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Good to see you, {user?.name?.split(' ')[0] || 'there'}
+            {t('dashboard.greeting', 'Good to see you')}, {user?.name?.split(' ')[0] || 'there'}
           </h1>
           <p className="text-sm text-warm-gray">
             {company?.name || 'Your business'}
@@ -906,109 +811,127 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" onClick={() => navigate('/app/ai-suite')}>
-            <Sparkles className="w-4 h-4" strokeWidth={1.75} /> Insights
+            <Sparkles className="w-4 h-4" strokeWidth={1.75} /> {t('bizz.openSuite', 'Open Bizz AI Suite')}
           </Button>
           <Button variant="accent" onClick={() => navigate('/app/invoices/new')}>
-            <Plus className="w-4 h-4" /> New invoice
+            <Plus className="w-4 h-4" /> {t('common.newInvoice', 'New invoice')}
           </Button>
         </div>
       </motion.div>
 
-      {/* Bizz AI Co-Pilot Welcome Section */}
+      {/* Redesigned Premium High-Contrast Bizz AI Welcome Banner */}
       <motion.div
-        initial={{ opacity: 0, y: 12 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[24px] border border-stone bg-gradient-to-r from-stone-900 via-charcoal to-stone-900 text-white p-6 sm:p-7 shadow-elev"
+        className="relative overflow-hidden rounded-[22px] bg-gradient-to-r from-green-bottle via-[#1B362F] to-[#122722] p-6 text-white shadow-elev border border-green-forest/40 flex flex-col md:flex-row gap-5 items-start md:items-center justify-between"
       >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-green-bottle/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            {/* Visual Bizz Co-Pilot Character Badge */}
-            <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-green-bottle to-emerald-500 flex items-center justify-center text-white shadow-lg border border-emerald-400/30">
-                <Brain className="w-7 h-7 animate-pulse text-white" />
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-stone-900 rounded-full" />
+        <div className="absolute top-0 right-0 w-48 h-48 bg-yellow-butter/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex items-start gap-4 z-10 flex-1">
+          <div className="w-12 h-12 rounded-[16px] bg-white/10 border border-white/20 flex items-center justify-center shrink-0 shadow-subtle mt-0.5">
+            <Brain className="w-6 h-6 text-yellow-butter animate-pulse" />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] font-bold uppercase tracking-wider bg-yellow-butter/20 text-yellow-butter px-2.5 py-0.5 rounded-full border border-yellow-butter/30">
+                {t('bizz.title', 'BIZZ AI CO-PILOT')}
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-xs text-emerald-200 font-medium">
+                {t('bizz.dailySnapshot', 'Daily Snapshot Generated')} · <strong className="text-white">{i18n.language?.startsWith('gu') ? 'ગુજરાતી' : 'English'}</strong>
+              </span>
             </div>
 
-            <div className="space-y-1.5 max-w-2xl">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider bg-green-bottle/80 text-emerald-200 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
-                  Bizz AI Co-Pilot
-                </span>
-                <span className="text-xs text-stone-400">EN | ગુજરાતી</span>
-              </div>
-              <h2 className="text-lg sm:text-xl font-display font-semibold text-white tracking-tight">
-                "Hi! I'm Bizz, your business pilot. I'll help you understand your business, spot opportunities, and guide you toward smarter decisions."
-              </h2>
-              <p className="text-xs text-stone-300 leading-relaxed pt-1">
-                {briefing?.message || (
-                  businessType === 'manufacturing'
-                    ? `Production dashboard is active for ${company?.name || 'Apex Manufacturing'}. Track production orders, machine uptime, and raw material safety stock.`
-                    : businessType === 'salon'
-                    ? `Staff utilization and appointment schedules are online. Monitor stylist commissions and client loyalty.`
-                    : businessType === 'restaurant'
-                    ? `Floor occupancy, kitchen queue, and peak hour analytics are tracking live orders.`
-                    : businessType === 'retail'
-                    ? `Sales today and barcode inventory alerts are synchronized with your POS terminals.`
-                    : `Your financials, invoices, and debtor balances are being continuously analyzed.`
-                )}
+            <p className="text-sm sm:text-base font-semibold text-white leading-relaxed">
+              {getBizzWelcomeMessage()}
+            </p>
+
+            {briefing?.message ? (
+              <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-medium">
+                {briefing.message}
               </p>
-            </div>
-          </div>
+            ) : (
+              <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-medium">
+                {businessType === 'manufacturing'
+                  ? `Production dashboard is active for ${company?.name || 'Apex Manufacturing'}. Track production orders, machine uptime, and raw material safety stock.`
+                  : businessType === 'salon'
+                  ? `Staff utilization and appointment schedules are online. Monitor stylist commissions and client loyalty.`
+                  : businessType === 'restaurant'
+                  ? `Floor occupancy, kitchen queue, and peak hour analytics are tracking live orders.`
+                  : businessType === 'retail'
+                  ? `Sales today and barcode inventory alerts are synchronized with your POS terminals.`
+                  : `Your financials, invoices, and debtor balances are being continuously analyzed.`}
+              </p>
+            )}
 
-          <div className="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto">
-            <button
-              onClick={() => navigate('/app/ai-suite')}
-              className="px-4 py-2.5 rounded-xl bg-green-bottle hover:bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-md"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-300" /> Open Bizz AI Suite
-            </button>
+            {briefing?.keyInsight && (
+              <div className="mt-2 text-xs text-yellow-butter font-medium bg-black/30 p-2.5 rounded-xl border border-white/10 flex items-center gap-2">
+                <span>💡</span>
+                <span>{briefing.keyInsight}</span>
+              </div>
+            )}
           </div>
+        </div>
+
+        <div className="z-10 shrink-0 self-end md:self-center">
+          <button
+            type="button"
+            onClick={() => navigate('/app/ai-suite')}
+            className="px-4 py-2.5 bg-yellow-butter hover:bg-yellow-honey text-charcoal rounded-[14px] text-xs font-bold shadow-yellow transition-all duration-200 flex items-center gap-2 active:scale-95 cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-green-bottle" />
+            <span>{t('bizz.openSuite', 'Open Bizz AI Suite')}</span>
+          </button>
         </div>
       </motion.div>
 
       {industryHint && (
-        <div className="rounded-2xl border border-stone bg-white px-4 py-3.5 text-sm text-warm-gray shadow-subtle flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <span className="font-semibold text-charcoal capitalize">{businessType} Dashboard</span>
-            {' · '}
-            {industryHint}
+        <div className="bz-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="font-semibold text-charcoal capitalize">
+              {i18n.language?.startsWith('gu')
+                ? businessType === 'salon' ? 'સોલન ડેશબોર્ડ'
+                  : businessType === 'restaurant' ? 'રેસ્ટોરન્ટ ડેશબોર્ડ'
+                  : businessType === 'retail' ? 'રીટેલ ડેશબોર્ડ'
+                  : businessType === 'manufacturing' ? 'મેન્યુફેક્ચરિંગ ડેશબોર્ડ'
+                  : businessType === 'stationery' ? 'સ્ટેશનરી ડેશબોર્ડ'
+                  : `${businessType} ડેશબોર્ડ`
+                : `${businessType} Dashboard`}
+            </span>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             {businessType === 'salon' && (
               <>
-                <button type="button" onClick={() => navigate('/app/appointments')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Appointments</button>
-                <button type="button" onClick={() => navigate('/app/stylist')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Stylist View</button>
-                <button type="button" onClick={() => navigate('/app/memberships')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Memberships</button>
+                <button type="button" onClick={() => navigate('/app/appointments')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.appointments', 'Appointments')}</button>
+                <button type="button" onClick={() => navigate('/app/stylists')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.stylists', 'Stylists')}</button>
+                <button type="button" onClick={() => navigate('/app/services')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.services', 'Services')}</button>
               </>
             )}
             {businessType === 'restaurant' && (
               <>
-                <button type="button" onClick={() => navigate('/app/tables')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Tables</button>
-                <button type="button" onClick={() => navigate('/app/kitchen')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Kitchen Display</button>
-                <button type="button" onClick={() => navigate('/app/menu')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Menu</button>
+                <button type="button" onClick={() => navigate('/app/tables')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.tables', 'Tables')}</button>
+                <button type="button" onClick={() => navigate('/app/kitchen')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.kitchenDisplay', 'Kitchen Display')}</button>
+                <button type="button" onClick={() => navigate('/app/menu')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.menu', 'Menu Catalog')}</button>
               </>
             )}
             {businessType === 'retail' && (
               <>
-                <button type="button" onClick={() => navigate('/app/pos')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">POS Terminal</button>
-                <button type="button" onClick={() => navigate('/app/barcode')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Barcode</button>
-                <button type="button" onClick={() => navigate('/app/inventory')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Inventory</button>
+                <button type="button" onClick={() => navigate('/app/pos')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.billing', 'POS Terminal')}</button>
+                <button type="button" onClick={() => navigate('/app/inventory')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.inventory', 'Inventory')}</button>
               </>
             )}
             {businessType === 'manufacturing' && (
               <>
-                <button type="button" onClick={() => navigate('/app/production-orders')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Production Orders</button>
-                <button type="button" onClick={() => navigate('/app/machines')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Machines</button>
-                <button type="button" onClick={() => navigate('/app/qc')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">QC</button>
+                <button type="button" onClick={() => navigate('/app/production-orders')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.productionOrders', 'Production Orders')}</button>
+                <button type="button" onClick={() => navigate('/app/machines')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.machines', 'Machines')}</button>
+                <button type="button" onClick={() => navigate('/app/qc')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.qc', 'QC')}</button>
               </>
             )}
             {businessType === 'stationery' && (
               <>
-                <button type="button" onClick={() => navigate('/app/school-orders')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">School Orders</button>
-                <button type="button" onClick={() => navigate('/app/wholesale')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Wholesale</button>
-                <button type="button" onClick={() => navigate('/app/retail-billing')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">Billing Counter</button>
+                <button type="button" onClick={() => navigate('/app/school-orders')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.schoolOrders', 'School Orders')}</button>
+                <button type="button" onClick={() => navigate('/app/stationery/billing')} className="px-3 py-1.5 rounded-lg bg-ivory border border-stone font-medium text-charcoal hover:bg-cream">{t('nav.newBill', 'Billing Counter')}</button>
               </>
             )}
           </div>
@@ -1228,91 +1151,9 @@ export default function DashboardPage() {
             ))}
           </div>
           <div className="pt-2 border-t border-stone">
-            <p className="text-xs text-warm-gray">{customers.length} customers · {metrics.totalProducts} products</p>
+            <p className="text-xs text-warm-gray">{customers.length} {t('common.customers', 'customers')} · {metrics.totalProducts} {t('common.products', 'products')}</p>
           </div>
         </Card>
-      </div>
-
-      {/* Floating Bizz AI Chat Assistant Widget */}
-      <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
-        <AnimatePresence>
-          {chatOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="w-80 h-96 bg-white border border-stone rounded-[20px] shadow-elev flex flex-col mb-3 overflow-hidden"
-            >
-              {/* Header */}
-              <div className="bg-green-bottle text-white p-3.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
-                    <Brain className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold leading-tight">Bizz Assistant</h4>
-                    <p className="text-[10px] text-white/70">Online · Enterprise AI</p>
-                  </div>
-                </div>
-                <button type="button" onClick={() => setChatOpen(false)} className="p-1 rounded-full hover:bg-white/15">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Message List */}
-              <div className="flex-1 p-3 overflow-y-auto space-y-2 bg-ivory/20">
-                {chatHistory.map((chat, idx) => (
-                  <div key={idx} className={`flex ${chat.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div
-                      className={`max-w-[85%] rounded-[15px] px-3.5 py-2 text-xs leading-relaxed ${
-                        chat.role === 'user'
-                          ? 'bg-green-bottle text-white rounded-tr-none'
-                          : 'bg-white border border-stone text-charcoal rounded-tl-none'
-                      }`}
-                    >
-                      {chat.text}
-                    </div>
-                  </div>
-                ))}
-                {chatLoading && (
-                  <div className="flex justify-start">
-                    <div className="bg-white border border-stone rounded-[15px] rounded-tl-none px-3.5 py-2 text-xs text-warm-gray flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-warm-gray animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-warm-gray animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 rounded-full bg-warm-gray animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer Form */}
-              <form onSubmit={handleSendChat} className="border-t border-stone p-2 bg-white flex gap-1.5">
-                <input
-                  type="text"
-                  value={chatMessage}
-                  onChange={(e) => setChatMessage(e.target.value)}
-                  placeholder="Ask Bizz about stock, invoices..."
-                  className="flex-1 px-3 py-2 border border-stone rounded-[12px] text-xs outline-none focus:border-green-bottle transition-colors"
-                />
-                <button
-                  type="submit"
-                  disabled={chatLoading}
-                  className="p-2 bg-green-bottle hover:bg-green-forest text-white rounded-[12px] disabled:opacity-50 flex items-center justify-center"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <button
-          type="button"
-          onClick={() => setChatOpen(!chatOpen)}
-          className="w-12 h-12 rounded-full bg-green-bottle hover:bg-green-forest text-white shadow-elev flex items-center justify-center transition-all duration-[220ms] hover:scale-105 active:scale-95"
-        >
-          <MessageSquare className="w-5 h-5" />
-        </button>
       </div>
     </div>
   );

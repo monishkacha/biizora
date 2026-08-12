@@ -35,6 +35,29 @@ import {
   BadgeCheck,
   Star,
   Clock,
+  Printer,
+  Layers,
+  LayoutGrid,
+  CalendarCheck,
+  ShoppingBag,
+  Bike,
+  UtensilsCrossed,
+  Calculator,
+  Leaf,
+  Trash2,
+  ChefHat,
+  CalendarClock,
+  Gift,
+  History,
+  Footprints,
+  ListOrdered,
+  User,
+  Wrench,
+  Shield,
+  Activity,
+  FileCheck,
+  Gauge,
+  Tag,
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -69,6 +92,29 @@ const ICON_MAP = {
   Store,
   GraduationCap,
   BadgeCheck,
+  Printer,
+  Layers,
+  LayoutGrid,
+  CalendarCheck,
+  ShoppingBag,
+  Bike,
+  UtensilsCrossed,
+  Calculator,
+  Leaf,
+  Trash2,
+  ChefHat,
+  CalendarClock,
+  Gift,
+  History,
+  Footprints,
+  ListOrdered,
+  User,
+  Wrench,
+  Shield,
+  Activity,
+  FileCheck,
+  Gauge,
+  Tag,
 };
 
 /** Fallback nav when modules API is unavailable — preserves existing Biizora nav */
@@ -92,8 +138,11 @@ export const FALLBACK_NAV = [
   { id: 'support', title: 'Support', route: '/app/support', icon: 'Headphones', category: 'core' },
 ];
 
-export function resolveIcon(name) {
-  return ICON_MAP[name] || LayoutDashboard;
+export function resolveIcon(icon) {
+  if (typeof icon === 'function' || (typeof icon === 'object' && icon !== null)) {
+    return icon;
+  }
+  return ICON_MAP[icon] || LayoutDashboard;
 }
 
 /**

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../../context/BusinessContext';
 import { useNotification } from '../../context/NotificationContext';
 import {
@@ -19,6 +20,8 @@ import { Card } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 
 export default function SalonCustomersPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { customers, addCustomer } = useBusiness();
   const { addNotification } = useNotification();
   
@@ -57,10 +60,10 @@ export default function SalonCustomersPage() {
   const membershipPlans = ['None', 'Glow Silver', 'Glow Gold', 'Glow Bridal Elite'];
 
   // Filter clients
-  const filtered = customers.filter(
+  const filtered = (customers || []).filter(
     (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      (c.phone && c.phone.includes(search))
+      (c?.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (c?.phone && c.phone.includes(search))
   );
 
   // Client mock detailed data for profile drawer fallback
@@ -230,17 +233,21 @@ export default function SalonCustomersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">Directory</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-green-forest">
+            {isGu ? 'ડિરેક્ટરી' : 'Directory'}
+          </p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-charcoal">
-            Clients & Loyalty
+            {isGu ? 'ક્લાયન્ટ્સ અને લોયલ્ટી' : 'Clients & Loyalty'}
           </h1>
-          <p className="text-sm text-warm-gray">Manage stylist preferences, membership tiers, and booking histories</p>
+          <p className="text-sm text-warm-gray">
+            {isGu ? 'સ્ટાઈલિસ્ટ પસંદગીઓ, મેમ્બરશિપ સ્તર અને બુકિંગ હિસ્ટ્રી સંચાલિત કરો' : 'Manage stylist preferences, membership tiers, and booking histories'}
+          </p>
         </div>
         <button 
           onClick={handleOpenModal}
           className="flex items-center justify-center gap-1.5 px-4 py-2 bg-green-bottle hover:bg-green-forest text-white rounded-xl text-xs font-bold transition-all"
         >
-          <Plus className="w-4 h-4" /> Add New Client
+          <Plus className="w-4 h-4" /> {isGu ? '+ નવો ક્લાયન્ટ ઉમેરો' : '+ Add New Client'}
         </button>
       </div>
 
@@ -250,7 +257,7 @@ export default function SalonCustomersPage() {
           <Search className="w-4 h-4 text-warm-gray absolute left-3 top-3" />
           <input
             type="text"
-            placeholder="Search by client name, phone..."
+            placeholder={isGu ? 'ક્લાયન્ટનું નામ, ફોન દ્વારા શોધો...' : 'Search by client name, phone...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-ivory/55 border border-stone rounded-xl text-xs outline-none focus:border-green-bottle text-charcoal font-sans"
@@ -268,16 +275,17 @@ export default function SalonCustomersPage() {
             parsedNotes = {};
           }
 
-          const detail = clientDetails[c.name] || {
-            avatar: c.name.slice(0, 2).toUpperCase(),
-            lastVisit: parsedNotes.lastVisit || 'No visits yet',
+          const nameStr = c.name || 'Client';
+          const detail = clientDetails[nameStr] || {
+            avatar: nameStr.slice(0, 2).toUpperCase(),
+            lastVisit: parsedNotes.lastVisit || (isGu ? 'હજી કોઈ મુલાકાત નથી' : 'No visits yet'),
             totalVisits: parsedNotes.totalVisits || 0,
-            membershipTier: c.category || parsedNotes.membershipTier || 'None',
+            membershipTier: c.category || parsedNotes.membershipTier || (isGu ? 'કોઈ નહીં' : 'None'),
             lifetimeSpend: '₹' + (parsedNotes.totalSpent || 0).toLocaleString(),
-            preferredStylist: parsedNotes.preferredStylist || 'Unassigned',
-            allergies: c.notes && !c.notes.startsWith('{') ? c.notes : 'None',
+            preferredStylist: parsedNotes.preferredStylist || (isGu ? 'અસાઇન કરેલ નથી' : 'Unassigned'),
+            allergies: c.notes && !c.notes.startsWith('{') ? c.notes : (isGu ? 'કોઈ નહીં' : 'None'),
             loyaltyPoints: parsedNotes.loyaltyPoints || 0,
-            upcomingAppointments: 'None scheduled'
+            upcomingAppointments: isGu ? 'કોઈ નિયત નથી' : 'None scheduled'
           };
 
           return (
@@ -293,34 +301,34 @@ export default function SalonCustomersPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-charcoal">{c.name}</h3>
-                    <p className="text-[11px] text-warm-gray font-mono">{c.phone || 'No phone'}</p>
+                    <p className="text-[11px] text-warm-gray font-mono">{c.phone || (isGu ? 'ફોન નથી' : 'No phone')}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-stone/50">
                   <div>
-                    <span className="text-[10px] text-warm-gray block uppercase">Last Visit</span>
+                    <span className="text-[10px] text-warm-gray block uppercase">{isGu ? 'છેલ્લી મુલાકાત' : 'Last Visit'}</span>
                     <span className="font-semibold text-charcoal">{detail.lastVisit}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-warm-gray block uppercase">Total Visits</span>
-                    <span className="font-semibold text-charcoal">{detail.totalVisits} visits</span>
+                    <span className="text-[10px] text-warm-gray block uppercase">{isGu ? 'કુલ મુલાકાત' : 'Total Visits'}</span>
+                    <span className="font-semibold text-charcoal">{detail.totalVisits} {isGu ? 'મુલાકાતો' : 'visits'}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-warm-gray block uppercase">Preferred Stylist</span>
+                    <span className="text-[10px] text-warm-gray block uppercase">{isGu ? 'પસંદગીના સ્ટાઈલિસ્ટ' : 'Preferred Stylist'}</span>
                     <span className="font-semibold text-green-forest">{detail.preferredStylist}</span>
                   </div>
                   <div>
-                    <span className="text-[10px] text-warm-gray block uppercase">Membership</span>
+                    <span className="text-[10px] text-warm-gray block uppercase">{isGu ? 'મેમ્બરશિપ' : 'Membership'}</span>
                     <span className="font-semibold text-mustard">{detail.membershipTier}</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-3 border-t border-stone/50 text-xs">
-                <span className="text-warm-gray">Spend: <strong className="text-charcoal">{detail.lifetimeSpend}</strong></span>
+                <span className="text-warm-gray">{isGu ? 'ખર્ચ:' : 'Spend:'} <strong className="text-charcoal">{detail.lifetimeSpend}</strong></span>
                 <span className="text-green-bottle font-semibold inline-flex items-center gap-1">
-                  Profile <ChevronRight className="w-3.5 h-3.5" />
+                  {isGu ? 'પ્રોફાઇલ' : 'Profile'} <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>

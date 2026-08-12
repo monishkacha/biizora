@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useBusiness } from '../context/BusinessContext';
 import { Zap, CreditCard, CheckCircle, RefreshCw, QrCode, ShieldCheck } from 'lucide-react';
 
 export default function PaymentsPage() {
+  const { t, i18n } = useTranslation();
+  const isGu = i18n.language?.startsWith('gu');
   const { invoices, updateInvoiceStatus, showToast, company } = useBusiness();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedInv, setSelectedInv] = useState(invoices.find(i => i.status !== 'paid') || invoices[0]);
@@ -25,16 +28,18 @@ export default function PaymentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Zap className="w-6 h-6 text-accent" /> Razorpay Payments & Gateway
+            <Zap className="w-6 h-6 text-accent" /> {isGu ? 'રેઝરપે પેમેન્ટ્સ અને ગેટવે' : 'Razorpay Payments & Gateway'}
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Accept UPI, Cards, NetBanking & Wallets with instant reconciliation.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {isGu ? 'UPI, કાર્ડ્સ, નેટબેંકિંગ અને વોલેટ્સ સ્વીકારો ત્વરિત મેળ સાથે.' : 'Accept UPI, Cards, NetBanking & Wallets with instant reconciliation.'}
+          </p>
         </div>
 
         <button
           onClick={() => setModalOpen(true)}
           className="flex items-center gap-1.5 px-4 py-2 bg-accent hover:bg-text text-white rounded-xl text-xs font-bold shadow-md"
         >
-          <CreditCard className="w-4 h-4" /> Simulate Razorpay Checkout
+          <CreditCard className="w-4 h-4" /> {isGu ? 'રેઝરપે ચેકઆઉટ સિમ્યુલેટ કરો' : 'Simulate Razorpay Checkout'}
         </button>
       </div>
 
@@ -45,30 +50,30 @@ export default function PaymentsPage() {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="font-bold text-sm">Razorpay Integration Active</h3>
-            <p className="text-xs text-slate-300">Live Key ID: <span className="font-mono text-teal-300">rzp_live_98321Biizora</span> • Webhook: Active</p>
+            <h3 className="font-bold text-sm">{isGu ? 'રેઝરપે સંકલન સક્રિય છે' : 'Razorpay Integration Active'}</h3>
+            <p className="text-xs text-slate-300">Live Key ID: <span className="font-mono text-teal-300">rzp_live_98321Biizora</span> • Webhook: {isGu ? 'સક્રિય' : 'Active'}</p>
           </div>
         </div>
         <span className="px-3 py-1 bg-bg-secondary0/20 text-emerald-300 font-bold text-xs rounded-full border border-emerald-500/30">
-          ● Gateway Ready (0.9% UPI Rate)
+          ● {isGu ? 'ગેટવે તૈયાર છે (0.9% UPI દર)' : 'Gateway Ready (0.9% UPI Rate)'}
         </span>
       </div>
 
       {/* Payment History Log */}
       <div className="bg-white dark:bg-slate-900 rounded-[20px] border border-slate-200 dark:border-slate-800 shadow-card overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">Transaction Logs & Receipts</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">{isGu ? 'ટ્રાન્ઝેક્શન લોગ અને રસીદો' : 'Transaction Logs & Receipts'}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold uppercase tracking-wider bg-slate-50/50 dark:bg-slate-800/50">
-                <th className="py-3.5 px-4">Transaction ID</th>
-                <th className="py-3.5 px-4">Invoice #</th>
-                <th className="py-3.5 px-4">Customer</th>
-                <th className="py-3.5 px-4">Payment Method</th>
-                <th className="py-3.5 px-4">Amount</th>
-                <th className="py-3.5 px-4">Status</th>
+                <th className="py-3.5 px-4">{isGu ? 'ટ્રાન્ઝેક્શન ID' : 'Transaction ID'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ઇનવોઇસ #' : 'Invoice #'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ગ્રાહક' : 'Customer'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'ચુકવણી પદ્ધતિ' : 'Payment Method'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'રકમ' : 'Amount'}</th>
+                <th className="py-3.5 px-4">{isGu ? 'સ્થિતિ' : 'Status'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-200">
