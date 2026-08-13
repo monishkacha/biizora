@@ -1,5 +1,5 @@
 import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
+import { authenticate } from '../middleware/auth.js';
 import { requireBusiness, requireManufacturingWorkspace } from '../middleware/requireBusiness.js';
 import { ProductionPlan, YieldRule } from '../models/ManufacturingPlanner.js';
 import { Order } from '../models/Order.js';
@@ -8,7 +8,7 @@ import { smartProductionPredictionService } from '../services/smartProductionPre
 const router = express.Router();
 
 // Enforce workspace-level authentication and manufacturing-only access
-router.use(requireAuth, requireBusiness, requireManufacturingWorkspace);
+router.use(authenticate, requireBusiness, requireManufacturingWorkspace);
 
 /**
  * GET /api/manufacturing/planner
