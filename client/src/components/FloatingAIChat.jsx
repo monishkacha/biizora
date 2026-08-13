@@ -32,6 +32,7 @@ export default function FloatingAIChat() {
     return `Hello! I am **Bizz AI**, your business co-pilot for ${company?.name || 'your business'}.\n\nYou can ask me about customers, revenue, GST rules, or business growth — in English or Gujarati.`;
   };
 
+  const firstName = user?.name?.split(' ')[0] || 'there';
   const initialGreeting = language === 'gu'
     ? `નમસ્તે ${firstName}! હું **Bizz (બીઝ)** છું — ${company?.name || 'તમારા ધંધા'} નો તમારો સ્માર્ટ AI બિઝનેસ પાઇલટ. 🚀\n\nતમે મને તમારા વેચાણ, ચોખ્ખો નફો, બાકી લેણી રકમ, GST નિયમો અથવા સ્ટોકની માહિતી વિશે કંઈ પણ પૂછી શકો છો!`
     : `Hi ${firstName}! I'm **Bizz**, your intelligent business co-pilot for ${company?.name || 'your business'}. 🚀\n\nAsk me about live revenue, profit margins, pending customer invoices, inventory levels, or GST tax calculations — in English or Gujarati!`;
