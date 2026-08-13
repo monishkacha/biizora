@@ -297,22 +297,22 @@ export default function SmartProductionPlannerPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-stone-900 via-charcoal to-stone-900 text-white p-6 rounded-2xl shadow-elev border border-stone-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-2xl shadow-xl bg-[#1B3628] border border-[#2D5640] text-white">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-green-bottle flex items-center justify-center text-white shadow-md">
+          <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md border border-emerald-400/30">
             <Factory className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/25 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">
                 {t('smartPlanner.moduleBadge', 'Manufacturing Yield Engine')}
               </span>
-              <span className="text-xs text-stone-400">v1.0 (Isolated AI)</span>
+              <span className="text-xs text-emerald-200/80 font-mono font-medium">v1.0 (Isolated AI)</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-display font-semibold text-white tracking-tight mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-display font-bold text-white tracking-tight mt-0.5">
               {t('smartPlanner.pageTitle', 'Biizora Smart Production Planner')}
             </h1>
-            <p className="text-xs text-stone-300">
+            <p className="text-xs text-emerald-100/90 font-medium">
               {t('smartPlanner.pageSubtitle', 'Pre-production yield forecasting, raw material requirements, and scrap reduction.')}
             </p>
           </div>
@@ -514,7 +514,7 @@ export default function SmartProductionPlannerPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <label className="space-y-1">
-                  <span className="font-medium text-warm-gray">{t('smartPlanner.planName', 'Plan Name')}</span>
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.planName', 'Plan Name')}</span>
                   <input
                     required
                     type="text"
@@ -525,7 +525,7 @@ export default function SmartProductionPlannerPage() {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="font-medium text-warm-gray">{t('smartPlanner.productCategory', 'Product Category')}</span>
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.productCategory', 'Product Category')}</span>
                   <select
                     value={planForm.productCategory}
                     onChange={(e) => setPlanForm({ ...planForm, productCategory: e.target.value })}
@@ -542,7 +542,7 @@ export default function SmartProductionPlannerPage() {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="font-medium text-warm-gray">{t('smartPlanner.scheduledDate', 'Scheduled Production Date')}</span>
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.scheduledDate', 'Scheduled Production Date')}</span>
                   <input
                     type="date"
                     value={planForm.scheduledDate}
@@ -552,7 +552,7 @@ export default function SmartProductionPlannerPage() {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="font-medium text-warm-gray">{t('smartPlanner.shift', 'Shift')}</span>
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.shift', 'Shift')}</span>
                   <select
                     value={planForm.shift}
                     onChange={(e) => setPlanForm({ ...planForm, shift: e.target.value })}
@@ -565,7 +565,7 @@ export default function SmartProductionPlannerPage() {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="font-medium text-warm-gray">{t('smartPlanner.machineLine', 'Manufacturing Line / Machine')}</span>
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.machineLine', 'Manufacturing Line / Machine')}</span>
                   <input
                     type="text"
                     value={planForm.machineId}
@@ -576,7 +576,7 @@ export default function SmartProductionPlannerPage() {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="font-medium text-warm-gray">{t('smartPlanner.supervisor', 'Supervisor / Operator')}</span>
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.supervisor', 'Supervisor / Operator')}</span>
                   <input
                     type="text"
                     value={planForm.supervisor}
@@ -753,66 +753,66 @@ export default function SmartProductionPlannerPage() {
 
           {/* Live Prediction Forecast Panel (1 col) */}
           <div className="space-y-6">
-            <div className="bz-card p-6 bg-gradient-to-br from-stone-900 via-charcoal to-stone-900 text-white space-y-5 border border-stone-800 shadow-xl sticky top-24">
-              <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+            <div className="p-6 rounded-2xl bg-[#152B1E] border border-[#2B523B] shadow-2xl text-white space-y-5 sticky top-24">
+              <div className="flex items-center justify-between border-b border-[#2A4E38] pb-3">
                 <h3 className="font-bold text-sm text-yellow-butter flex items-center gap-2">
                   <Brain className="w-5 h-5 text-yellow-butter animate-pulse" />
                   {t('smartPlanner.forecastPanelTitle', 'Smart Production Forecast')}
                 </h3>
-                <span className="text-[10px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-bold">
+                <span className="text-[11px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-bold shadow-xs">
                   {liveForecast.confidenceScore}% Confidence
                 </span>
               </div>
 
               {/* Key Forecast Metrics */}
               <div className="space-y-3 text-xs">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center">
-                  <span className="text-stone-300">{t('smartPlanner.expectedOutput', 'Expected Finished Output')}</span>
-                  <strong className="text-base text-emerald-400 font-mono">{liveForecast.expectedOutputQty} kg</strong>
+                <div className="p-3.5 rounded-xl bg-[#1E3B2A] border border-[#2E593F] flex justify-between items-center shadow-inner">
+                  <span className="text-emerald-100 font-semibold text-xs">{t('smartPlanner.expectedOutput', 'Expected Finished Output')}</span>
+                  <strong className="text-lg text-emerald-400 font-mono font-bold">{liveForecast.expectedOutputQty} kg</strong>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center">
-                  <span className="text-stone-300">{t('smartPlanner.expectedWaste', 'Expected Wastage / Scrap')}</span>
-                  <strong className="text-base text-terracotta font-mono">{liveForecast.expectedWasteQty} kg ({liveForecast.expectedWastePct}%)</strong>
+                <div className="p-3.5 rounded-xl bg-[#1E3B2A] border border-[#2E593F] flex justify-between items-center shadow-inner">
+                  <span className="text-emerald-100 font-semibold text-xs">{t('smartPlanner.expectedWaste', 'Expected Wastage / Scrap')}</span>
+                  <strong className="text-lg text-red-400 font-mono font-bold">{liveForecast.expectedWasteQty} kg ({liveForecast.expectedWastePct}%)</strong>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center">
-                  <span className="text-stone-300">{t('smartPlanner.expectedYield', 'Forecasted Yield %')}</span>
-                  <strong className="text-base text-yellow-butter font-mono">{liveForecast.expectedYieldPct}%</strong>
+                <div className="p-3.5 rounded-xl bg-[#1E3B2A] border border-[#2E593F] flex justify-between items-center shadow-inner">
+                  <span className="text-emerald-100 font-semibold text-xs">{t('smartPlanner.expectedYield', 'Forecasted Yield %')}</span>
+                  <strong className="text-lg text-yellow-butter font-mono font-bold">{liveForecast.expectedYieldPct}%</strong>
                 </div>
 
-                <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex justify-between items-center">
-                  <span className="text-stone-300">{t('smartPlanner.estDuration', 'Estimated Production Duration')}</span>
-                  <strong className="text-xs text-stone-200 font-mono flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="p-3.5 rounded-xl bg-[#1E3B2A] border border-[#2E593F] flex justify-between items-center shadow-inner">
+                  <span className="text-emerald-100 font-semibold text-xs">{t('smartPlanner.estDuration', 'Estimated Production Duration')}</span>
+                  <strong className="text-sm text-cyan-300 font-mono font-bold flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-cyan-400" />
                     {Math.floor(liveForecast.estimatedDurationMinutes / 60)}h {liveForecast.estimatedDurationMinutes % 60}m
                   </strong>
                 </div>
               </div>
 
               {/* Risk Indicators */}
-              <div className="space-y-2 pt-2 border-t border-white/10">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-yellow-butter/90">
+              <div className="space-y-2.5 pt-2 border-t border-[#2A4E38]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-yellow-butter">
                   {t('smartPlanner.riskIndicatorsTitle', 'Risk Indicators & Warnings')}
                 </span>
                 {liveForecast.riskIndicators?.length ? (
                   liveForecast.riskIndicators.map((risk, idx) => (
                     <div
                       key={idx}
-                      className={`p-2.5 rounded-lg text-[11px] border ${
+                      className={`p-3 rounded-xl text-xs border ${
                         risk.riskLevel === 'high'
-                          ? 'bg-red-950/40 border-red-800 text-red-200'
+                          ? 'bg-[#3A1D1D] border-red-700 text-red-100'
                           : risk.riskLevel === 'medium'
-                          ? 'bg-amber-950/40 border-amber-800 text-amber-200'
-                          : 'bg-emerald-950/40 border-emerald-800 text-emerald-200'
+                          ? 'bg-[#3B2E18] border-amber-700 text-amber-100'
+                          : 'bg-[#1E3E2C] border-emerald-600 text-emerald-100'
                       }`}
                     >
-                      <strong className="block font-bold">{risk.title}</strong>
-                      <p className="text-[10px] leading-relaxed opacity-90">{risk.description}</p>
+                      <strong className="block font-bold text-yellow-butter text-xs">{risk.title}</strong>
+                      <p className="text-[11px] leading-relaxed text-emerald-100/90 font-medium">{risk.description}</p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-stone-400 italic">No high wastage risks detected for this batch configuration.</p>
+                  <p className="text-xs text-emerald-200/70 italic">No high wastage risks detected for this batch configuration.</p>
                 )}
               </div>
             </div>
