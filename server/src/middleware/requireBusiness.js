@@ -145,3 +145,18 @@ export function requireModule(moduleId) {
 export function tenantFilter(req, extra = {}) {
   return { businessId: req.businessId, ...extra };
 }
+
+/**
+ * Manufacturing-only guard middleware.
+ * Rejects requests from non-manufacturing workspaces.
+ */
+export function requireManufacturingWorkspace(req, res, next) {
+  const type = (req.business?.businessType || req.business?.category || '').toLowerCase();
+  if (type !== 'manufacturing') {
+    return res.status(403).json({
+      error: 'Access Restricted: Biizora Smart Production Planner is only available in Manufacturing workspaces.',
+      code: 'MANUFACTURING_ONLY',
+    });
+  }
+  next();
+}

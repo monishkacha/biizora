@@ -67,6 +67,7 @@ const navTranslationKeys = {
   Offers: 'offers',
   Support: 'support',
   'Help & Support': 'support',
+  'Smart Production Planner': 'smartProductionPlanner',
   Admin: 'superAdmin',
   'Super Admin': 'superAdmin',
 };
@@ -154,6 +155,7 @@ export default function Sidebar({ collapsed, mobileOpen }) {
       if (biz?.businessType === 'manufacturing') {
         const manufacturingModules = [
           { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'smart-production-planner', title: 'Smart Production Planner', route: '/app/smart-production-planner', icon: 'Sparkles' },
           { id: 'suppliers', title: 'Suppliers', route: '/app/suppliers', icon: 'Building2' },
           { id: 'raw-materials', title: 'Raw Materials', route: '/app/raw-materials', icon: 'Boxes' },
           { id: 'production-orders', title: 'Production Orders', route: '/app/production-orders', icon: 'ClipboardList' },

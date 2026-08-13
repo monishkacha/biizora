@@ -85,6 +85,7 @@ import ProductionOrdersPage from './pages/manufacturing/ProductionOrdersPage';
 import MachinesPage from './pages/manufacturing/MachinesPage';
 import WarehousePage from './pages/manufacturing/WarehousePage';
 import QCPage from './pages/manufacturing/QCPage';
+import SmartProductionPlannerPage from './pages/manufacturing/SmartProductionPlannerPage';
 
 // Demo Modules
 import {
@@ -245,6 +246,8 @@ export default function App() {
                     <Route path="menu" element={<RestaurantMenuPage />} />
                     <Route path="offers" element={<RestaurantOffersPage />} />
                     {/* Manufacturing Routes */}
+                    <Route path="smart-production-planner" element={<SmartProductionPlannerPage />} />
+                    <Route path="manufacturing/smart-production-planner" element={<SmartProductionPlannerPage />} />
                     <Route path="production-orders" element={<ProductionOrdersPage />} />
                     <Route path="bom" element={<BillOfMaterialsPage />} />
                     <Route path="machines" element={<MachinesPage />} />

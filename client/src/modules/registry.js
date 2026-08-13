@@ -120,6 +120,7 @@ const ICON_MAP = {
 /** Fallback nav when modules API is unavailable — preserves existing Biizora nav */
 export const FALLBACK_NAV = [
   { id: 'dashboard', title: 'Overview', route: '/app', icon: 'LayoutDashboard', category: 'core' },
+  { id: 'smart-production-planner', title: 'Smart Production Planner', route: '/app/smart-production-planner', icon: 'Sparkles', category: 'manufacturing', businessTypes: ['manufacturing'] },
   { id: 'invoices', title: 'Invoices', route: '/app/invoices', icon: 'FileText', category: 'core' },
   { id: 'customers', title: 'Customers', route: '/app/customers', icon: 'Users', category: 'core' },
   { id: 'products', title: 'Products', route: '/app/products', icon: 'Package', category: 'core' },
