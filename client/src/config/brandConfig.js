@@ -1,6 +1,6 @@
 export const brandConfig = {
-  productName: 'Bizora',
-  poweredByText: 'Powered by Bizora',
+  productName: 'Biizora',
+  poweredByText: 'Powered by Biizora',
   showPoweredBy: true,
   websiteUrl: 'https://biizora.com',
 };

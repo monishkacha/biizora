@@ -74,7 +74,7 @@ export async function sendInvoiceToWhatsApp({
     `Invoice No: ${invoiceNumber}%0A` +
     `Total Amount: ₹${Number(totalAmount).toFixed(2)}%0A%0A` +
     `Please find your official invoice attached.%0A%0A` +
-    `Powered by Bizora`;
+    `Powered by Biizora`;
 
   // Open WhatsApp chat
   window.open(`https://wa.me/${normalizedPhone}?text=${message}`, '_blank');
