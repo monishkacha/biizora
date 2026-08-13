@@ -88,7 +88,7 @@ export default function AppLayout() {
       {isActive && (
         <>
           <CommandPalette />
-          {!isStationery && <FloatingAIChat />}
+          <FloatingAIChat />
         </>
       )}
       <Toast />

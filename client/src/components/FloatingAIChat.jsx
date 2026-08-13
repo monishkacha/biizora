@@ -278,26 +278,26 @@ export default function FloatingAIChat() {
             className="fixed bottom-24 right-6 z-50 w-full max-w-sm sm:max-w-md h-[560px] bg-white rounded-2xl shadow-2xl border border-stone/30 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-4 bg-stone-900 text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-green-bottle flex items-center justify-center text-white font-bold">
-                  <Bot className="w-5 h-5" />
+            <div className="p-3.5 bg-stone-900 text-white flex items-center justify-between gap-2 shrink-0 border-b border-stone-800">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-green-bottle flex items-center justify-center text-white font-bold shrink-0">
+                  <Bot className="w-4 h-4" />
                 </div>
-                <div>
-                  <h3 className="font-semibold text-sm flex items-center gap-1.5">
-                    Bizz AI <span className="text-[10px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-normal">{t('bizz.online', 'Co-Pilot')}</span>
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-xs sm:text-sm flex items-center gap-1.5 truncate">
+                    Bizz AI <span className="text-[9px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-normal shrink-0">{t('bizz.online', 'Co-Pilot')}</span>
                   </h3>
-                  <p className="text-[11px] text-stone-400">{company?.name || 'Biizora Business Pilot'}</p>
+                  <p className="text-[10px] sm:text-[11px] text-stone-400 truncate">{company?.name || 'Biizora Business Pilot'}</p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 {/* Language Switcher */}
                 <div className="flex items-center bg-stone-800 p-0.5 rounded-lg border border-stone-700">
                   <button
                     type="button"
                     onClick={() => handleLanguageChange('en')}
-                    className={`px-2 py-1 text-[11px] font-semibold rounded-md transition-all ${
+                    className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md transition-all ${
                       language === 'en' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
                     }`}
                   >
@@ -306,19 +306,23 @@ export default function FloatingAIChat() {
                   <button
                     type="button"
                     onClick={() => handleLanguageChange('gu')}
-                    className={`px-2 py-1 text-[11px] font-semibold rounded-md transition-all ${
+                    className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md transition-all ${
                       language === 'gu' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
                     }`}
                   >
-                    ગુજરાતી
+                    GU
                   </button>
                 </div>
 
+                {/* Prominent Close / Cancel Sign Button */}
                 <button
+                  type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded-lg hover:bg-stone-800 text-stone-400 hover:text-white transition-colors"
+                  title="Close Bizz AI"
+                  aria-label="Close Bizz AI"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-red-500 text-stone-300 hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95 shrink-0"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" strokeWidth={2.5} />
                 </button>
               </div>
             </div>
