@@ -278,27 +278,29 @@ export default function FloatingAIChat() {
             className="fixed bottom-24 right-6 z-50 w-full max-w-sm sm:max-w-md h-[560px] bg-white rounded-2xl shadow-2xl border border-stone/30 flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="p-3.5 bg-stone-900 text-white flex items-center justify-between gap-2 shrink-0 border-b border-stone-800">
+            <div className="p-3.5 bg-green-bottle text-white flex items-center justify-between gap-2 shrink-0 border-b border-emerald-800 shadow-sm">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-green-bottle flex items-center justify-center text-white font-bold shrink-0">
-                  <Bot className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-white font-bold shrink-0 shadow-inner">
+                  <Bot className="w-4.5 h-4.5 text-yellow-butter" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-xs sm:text-sm flex items-center gap-1.5 truncate">
-                    Bizz AI <span className="text-[9px] bg-emerald-700/80 text-white px-2 py-0.5 rounded-full font-normal shrink-0">{t('bizz.online', 'Co-Pilot')}</span>
+                  <h3 className="font-bold text-xs sm:text-sm text-white flex items-center gap-1.5 truncate">
+                    Bizz AI <span className="text-[9px] bg-yellow-butter text-green-bottle px-2 py-0.5 rounded-full font-extrabold shrink-0 shadow-xs">{t('bizz.online', 'Co-Pilot')}</span>
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] text-stone-400 truncate">{company?.name || 'Biizora Business Pilot'}</p>
+                  <p className="text-[10px] sm:text-[11px] text-emerald-100/90 truncate font-medium">{company?.name || 'Biizora Business Pilot'}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
                 {/* Language Switcher */}
-                <div className="flex items-center bg-stone-800 p-0.5 rounded-lg border border-stone-700">
+                <div className="flex items-center bg-black/25 p-1 rounded-xl border border-white/20 backdrop-blur-xs">
                   <button
                     type="button"
                     onClick={() => handleLanguageChange('en')}
-                    className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md transition-all ${
-                      language === 'en' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
+                    className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+                      language === 'en'
+                        ? 'bg-yellow-butter text-green-bottle shadow-sm'
+                        : 'text-white/90 hover:text-white hover:bg-white/10'
                     }`}
                   >
                     EN
@@ -306,23 +308,25 @@ export default function FloatingAIChat() {
                   <button
                     type="button"
                     onClick={() => handleLanguageChange('gu')}
-                    className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md transition-all ${
-                      language === 'gu' ? 'bg-green-bottle text-white' : 'text-stone-400 hover:text-white'
+                    className={`px-2 py-0.5 text-[10px] sm:text-[11px] font-bold rounded-lg transition-all cursor-pointer ${
+                      language === 'gu'
+                        ? 'bg-yellow-butter text-green-bottle shadow-sm'
+                        : 'text-white/90 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    GU
+                    ગુજરાતી
                   </button>
                 </div>
 
-                {/* Prominent Close / Cancel Sign Button */}
+                {/* Bright High-Contrast Red Cancel / Close Button */}
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   title="Close Bizz AI"
                   aria-label="Close Bizz AI"
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-red-500 text-stone-300 hover:text-white transition-all flex items-center justify-center cursor-pointer shadow-sm hover:scale-105 active:scale-95 shrink-0"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all flex items-center justify-center cursor-pointer shadow-md hover:scale-110 active:scale-95 shrink-0 border border-red-400"
                 >
-                  <X className="w-4 h-4" strokeWidth={2.5} />
+                  <X className="w-4 h-4" strokeWidth={3} />
                 </button>
               </div>
             </div>
