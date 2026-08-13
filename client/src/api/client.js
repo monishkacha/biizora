@@ -283,3 +283,18 @@ export const stationeryApi = {
   seed: () => api('/stationery/seed', { method: 'POST' }),
 };
 
+export const manufacturingPlannerApi = {
+  list: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return api(`/manufacturing/planner${q ? `?${q}` : ''}`);
+  },
+  create: (body) => api('/manufacturing/planner', { method: 'POST', body }),
+  update: (id, body) => api(`/manufacturing/planner/${id}`, { method: 'PUT', body }),
+  remove: (id) => api(`/manufacturing/planner/${id}`, { method: 'DELETE' }),
+  predict: (body) => api('/manufacturing/planner/predict', { method: 'POST', body }),
+  reverseCalc: (body) => api('/manufacturing/planner/reverse-calc', { method: 'POST', body }),
+  yieldRules: () => api('/manufacturing/planner/yield-rules'),
+  updateYieldRules: (body) => api('/manufacturing/planner/yield-rules', { method: 'POST', body }),
+  convertToOrder: (id) => api(`/manufacturing/planner/${id}/convert-to-order`, { method: 'POST' }),
+};
+
