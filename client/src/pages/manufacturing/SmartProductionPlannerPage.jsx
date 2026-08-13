@@ -25,6 +25,12 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
+import {
+  MANUFACTURING_CATEGORIES,
+  INDUSTRIAL_UNITS,
+  getSuggestedUnits,
+} from '../../config/manufacturingMasterData';
+import { SearchableGroupedSelect } from '../../components/ui/SearchableGroupedSelect';
 
 export default function SmartProductionPlannerPage() {
   const { t, i18n } = useTranslation();
@@ -603,20 +609,14 @@ export default function SmartProductionPlannerPage() {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="font-semibold text-charcoal">{t('smartPlanner.productCategory', 'Product Category')}</span>
-                  <select
+                  <span className="font-semibold text-charcoal">{t('smartPlanner.productCategory', 'Product Category / Sector')}</span>
+                  <SearchableGroupedSelect
                     value={planForm.productCategory}
-                    onChange={(e) => setPlanForm({ ...planForm, productCategory: e.target.value })}
-                    className="bz-input"
-                  >
-                    <option value="HDPE Pipe">HDPE & Plastic Pipe</option>
-                    <option value="Textiles">Textiles & Garment</option>
-                    <option value="Food Processing">Food Processing</option>
-                    <option value="Metal Fabrication">Metal Fabrication</option>
-                    <option value="Packaging">Packaging Materials</option>
-                    <option value="Chemicals">Chemical Manufacturing</option>
-                    <option value="General">Custom / Other Category</option>
-                  </select>
+                    onChange={(cat) => setPlanForm({ ...planForm, productCategory: cat })}
+                    groups={MANUFACTURING_CATEGORIES}
+                    placeholder="Select manufacturing sector..."
+                    searchPlaceholder="Search sector (e.g. HDPE, Garments, Steel)..."
+                  />
                 </label>
 
                 <label className="space-y-1">
@@ -703,21 +703,18 @@ export default function SmartProductionPlannerPage() {
                       }}
                       className="bz-input font-mono"
                     />
-                    <select
+                    <SearchableGroupedSelect
                       value={mat.unit}
-                      onChange={(e) => {
+                      onChange={(u) => {
                         const updated = [...planForm.materials];
-                        updated[idx].unit = e.target.value;
+                        updated[idx].unit = u;
                         setPlanForm({ ...planForm, materials: updated });
                       }}
-                      className="bz-input"
-                    >
-                      <option value="kg">kg</option>
-                      <option value="ton">ton</option>
-                      <option value="liter">liter</option>
-                      <option value="meter">meter</option>
-                      <option value="piece">piece</option>
-                    </select>
+                      groups={INDUSTRIAL_UNITS}
+                      suggestions={getSuggestedUnits(planForm.productCategory)}
+                      placeholder="Unit"
+                      searchPlaceholder="Search unit (e.g. kg, meter, drum)..."
+                    />
                     <select
                       value={mat.grade}
                       onChange={(e) => {
@@ -922,17 +919,14 @@ export default function SmartProductionPlannerPage() {
               </label>
 
               <label className="block space-y-1">
-                <span className="font-medium text-warm-gray">Product Category</span>
-                <select
+                <span className="font-semibold text-charcoal">Product Category / Sector</span>
+                <SearchableGroupedSelect
                   value={reverseForm.productCategory}
-                  onChange={(e) => setReverseForm({ ...reverseForm, productCategory: e.target.value })}
-                  className="bz-input"
-                >
-                  <option value="HDPE Pipe">HDPE & Plastic Pipe</option>
-                  <option value="Textiles">Textiles & Garment</option>
-                  <option value="Metal Fabrication">Metal Fabrication</option>
-                  <option value="Packaging">Packaging Materials</option>
-                </select>
+                  onChange={(cat) => setReverseForm({ ...reverseForm, productCategory: cat })}
+                  groups={MANUFACTURING_CATEGORIES}
+                  placeholder="Select sector..."
+                  searchPlaceholder="Search sector..."
+                />
               </label>
 
               <label className="block space-y-1">
