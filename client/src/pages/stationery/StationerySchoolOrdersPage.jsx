@@ -119,7 +119,7 @@ export default function StationerySchoolOrdersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-[20px] border border-stone shadow-subtle">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-xl bg-green-bottle text-white flex items-center justify-center font-bold">
             <GraduationCap className="w-5 h-5" />
           </div>
           <div>
@@ -237,7 +237,7 @@ export default function StationerySchoolOrdersPage() {
           <div className="bg-white rounded-[24px] max-w-2xl w-full p-6 shadow-elev space-y-4 my-8">
             <div className="flex justify-between items-center border-b border-stone pb-3">
               <h3 className="text-sm font-bold text-charcoal flex items-center gap-2">
-                <GraduationCap className="w-4 h-4 text-purple-600" /> Create School Bulk Order / Quotation
+                <GraduationCap className="w-4 h-4 text-green-bottle" /> Create School Bulk Order / Quotation
               </h3>
               <button type="button" onClick={() => setShowModal(false)} className="p-1 rounded-full hover:bg-cream">
                 <X className="w-4 h-4" />

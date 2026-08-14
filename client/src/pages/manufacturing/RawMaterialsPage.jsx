@@ -16,10 +16,12 @@ import {
   X,
   PackageCheck,
   Building2,
-  Tag
+  Tag,
+  Database
 } from 'lucide-react';
 import { INITIAL_RAW_MATERIALS, INITIAL_SUPPLIERS } from './mockManufacturingData';
 import { useBusiness } from '../../context/BusinessContext';
+import ManufacturingDataMigrationModal from '../../components/manufacturing/ManufacturingDataMigrationModal';
 
 export default function RawMaterialsPage() {
   const { t } = useTranslation();
@@ -27,6 +29,7 @@ export default function RawMaterialsPage() {
   const [materials, setMaterials] = useState(INITIAL_RAW_MATERIALS);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
@@ -153,48 +156,80 @@ export default function RawMaterialsPage() {
             <span>Raw Materials Inventory</span>
           </div>
           <h1 className="text-2xl font-bold font-display text-charcoal flex items-center gap-2.5">
-            <Boxes className="w-7 h-7 text-green-bottle" /> Raw Materials Stock
+            <Boxes className="w-7 h-7 text-green-bottle" /> {t('mfgPages.rawMaterialsTitle', 'Raw Materials Stock')}
           </h1>
           <p className="text-xs text-warm-gray mt-1">
-            Track metals, polymers, fasteners, and chemical raw stock, reorder levels, and stock movements.
+            {t('mfgPages.rawMaterialsSubtitle', 'Track metals, polymers, fasteners, and chemical raw stock, reorder levels, and stock movements.')}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
+            onClick={() => setIsMigrationModalOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 font-semibold hover:bg-amber-100 text-xs flex items-center gap-1.5 transition-all shadow-subtle"
+          >
+            <Database className="w-4 h-4 text-amber-700" /> {t('mfgPages.dataMigration', 'Data Migration')}
+          </button>
+          <button
             onClick={() => showToast('Stock Valuation Report PDF generated')}
             className="px-3.5 py-2 rounded-xl bg-cream border border-stone text-charcoal font-semibold hover:bg-stone/20 text-xs flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-4 h-4" /> Valuation Report
+            <Download className="w-4 h-4" /> {t('mfgPages.totalValuation', 'Valuation Report')}
           </button>
           <button
             onClick={handleOpenAddModal}
             className="px-4 py-2 rounded-xl bg-green-bottle text-white font-semibold hover:bg-green-forest text-xs flex items-center gap-2 shadow-subtle transition-all"
           >
-            <Plus className="w-4 h-4" /> + Add Material
+            <Plus className="w-4 h-4" /> {t('mfgPages.addRawMaterial', '+ Add Material')}
           </button>
         </div>
       </div>
 
+      <ManufacturingDataMigrationModal
+        isOpen={isMigrationModalOpen}
+        onClose={() => setIsMigrationModalOpen(false)}
+        defaultDataType="raw_materials"
+        onImportSuccess={(newRecords) => {
+          if (newRecords && newRecords.length) {
+            const formatted = newRecords.map((r, i) => ({
+              id: `mat-mig-${Date.now()}-${i}`,
+              code: r.code || r.Code || `RM-${Math.floor(100 + Math.random() * 900)}`,
+              name: r.name || r.Name || 'Imported Material',
+              category: r.category || r.Category || 'Metals',
+              unit: r.unit || r.Unit || 'Kg',
+              stock: Number(r.stock || r.Stock || 100),
+              reorderLevel: Number(r.reorderLevel || r.ReorderLevel || 50),
+              unitCost: Number(r.unitCost || r.UnitCost || 150),
+              supplier: r.supplier || r.Supplier || 'Imported Vendor',
+              location: r.location || r.Location || 'Warehouse Main',
+              hsnCode: '7219',
+              description: 'Imported via Data Migration',
+            }));
+            setMaterials((prev) => [...formatted, ...prev]);
+            showToast(`Successfully imported ${formatted.length} raw material records!`);
+          }
+        }}
+      />
+
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Total Raw Materials</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.totalMaterialTypes', 'Total Raw Materials')}</p>
           <h3 className="text-2xl font-bold font-display text-charcoal mt-1">{totalMaterials} SKUs</h3>
           <p className="text-[11px] text-green-forest mt-0.5">Across {categories.length - 1} categories</p>
         </div>
 
         <div className="bg-white border border-red-200 bg-red-50/30 p-4 rounded-[18px] shadow-subtle">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-red-800 font-semibold">Low Stock Alert</p>
+            <p className="text-xs text-red-800 font-semibold">{t('mfgPages.lowStockAlerts', 'Low Stock Alert')}</p>
             <AlertTriangle className="w-4 h-4 text-red-600 animate-pulse" />
           </div>
           <h3 className="text-2xl font-bold font-display text-red-700 mt-1">{lowStockItems.length} SKUs</h3>
-          <p className="text-[11px] text-red-600 mt-0.5">Below reorder thresholds</p>
+          <p className="text-[11px] text-red-600 mt-0.5">{t('mfgPages.reorderThreshold', 'Below reorder thresholds')}</p>
         </div>
 
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Total Inventory Value</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.totalValuation', 'Total Inventory Value')}</p>
           <h3 className="text-2xl font-bold font-display text-emerald-800 mt-1">
             ₹{totalInventoryValue.toLocaleString('en-IN')}
           </h3>
@@ -247,15 +282,15 @@ export default function RawMaterialsPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-stone bg-cream/40 text-warm-gray font-bold uppercase tracking-wider">
-                <th className="py-3.5 px-4">Code & Material</th>
-                <th className="py-3.5 px-4">Category</th>
-                <th className="py-3.5 px-4 text-right">Current Stock</th>
-                <th className="py-3.5 px-4 text-right">Reorder Level</th>
-                <th className="py-3.5 px-4 text-right">Unit Cost (₹)</th>
-                <th className="py-3.5 px-4 text-right">Total Value (₹)</th>
-                <th className="py-3.5 px-4">Preferred Supplier</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4 text-right">Stock Actions</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colMaterialItem', 'Code & Material')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colCategory', 'Category')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colCurrentStock', 'Current Stock')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colMinLevel', 'Reorder Level')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colUnitPrice', 'Unit Cost (₹)')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colTotalValue', 'Total Value (₹)')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colPreferredSupplier', 'Preferred Supplier')}</th>
+                <th className="py-3.5 px-4 text-center">{t('mfgPages.colStatus', 'Status')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colStockActions', 'Stock Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone text-charcoal font-medium">
@@ -296,36 +331,36 @@ export default function RawMaterialsPage() {
                       ₹{totalVal.toLocaleString('en-IN')}
                     </td>
                     <td className="py-3.5 px-4 text-warm-gray">{mat.supplier}</td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           isLow
-                            ? 'bg-red-100 text-red-800 border border-red-200'
-                            : 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                         }`}
                       >
                         {isLow ? 'Low Stock' : 'In Stock'}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-right space-x-1">
+                    <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                       <button
                         onClick={() => handleOpenStockModal(mat, 'in')}
-                        className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[10px] font-bold inline-flex items-center gap-0.5"
-                        title="Stock In"
+                        className="px-2.5 py-1 bg-green-bottle hover:bg-green-forest text-white rounded-lg text-[10px] font-bold inline-flex items-center gap-1 shadow-subtle transition-all"
+                        title="Stock In Receive"
                       >
                         <ArrowDownLeft className="w-3 h-3" /> +In
                       </button>
                       <button
                         onClick={() => handleOpenStockModal(mat, 'out')}
-                        className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-[10px] font-bold inline-flex items-center gap-0.5"
-                        title="Stock Out"
+                        className="px-2.5 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-[10px] font-bold inline-flex items-center gap-1 shadow-subtle transition-all"
+                        title="Stock Out Issue"
                       >
                         <ArrowUpRight className="w-3 h-3" /> -Out
                       </button>
                       <button
                         onClick={() => handleDelete(mat.id)}
-                        className="p-1 text-red-500 hover:text-red-700 rounded hover:bg-red-50"
-                        title="Delete"
+                        className="p-1.5 text-warm-gray hover:text-red-700 rounded-lg hover:bg-red-50 transition-all"
+                        title="Delete Record"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -335,8 +370,9 @@ export default function RawMaterialsPage() {
               })}
               {filteredMaterials.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="py-12 text-center text-warm-gray">
-                    No raw materials found for this search/category.
+                  <td colSpan={9} className="py-12 text-center text-warm-gray font-medium">
+                    <Boxes className="w-8 h-8 text-warm-gray/50 mx-auto mb-2" />
+                    No raw materials found matching your search or category filter.
                   </td>
                 </tr>
               )}

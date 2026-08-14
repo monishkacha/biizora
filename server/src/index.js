@@ -28,6 +28,8 @@ import supportRoutes from './routes/support.js';
 import migrationRoutes from './routes/migration.js';
 import adminRoutes from './routes/admin.js';
 import modulesRoutes from './routes/modules.js';
+import publicRoutes from './routes/publicRoutes.js';
+import growthEngineRoutes from './routes/growthEngineRoutes.js';
 import bizzRoutes from './routes/bizz.js';
 import whatsappRoutes from './routes/whatsapp.js';
 import restaurantRoutes from './routes/restaurant.js';
@@ -85,6 +87,8 @@ app.use('/api/migration', migrationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/modules', modulesRoutes);
 app.use('/api/bizz', bizzRoutes);
+app.use('/api/public', publicRoutes);
+app.use('/api/growth-engine', growthEngineRoutes);
 app.use('/api/restaurant', restaurantRoutes);
 app.use('/api/stationery', stationeryRoutes);
 app.use('/api/manufacturing/planner', manufacturingPlannerRoutes);
@@ -106,8 +110,25 @@ async function start() {
   runAutoClose();
   setInterval(runAutoClose, 60 * 60 * 1000);
 
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`✓ Biizora API running on http://localhost:${PORT}`);
+  });
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`⚠️ Port ${PORT} is busy, retrying listener in 1.5 seconds...`);
+      setTimeout(() => {
+        try { server.close(); } catch(e){}
+        server.listen(PORT);
+      }, 1500);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+
+  process.once('SIGUSR2', () => {
+    try { server.close(); } catch(e){}
+    process.kill(process.pid, 'SIGUSR2');
   });
 }
 

@@ -45,28 +45,28 @@ export default function TablesPage() {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'occupied':
-        return <span className="bg-amber-500/15 text-amber-800 border border-amber-500/30 text-xs font-semibold px-2.5 py-1 rounded-full">Occupied</span>;
+        return <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Occupied</span>;
       case 'reserved':
-        return <span className="bg-blue-500/15 text-blue-800 border border-blue-500/30 text-xs font-semibold px-2.5 py-1 rounded-full">Reserved</span>;
+        return <span className="bg-blue-100 text-blue-800 border border-blue-200 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Reserved</span>;
       case 'order_ready':
-        return <span className="bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 text-xs font-semibold px-2.5 py-1 rounded-full animate-pulse">Order Ready</span>;
+        return <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse">Order Ready</span>;
       case 'payment_pending':
-        return <span className="bg-purple-500/15 text-purple-800 border border-purple-500/30 text-xs font-semibold px-2.5 py-1 rounded-full">Bill Generated</span>;
+        return <span className="bg-emerald-50 text-emerald-900 border border-emerald-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Bill Generated</span>;
       case 'cleaning':
-        return <span className="bg-rose-500/15 text-rose-800 border border-rose-500/30 text-xs font-semibold px-2.5 py-1 rounded-full">Cleaning Needed</span>;
+        return <span className="bg-rose-100 text-rose-800 border border-rose-200 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Cleaning</span>;
       default:
-        return <span className="bg-stone-200/80 text-charcoal/70 border border-stone-300 text-xs font-semibold px-2.5 py-1 rounded-full">Available</span>;
+        return <span className="bg-cream text-warm-gray border border-stone text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">Available</span>;
     }
   };
 
   const getShapeStyle = (shape) => {
     switch (shape) {
       case 'round':
-        return 'rounded-full';
+        return 'rounded-3xl';
       case 'rectangle':
-        return 'rounded-2xl aspect-[1.4/1]';
+        return 'rounded-[20px] aspect-[1.3/1]';
       default:
-        return 'rounded-2xl aspect-square';
+        return 'rounded-[20px] aspect-square';
     }
   };
 
@@ -112,11 +112,16 @@ export default function TablesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-stone/40 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-[22px] border border-stone shadow-card">
         <div>
-          <h1 className="text-2xl font-bold text-charcoal">Floor Plan & Table Management</h1>
-          <p className="text-sm text-warm-gray mt-0.5">
-            Monitor real-time table status, seating, guest assignments, and active bills.
+          <div className="flex items-center gap-2 text-xs font-semibold text-green-forest uppercase tracking-wider mb-1">
+            <span>Restaurant Floor Control</span>
+            <span>•</span>
+            <span>Live Seating & POS Sync</span>
+          </div>
+          <h1 className="text-2xl font-bold font-display text-charcoal">Floor Plan & Table Management</h1>
+          <p className="text-xs text-warm-gray mt-1">
+            Monitor real-time table status, seating, server assignments, and active bills across floor sections.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -124,7 +129,7 @@ export default function TablesPage() {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'grid' ? 'bg-white text-green-bottle shadow-sm' : 'text-charcoal/70'
+                viewMode === 'grid' ? 'bg-white text-green-bottle shadow-xs' : 'text-charcoal/70'
               }`}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -132,7 +137,7 @@ export default function TablesPage() {
             <button
               onClick={() => setViewMode('list')}
               className={`p-2 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'list' ? 'bg-white text-green-bottle shadow-sm' : 'text-charcoal/70'
+                viewMode === 'list' ? 'bg-white text-green-bottle shadow-xs' : 'text-charcoal/70'
               }`}
             >
               <List className="w-4 h-4" />
@@ -141,7 +146,7 @@ export default function TablesPage() {
 
           <button
             onClick={() => setModalAction('newTable')}
-            className="flex items-center gap-2 bg-green-bottle text-white px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-green-bottle/90 transition-all shadow-sm"
+            className="flex items-center gap-2 bg-green-bottle text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-green-forest transition-all shadow-subtle"
           >
             <Plus className="w-4 h-4" /> Add Table
           </button>
@@ -155,10 +160,10 @@ export default function TablesPage() {
           <button
             key={sec}
             onClick={() => setSelectedSection(sec)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
               selectedSection === sec
-                ? 'bg-green-bottle text-white shadow-subtle'
-                : 'bg-white text-charcoal/70 border border-stone hover:bg-cream'
+                ? 'bg-green-bottle text-white shadow-subtle font-bold'
+                : 'bg-white text-charcoal border border-stone hover:bg-cream'
             }`}
           >
             {sec}
@@ -168,7 +173,7 @@ export default function TablesPage() {
 
       {/* Grid Floor Plan View */}
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {filteredTables.map((table) => {
             const activeOrd = orders.find((o) => o.id === table.currentOrderId || (o.tableId === table.id && o.orderStatus === 'active'));
 
@@ -178,54 +183,43 @@ export default function TablesPage() {
                 onClick={() => setSelectedTable(table)}
                 className={`
                   relative p-4 cursor-pointer transition-all duration-200 border flex flex-col justify-between
-                  hover:shadow-md hover:-translate-y-0.5
+                  hover:shadow-md hover:-translate-y-0.5 bg-white border-stone shadow-card
                   ${getShapeStyle(table.shape)}
-                  ${
-                    table.status === 'occupied'
-                      ? 'bg-amber-500/5 border-amber-500/40'
-                      : table.status === 'reserved'
-                      ? 'bg-blue-500/5 border-blue-500/40'
-                      : table.status === 'order_ready'
-                      ? 'bg-emerald-500/10 border-emerald-500/50 shadow-sm'
-                      : table.status === 'payment_pending'
-                      ? 'bg-purple-500/5 border-purple-500/40'
-                      : 'bg-white border-stone/60'
-                  }
                 `}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h3 className="font-extrabold text-charcoal text-base">{table.name}</h3>
+                    <h3 className="font-extrabold font-display text-charcoal text-base">{table.name}</h3>
                     <p className="text-[11px] text-warm-gray font-medium">{table.section}</p>
                   </div>
                   {getStatusBadge(table.status)}
                 </div>
 
-                <div className="my-2 space-y-1.5 text-xs text-charcoal/80">
+                <div className="my-3 space-y-1.5 text-xs text-charcoal">
                   <div className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-warm-gray" />
-                    <span>
-                      {table.currentGuests > 0 ? `${table.currentGuests} Guests` : `Cap: ${table.capacity}`}
+                    <span className="font-medium">
+                      {table.currentGuests > 0 ? `${table.currentGuests} Guests Seated` : `Capacity: ${table.capacity} Seats`}
                     </span>
                   </div>
 
                   {table.serverName && (
                     <div className="text-[11px] text-warm-gray font-medium">
-                      Server: <span className="text-charcoal font-semibold">{table.serverName}</span>
+                      Server: <span className="text-charcoal font-bold">{table.serverName}</span>
                     </div>
                   )}
 
                   {activeOrd && (
-                    <div className="pt-1.5 border-t border-stone/40 font-bold text-green-bottle flex justify-between items-center">
-                      <span>{activeOrd.orderNumber}</span>
+                    <div className="pt-2 border-t border-stone/50 font-bold text-green-bottle flex justify-between items-center text-xs">
+                      <span className="font-mono">{activeOrd.orderNumber}</span>
                       <span>₹{activeOrd.grandTotal}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="pt-2 flex items-center justify-between text-[11px] text-warm-gray border-t border-stone/30">
+                <div className="pt-2 flex items-center justify-between text-[11px] text-warm-gray border-t border-stone">
                   <span>{table.capacity} seats</span>
-                  <span className="font-semibold text-green-forest flex items-center gap-1">
+                  <span className="font-bold text-green-forest flex items-center gap-0.5 hover:underline">
                     Manage <ChevronRight className="w-3 h-3" />
                   </span>
                 </div>

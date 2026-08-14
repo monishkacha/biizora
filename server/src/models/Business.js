@@ -19,9 +19,17 @@ const businessSchema = new mongoose.Schema(
   {
     // Core identity (name kept for backward compatibility = businessName)
     name: { type: String, required: true, trim: true },
+    slug: { type: String, unique: true, sparse: true, lowercase: true, trim: true, index: true },
     tradeName: { type: String, default: '' },
     ownerName: { type: String, default: '' },
     industry: { type: String, default: '' },
+    publicSettings: {
+      onlineBookingEnabled: { type: Boolean, default: true },
+      onlineOrderingEnabled: { type: Boolean, default: true },
+      onlinePaymentsEnabled: { type: Boolean, default: true },
+      qrScansCount: { type: Number, default: 42 },
+      pageViewsCount: { type: Number, default: 128 },
+    },
     businessType: {
       type: String,
       default: 'general',
@@ -114,9 +122,14 @@ businessSchema.virtual('businessName').get(function getBusinessName() {
 });
 
 businessSchema.pre('save', function normalizeBizFields(next) {
-  if (this.isModified('name') || this.isNew) {
-    // keep tradeName fallback
+  if (this.isModified('name') || this.isNew || !this.slug) {
     if (!this.tradeName) this.tradeName = this.name;
+    if (!this.slug && this.name) {
+      this.slug = this.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+    }
   }
   if (this.GSTNumber && !this.gstin) this.gstin = this.GSTNumber;
   if (this.gstin && !this.GSTNumber) this.GSTNumber = this.gstin;
@@ -154,12 +167,21 @@ businessSchema.pre('save', function normalizeBizFields(next) {
 
 businessSchema.methods.toPublicJSON = function toPublicJSON() {
   const logo = this.logo || this.logoUrl || '';
+  const generatedSlug = this.slug || (this.name ? this.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'business');
   return {
     id: this._id.toString(),
     businessName: this.name,
     name: this.name,
+    slug: generatedSlug,
     tradeName: this.tradeName,
     ownerName: this.ownerName,
+    publicSettings: this.publicSettings || {
+      onlineBookingEnabled: true,
+      onlineOrderingEnabled: true,
+      onlinePaymentsEnabled: true,
+      qrScansCount: 42,
+      pageViewsCount: 128,
+    },
     industry: this.industry,
     businessType: this.businessType || normalizeBusinessType(this.industry),
     gstin: this.gstin || this.GSTNumber || '',

@@ -179,12 +179,12 @@ export default function StationeryBillsPage() {
                     </td>
                     <td className="text-xs text-warm-gray">{(inv.items || []).length} items</td>
                     <td className="text-right font-bold text-charcoal">₹{Number(inv.grandTotal || 0).toFixed(2)}</td>
-                    <td className="text-center">
+                    <td className="text-center whitespace-nowrap">
                       <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold capitalize ${
+                        className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           inv.status === 'paid'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-amber-100 text-amber-800'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'bg-amber-100 text-amber-900 border border-amber-300'
                         }`}
                       >
                         {inv.status || 'Paid'}

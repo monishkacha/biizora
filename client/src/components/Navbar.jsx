@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
 
+import BiizoraBrandLogo from './ui/BiizoraBrandLogo';
+
 export default function Navbar() {
   const { user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,11 +23,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 bg-white/75 backdrop-blur-xl border-b border-stone">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-[4.25rem]">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-[12px] bg-green-bottle text-white flex items-center justify-center group-hover:bg-[#264A41] transition-colors duration-[220ms]">
-              <Sparkles className="w-4 h-4" strokeWidth={1.75} />
-            </div>
-            <span className="text-lg font-display font-semibold tracking-tight text-charcoal">Biizora</span>
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <BiizoraBrandLogo size="md" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1">

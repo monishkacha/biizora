@@ -98,11 +98,11 @@ export default function MigrationCenterPage() {
     { name: 'TallyPrime', category: 'Indian ERP', color: 'from-amber-500/10 to-amber-500/5', logo: 'Tally' },
     { name: 'Zoho Books', category: 'Cloud Accounting', color: 'from-blue-500/10 to-blue-500/5', logo: 'Zoho' },
     { name: 'Busy Accounting', category: 'GST & Inventory', color: 'from-emerald-500/10 to-emerald-500/5', logo: 'Busy' },
-    { name: 'Vyapar', category: 'SMB Billing', color: 'from-purple-500/10 to-purple-500/5', logo: 'Vyapar' },
+    { name: 'Vyapar', category: 'SMB Billing', color: 'from-emerald-500/10 to-emerald-500/5', logo: 'Vyapar' },
     { name: 'Marg ERP', category: 'Pharma & Retail', color: 'from-teal-500/10 to-teal-500/5', logo: 'Marg' },
     { name: 'QuickBooks', category: 'Global Accounting', color: 'from-green-500/10 to-green-500/5', logo: 'QB' },
     { name: 'SAP Business One', category: 'Enterprise ERP', color: 'from-cyan-500/10 to-cyan-500/5', logo: 'SAP' },
-    { name: 'Odoo ERP', category: 'Open Source ERP', color: 'from-violet-500/10 to-violet-500/5', logo: 'Odoo' },
+    { name: 'Odoo ERP', category: 'Open Source ERP', color: 'from-emerald-500/10 to-emerald-500/5', logo: 'Odoo' },
     { name: 'Microsoft Dynamics', category: 'Enterprise', color: 'from-indigo-500/10 to-indigo-500/5', logo: 'MS' },
     { name: 'Oracle NetSuite', category: 'Cloud ERP', color: 'from-red-500/10 to-red-500/5', logo: 'Oracle' },
   ];

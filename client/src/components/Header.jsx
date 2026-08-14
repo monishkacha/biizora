@@ -57,11 +57,11 @@ export default function Header({ setMobileOpen }) {
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-stone px-4 sm:px-6 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-3 min-w-0">
+    <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-stone px-3 sm:px-6 py-2.5 flex items-center justify-between gap-3 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         <button
           type="button"
-          className="lg:hidden p-2 rounded-[12px] border border-stone text-warm-gray hover:bg-cream transition-colors"
+          className="lg:hidden p-2 rounded-[12px] border border-stone text-warm-gray hover:bg-cream transition-colors shrink-0"
           onClick={() => setMobileOpen?.(true)}
         >
           <Menu className="w-5 h-5" />
@@ -70,23 +70,23 @@ export default function Header({ setMobileOpen }) {
         <button
           type="button"
           onClick={openPalette}
-          className="flex items-center gap-3 px-3.5 py-2 bg-ivory hover:bg-cream text-warm-gray rounded-[14px] border border-stone text-xs transition-all duration-[220ms] w-40 sm:w-72"
+          className="flex items-center gap-2 px-3 py-2 bg-ivory hover:bg-cream text-warm-gray rounded-[14px] border border-stone text-xs transition-all duration-[220ms] min-w-[120px] max-w-[260px] flex-1 truncate shrink"
         >
           <Search className="w-4 h-4 text-text-disabled shrink-0" strokeWidth={1.75} />
           <span className="truncate flex-1 text-left">{t('common.search', 'Search invoices, customers, products...')}</span>
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white rounded-md border border-stone font-mono text-[10px] text-text-disabled">
+          <kbd className="hidden xl:inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white rounded-md border border-stone font-mono text-[10px] text-text-disabled shrink-0">
             <Command className="w-3 h-3" /> K
           </kbd>
         </button>
 
         {(biz?.isDemoAccount || user?.isDemoAccount) && (
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-900 rounded-[14px] text-xs font-semibold">
+          <div className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-900 rounded-[12px] text-xs font-semibold shrink-0 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-pulse" />
             {t('common.demoWorkspace', 'Demo Workspace')}
           </div>
         )}
 
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-yellow-champagne/60 border border-yellow-butter/40 rounded-[14px]">
+        <div className="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 bg-yellow-champagne/60 border border-yellow-butter/40 rounded-[12px] shrink-0 whitespace-nowrap">
           <Sparkles className="w-3.5 h-3.5 text-green-bottle" strokeWidth={1.75} />
           <span className="text-xs text-warm-gray">
             Health <strong className="text-green-bottle font-semibold">{metrics.healthScore}</strong>
@@ -94,9 +94,11 @@ export default function Header({ setMobileOpen }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         {/* Global Language Switcher */}
-        <LanguageSwitcher />
+        <div className="shrink-0">
+          <LanguageSwitcher />
+        </div>
 
         {biz?.businessType !== 'salon' && (
           <button

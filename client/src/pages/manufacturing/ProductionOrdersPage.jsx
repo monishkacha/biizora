@@ -19,10 +19,12 @@ import {
   Eye,
   X,
   Layers,
-  Sparkles
+  Sparkles,
+  Database
 } from 'lucide-react';
 import { INITIAL_PRODUCTION_ORDERS, INITIAL_MACHINES, INITIAL_RAW_MATERIALS } from './mockManufacturingData';
 import { useBusiness } from '../../context/BusinessContext';
+import ManufacturingDataMigrationModal from '../../components/manufacturing/ManufacturingDataMigrationModal';
 
 export default function ProductionOrdersPage() {
   const { t } = useTranslation();
@@ -30,6 +32,7 @@ export default function ProductionOrdersPage() {
   const [orders, setOrders] = useState(INITIAL_PRODUCTION_ORDERS);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBomModalOpen, setIsBomModalOpen] = useState(false);
@@ -142,50 +145,83 @@ export default function ProductionOrdersPage() {
             <span>Production Planning</span>
           </div>
           <h1 className="text-2xl font-bold font-display text-charcoal flex items-center gap-2.5">
-            <ClipboardList className="w-7 h-7 text-green-bottle" /> Production Orders
+            <ClipboardList className="w-7 h-7 text-green-bottle" /> {t('mfgPages.poTitle', 'Production Orders')}
           </h1>
           <p className="text-xs text-warm-gray mt-1">
-            Schedule shop floor batches, monitor live progress, assign operators, and track completion timelines.
+            {t('mfgPages.poSubtitle', 'Schedule shop floor batches, monitor live progress, assign operators, and track completion timelines.')}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
+            onClick={() => setIsMigrationModalOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 font-semibold hover:bg-amber-100 text-xs flex items-center gap-1.5 transition-all shadow-subtle"
+          >
+            <Database className="w-4 h-4 text-amber-700" /> {t('mfgPages.dataMigration', 'Data Migration')}
+          </button>
+          <button
             onClick={() => showToast('Production Dispatch Schedule PDF exported')}
             className="px-3.5 py-2 rounded-xl bg-cream border border-stone text-charcoal font-semibold hover:bg-stone/20 text-xs flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-4 h-4" /> Export Schedule
+            <Download className="w-4 h-4" /> {t('mfgPages.exportSchedule', 'Export Schedule')}
           </button>
           <button
             onClick={handleOpenAddModal}
             className="px-4 py-2 rounded-xl bg-green-bottle text-white font-semibold hover:bg-green-forest text-xs flex items-center gap-2 shadow-subtle transition-all"
           >
-            <Plus className="w-4 h-4" /> + Create Production Order
+            <Plus className="w-4 h-4" /> {t('mfgPages.createPo', '+ Create Production Order')}
           </button>
         </div>
       </div>
 
+      <ManufacturingDataMigrationModal
+        isOpen={isMigrationModalOpen}
+        onClose={() => setIsMigrationModalOpen(false)}
+        defaultDataType="production_orders"
+        onImportSuccess={(newRecords) => {
+          if (newRecords && newRecords.length) {
+            const formatted = newRecords.map((r, i) => ({
+              id: `plan-mig-${Date.now()}-${i}`,
+              orderNumber: r.PlanNumber || r.orderNumber || `PLN-2026-${Math.floor(100 + Math.random() * 900)}`,
+              productName: r.ProductName || r.productName || r.name || 'Imported Production Plan',
+              productSku: r.productSku || 'PRD-MIG-01',
+              targetQuantity: Number(r.Quantity || r.quantity || 500),
+              completedQuantity: 0,
+              unit: 'Units',
+              machineName: r.machineName || 'CNC Line 1',
+              supervisor: r.supervisor || r.Shift || 'Shift Supervisor',
+              startDate: new Date().toISOString().split('T')[0],
+              dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+              status: r.Status || r.status || 'Scheduled',
+              priority: 'High',
+            }));
+            setOrders((prev) => [...formatted, ...prev]);
+            showToast(`Successfully imported ${formatted.length} production orders!`);
+          }
+        }}
+      />
+
       {/* Top KPI Summary */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Planned Orders</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.plannedOrders', 'Planned Orders')}</p>
           <h3 className="text-2xl font-bold font-display text-blue-700 mt-1">{plannedCount}</h3>
-          <p className="text-[11px] text-blue-600 mt-0.5">Queued for machine assignment</p>
+          <p className="text-[11px] text-blue-600 mt-0.5">{t('mfgPages.queuedForMachine', 'Queued for machine assignment')}</p>
         </div>
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">In Progress</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.inProgress', 'In Progress')}</p>
           <h3 className="text-2xl font-bold font-display text-emerald-700 mt-1">{inProgressCount}</h3>
-          <p className="text-[11px] text-emerald-600 mt-0.5">Active shop floor production</p>
+          <p className="text-[11px] text-emerald-600 mt-0.5">{t('mfgPages.activeShopFloor', 'Active shop floor production')}</p>
         </div>
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Completed Batches</p>
-          <h3 className="text-2xl font-bold font-display text-purple-700 mt-1">{completedCount}</h3>
-          <p className="text-[11px] text-purple-600 mt-0.5">Transferred to finished warehouse</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.completedBatches', 'Completed Batches')}</p>
+          <h3 className="text-2xl font-bold font-display text-green-bottle mt-1">{completedCount}</h3>
+          <p className="text-[11px] text-green-forest mt-0.5">{t('mfgPages.transferredFinished', 'Transferred to finished warehouse')}</p>
         </div>
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">On Hold / Delayed</p>
-          <h3 className="text-2xl font-bold font-display text-amber-700 mt-1">{onHoldCount}</h3>
-          <p className="text-[11px] text-amber-600 mt-0.5">Material or machine bottlenecks</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.onHoldDelayed', 'On Hold / Delayed')}</p>
+          <h3 className="text-2xl font-bold font-display text-amber-800 mt-1">{onHoldCount}</h3>
+          <p className="text-[11px] text-amber-700 mt-0.5">{t('mfgPages.bottlenecks', 'Material or machine bottlenecks')}</p>
         </div>
       </div>
 
@@ -195,7 +231,7 @@ export default function ProductionOrdersPage() {
           <Search className="w-4 h-4 text-warm-gray absolute left-3 top-2.5" />
           <input
             type="text"
-            placeholder="Search PO#, batch#, product or supervisor..."
+            placeholder={t('mfgPages.searchPoPlaceholder', 'Search PO#, batch#, product or supervisor...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-4 py-2 bg-cream/50 border border-stone rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-green-bottle/30 text-charcoal"
@@ -213,7 +249,7 @@ export default function ProductionOrdersPage() {
                   : 'bg-cream text-warm-gray hover:text-charcoal'
               }`}
             >
-              {st}
+              {st === 'All' ? t('common.all', 'All') : st === 'Planned' ? t('mfgPages.plannedOrders', 'Planned') : st === 'In Progress' ? t('mfgPages.inProgress', 'In Progress') : st === 'Completed' ? t('mfgPages.completedBatches', 'Completed') : t('mfgPages.onHoldDelayed', 'On Hold')}
             </button>
           ))}
         </div>
@@ -225,24 +261,24 @@ export default function ProductionOrdersPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-stone bg-cream/40 text-warm-gray font-bold uppercase tracking-wider">
-                <th className="py-3.5 px-4">PO & Batch No</th>
-                <th className="py-3.5 px-4">Product Name & SKU</th>
-                <th className="py-3.5 px-4 text-right">Batch Qty</th>
-                <th className="py-3.5 px-4">Schedule Dates</th>
-                <th className="py-3.5 px-4">Assigned Machine & Supervisor</th>
-                <th className="py-3.5 px-4 text-center">Progress</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colPoBatch', 'PO & Batch No')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colProductSku', 'Product Name & SKU')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colBatchQty', 'Batch Qty')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colScheduleDates', 'Schedule Dates')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colMachineSupervisor', 'Assigned Machine & Supervisor')}</th>
+                <th className="py-3.5 px-4 text-center">{t('mfgPages.colProgress', 'Progress')}</th>
+                <th className="py-3.5 px-4 text-center">{t('mfgPages.colStatus', 'Status')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colActions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone text-charcoal font-medium">
               {filteredOrders.map((po) => {
                 const getStatusColor = (st) => {
                   switch (st) {
-                    case 'Planned': return 'bg-blue-100 text-blue-800';
-                    case 'In Progress': return 'bg-emerald-100 text-emerald-800';
-                    case 'Completed': return 'bg-purple-100 text-purple-800';
-                    case 'On Hold': return 'bg-amber-100 text-amber-900';
+                    case 'Planned': return 'bg-blue-100 text-blue-800 border border-blue-200';
+                    case 'In Progress': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                    case 'Completed': return 'bg-green-bottle/10 text-green-bottle border border-green-bottle/30';
+                    case 'On Hold': return 'bg-amber-100 text-amber-900 border border-amber-300';
                     default: return 'bg-stone/40 text-warm-gray';
                   }
                 };
@@ -277,9 +313,9 @@ export default function ProductionOrdersPage() {
                           <div
                             className={`h-full transition-all duration-300 ${
                               po.progress === 100
-                                ? 'bg-emerald-600'
-                                : po.progress > 0
                                 ? 'bg-green-bottle'
+                                : po.progress > 0
+                                ? 'bg-emerald-600'
                                 : 'bg-stone/60'
                             }`}
                             style={{ width: `${po.progress}%` }}
@@ -287,16 +323,16 @@ export default function ProductionOrdersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusColor(po.status)}`}>
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(po.status)}`}>
                         {po.status}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-right space-x-1">
+                    <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                       {po.status === 'Planned' && (
                         <button
                           onClick={() => handleStatusToggle(po.id, 'In Progress', 25)}
-                          className="px-2 py-1 bg-emerald-600 text-white rounded text-[10px] font-bold inline-flex items-center gap-1"
+                          className="px-2.5 py-1 bg-green-bottle hover:bg-green-forest text-white rounded-lg text-[10px] font-bold inline-flex items-center gap-1 shadow-subtle transition-all"
                         >
                           <Play className="w-3 h-3" /> Start
                         </button>
@@ -305,13 +341,13 @@ export default function ProductionOrdersPage() {
                         <>
                           <button
                             onClick={() => handleStatusToggle(po.id, 'Completed', 100)}
-                            className="px-2 py-1 bg-purple-600 text-white rounded text-[10px] font-bold inline-flex items-center gap-1"
+                            className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[10px] font-bold inline-flex items-center gap-1 shadow-subtle transition-all"
                           >
                             <CheckCircle2 className="w-3 h-3" /> Complete
                           </button>
                           <button
                             onClick={() => handleStatusToggle(po.id, 'On Hold')}
-                            className="px-2 py-1 bg-amber-600 text-white rounded text-[10px] font-bold"
+                            className="px-2.5 py-1 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-[10px] font-bold shadow-subtle transition-all"
                           >
                             Pause
                           </button>

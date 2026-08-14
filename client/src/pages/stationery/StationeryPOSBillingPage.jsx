@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBusiness } from '../../context/BusinessContext';
+import CameraBarcodeScannerModal from '../../components/ui/CameraBarcodeScannerModal';
 import {
   STATIONERY_CATEGORIES,
   PRINT_SERVICES,
@@ -24,6 +25,7 @@ import {
   ArrowRight,
   Receipt,
   FileText,
+  Camera,
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -46,6 +48,7 @@ export default function StationeryPOSBillingPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
+  const [isCameraScannerOpen, setIsCameraScannerOpen] = useState(false);
 
   // Customer State
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -96,6 +99,25 @@ export default function StationeryPOSBillingPage() {
       showToast(`Added: ${match.name}`);
     } else {
       showToast(`No product found with barcode: ${barcodeInput}`, 'error');
+    }
+  };
+
+  const handleCameraScanSuccess = (code, matchedProduct) => {
+    if (matchedProduct) {
+      addProductToCart(matchedProduct);
+      showToast(`Added: ${matchedProduct.name}`);
+    } else {
+      const match = products.find(
+        (p) =>
+          (p.barcode && p.barcode.toLowerCase() === code.toLowerCase()) ||
+          (p.sku && p.sku.toLowerCase() === code.toLowerCase())
+      );
+      if (match) {
+        addProductToCart(match);
+        showToast(`Added: ${match.name}`);
+      } else {
+        showToast(`No product found with barcode: ${code}`, 'error');
+      }
     }
   };
 
@@ -487,6 +509,14 @@ export default function StationeryPOSBillingPage() {
               </div>
               <button type="submit" className="bz-btn-primary px-4 text-xs">
                 Scan
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCameraScannerOpen(true)}
+                className="px-3.5 py-2 bg-green-bottle text-white font-semibold text-xs rounded-xl hover:bg-green-forest flex items-center gap-1.5 shadow-subtle shrink-0"
+                title="Open Laptop / Mobile Front Camera Barcode Scanner"
+              >
+                <Camera className="w-4 h-4" /> Camera Scan
               </button>
             </form>
 
@@ -1000,6 +1030,15 @@ export default function StationeryPOSBillingPage() {
           </div>
         </div>
       )}
+
+      <CameraBarcodeScannerModal
+        isOpen={isCameraScannerOpen}
+        onClose={() => setIsCameraScannerOpen(false)}
+        onScanSuccess={handleCameraScanSuccess}
+        products={products}
+        title="Stationery Barcode Camera Scanner"
+        subtitle="Opens PC/Laptop or Mobile front camera to scan product barcodes"
+      />
     </div>
   );
 }

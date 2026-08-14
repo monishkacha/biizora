@@ -34,11 +34,11 @@ export default function SupportTopBar({ dismissable = false }) {
             <span className="tracking-wide">Business Enquiries:</span>
           </div>
           <a
-            href="mailto:biizora@gmail.com"
+            href="mailto:biizoraos@gmail.com"
             className="inline-flex items-center gap-1.5 hover:text-yellow-butter transition-colors font-medium"
           >
             <Mail className="w-3.5 h-3.5 shrink-0" />
-            biizora@gmail.com
+            biizoraos@gmail.com
           </a>
         </div>
 

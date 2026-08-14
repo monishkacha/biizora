@@ -86,7 +86,7 @@ export default function SalonReportsPage() {
                 { service: isGu ? 'હેરકટ (વાળ કટીંગ)' : 'Haircut', share: '₹145,000 (42%)', color: 'bg-green-bottle' },
                 { service: isGu ? 'હેર કલર' : 'Hair Color', share: '₹96,000 (28%)', color: 'bg-blue-500' },
                 { service: isGu ? 'હેર સ્પા' : 'Hair Spa', share: '₹62,000 (18%)', color: 'bg-yellow-butter' },
-                { service: isGu ? 'નેઇલ્સ અને બ્યુટી' : 'Nails & Beauty', share: '₹41,000 (12%)', color: 'bg-purple-500' },
+                { service: isGu ? 'નેઇલ્સ અને બ્યુટી' : 'Nails & Beauty', share: '₹41,000 (12%)', color: 'bg-emerald-700' },
               ].map((row, i) => (
                 <div key={i} className="space-y-1">
                   <div className="flex justify-between font-semibold">

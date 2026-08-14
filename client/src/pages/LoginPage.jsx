@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Eye, EyeOff, ArrowRight, ChevronDown, Mail, KeyRound, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, ChevronDown, Mail, KeyRound, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import AuthBrandHeader from '../components/AuthBrandHeader';
 
 function DemoWorkspaceDropdown({ onSelect, disabled, t }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -181,12 +182,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md mx-auto space-y-8">
         <div className="text-center space-y-3">
-          <Link to="/" className="inline-flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-[14px] bg-green-bottle text-white flex items-center justify-center">
-              <Sparkles className="w-5 h-5" strokeWidth={1.75} />
-            </div>
-            <span className="text-xl font-display font-semibold tracking-tight">Biizora</span>
-          </Link>
+          <AuthBrandHeader />
           <div>
             <h1 className="text-2xl font-display font-semibold tracking-tight">{t('auth.welcomeBack', 'Welcome back')}</h1>
             <p className="mt-1.5 text-sm text-warm-gray">{t('auth.signInSubtitle', 'Sign in to your business operating system')}</p>

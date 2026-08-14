@@ -473,10 +473,10 @@ export default function SupportPage() {
           available after you sign in to your Biizora account.
         </p>
         <a
-          href="mailto:biizora@gmail.com"
+          href="mailto:biizoraos@gmail.com"
           className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-yellow-butter text-charcoal font-semibold text-sm hover:bg-yellow-honey"
         >
-          biizora@gmail.com
+          biizoraos@gmail.com
         </a>
       </div>
       <p className="text-sm text-warm-gray">

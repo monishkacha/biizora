@@ -47,56 +47,58 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-cream/30 text-charcoal flex flex-col font-sans">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex-1">
         
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <span className="text-xs font-bold text-accent dark:text-text-muted uppercase tracking-widest">Transparent Pricing</span>
-          <h1 className="text-4xl font-extrabold tracking-tight">Simple Plans for Every Stage of Growth</h1>
-          <p className="text-slate-600 dark:text-slate-400">All plans include a 14-day free trial. Cancel anytime with zero commitment.</p>
+          <span className="text-xs font-bold text-green-bottle uppercase tracking-widest bg-green-bottle/10 px-3 py-1 rounded-full border border-green-bottle/20">
+            Transparent Subscription Plans
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold text-charcoal tracking-tight">Simple Plans for Every Stage of Growth</h1>
+          <p className="text-warm-gray text-sm">All plans include a 14-day free trial. Cancel anytime with zero commitment.</p>
           
           {/* Annual vs Monthly Switch */}
           <div className="pt-4 flex items-center justify-center gap-3">
-            <span className={`text-sm font-medium ${!annualBilling ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>Monthly</span>
+            <span className={`text-sm font-semibold ${!annualBilling ? 'text-charcoal' : 'text-warm-gray'}`}>Monthly</span>
             <button
               onClick={() => setAnnualBilling(!annualBilling)}
-              className="w-12 h-6 bg-accent rounded-full p-1 transition-colors relative"
+              className="w-12 h-6 bg-green-bottle rounded-full p-1 transition-colors relative"
             >
               <div className={`w-4 h-4 bg-white rounded-full transition-transform ${annualBilling ? 'translate-x-6' : 'translate-x-0'}`} />
             </button>
-            <span className={`text-sm font-medium ${annualBilling ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}>
-              Annual <span className="text-xs font-bold text-accent-soft bg-emerald-100 dark:bg-bg-secondary px-2 py-0.5 rounded-full">Save 20%</span>
+            <span className={`text-sm font-semibold ${annualBilling ? 'text-charcoal' : 'text-warm-gray'}`}>
+              Annual <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200">Save 20%</span>
             </span>
           </div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {plans.map((p, i) => (
             <div
               key={i}
-              className={`p-6 rounded-[20px] bg-white dark:bg-slate-900 border flex flex-col justify-between relative shadow-card ${
-                p.popular ? 'border-blue-600 ring-2 ring-blue-600/20' : 'border-slate-200 dark:border-slate-800'
+              className={`p-6 rounded-[22px] bg-white border flex flex-col justify-between relative shadow-card transition-all hover:shadow-md ${
+                p.popular ? 'border-green-bottle ring-2 ring-green-bottle/20' : 'border-stone'
               }`}
             >
               {p.popular && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-white text-[11px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1 shadow-md">
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3.5 py-1 bg-green-bottle text-white text-[10px] font-bold rounded-full uppercase tracking-wider flex items-center gap-1 shadow-subtle">
                   <Sparkles className="w-3 h-3" /> Most Popular
                 </span>
               )}
 
               <div>
-                <h3 className="text-xl font-bold">{p.name}</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{p.desc}</p>
+                <h3 className="text-xl font-bold font-display text-charcoal">{p.name}</h3>
+                <p className="text-xs text-warm-gray mt-1">{p.desc}</p>
                 <div className="my-6">
-                  <span className="text-4xl font-extrabold">{p.price}</span>
-                  <span className="text-xs text-slate-500 ml-1.5">{p.period}</span>
+                  <span className="text-3xl sm:text-4xl font-extrabold text-charcoal font-display">{p.price}</span>
+                  <span className="text-xs text-warm-gray ml-1.5">{p.period}</span>
                 </div>
-                <ul className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+                <ul className="space-y-3 text-xs text-charcoal font-medium">
                   {p.features.map((feat, fIdx) => (
                     <li key={fIdx} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-accent-soft shrink-0" />
+                      <Check className="w-4 h-4 text-green-bottle shrink-0" />
                       <span>{feat}</span>
                     </li>
                   ))}
@@ -106,10 +108,10 @@ export default function PricingPage() {
               <div className="pt-8">
                 <Link
                   to="/register"
-                  className={`w-full block text-center py-3 rounded-xl font-bold text-sm transition-all ${
+                  className={`w-full block text-center py-3 rounded-xl font-bold text-xs transition-all ${
                     p.popular
-                      ? 'bg-accent hover:bg-text text-white shadow-lg shadow-subtle'
-                      : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white'
+                      ? 'bg-green-bottle hover:bg-green-forest text-white shadow-subtle'
+                      : 'bg-cream border border-stone hover:bg-stone/20 text-charcoal'
                   }`}
                 >
                   {p.cta}

@@ -1,11 +1,127 @@
+export function isManufacturingWorkspace(workspace) {
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname.toLowerCase();
+    if (
+      path.includes('/smart-production-planner') ||
+      path.includes('/raw-materials') ||
+      path.includes('/production-orders') ||
+      path.includes('/machines') ||
+      path.includes('/warehouse') ||
+      path.includes('/qc')
+    ) {
+      return true;
+    }
+  }
+  if (!workspace) return false;
+  if (typeof workspace === 'string') return workspace.toLowerCase() === 'manufacturing';
+  return (
+    workspace.category === 'manufacturing' ||
+    workspace.businessType === 'manufacturing' ||
+    workspace.slug === 'manufacturing-demo' ||
+    workspace.email === 'manufacturing-demo@biizora.com' ||
+    (workspace.name && workspace.name.toLowerCase().includes('manufactur')) ||
+    (workspace.businessName && workspace.businessName.toLowerCase().includes('manufactur')) ||
+    (workspace.type && workspace.type.toLowerCase().includes('manufactur'))
+  );
+}
+
+export function isSalonWorkspace(workspace) {
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('/salon') || path.includes('/glow')) return true;
+  }
+  if (!workspace) return false;
+  if (typeof workspace === 'string') return workspace.toLowerCase() === 'salon';
+  const name = (workspace.name || workspace.businessName || '').toLowerCase();
+  const slug = (workspace.slug || '').toLowerCase();
+  const email = (workspace.email || '').toLowerCase();
+  const type = (workspace.businessType || workspace.category || '').toLowerCase();
+  return (
+    type === 'salon' ||
+    slug === 'salon-demo' ||
+    slug === 'glow-salon-studio' ||
+    email === 'salon-demo@biizora.com' ||
+    name.includes('salon') ||
+    name.includes('glow')
+  );
+}
+
+export function isRestaurantWorkspace(workspace) {
+  if (!workspace) return false;
+  if (typeof workspace === 'string') return workspace.toLowerCase() === 'restaurant';
+  return (
+    workspace.category === 'restaurant' ||
+    workspace.businessType === 'restaurant' ||
+    workspace.slug === 'restaurant-demo' ||
+    workspace.email === 'restaurant-demo@biizora.com' ||
+    (workspace.name && (workspace.name.toLowerCase().includes('restaurant') || workspace.name.toLowerCase().includes('table') || workspace.name.toLowerCase().includes('olive')))
+  );
+}
+
 export function isStationeryWorkspace(workspace) {
   if (!workspace) return false;
+  if (typeof workspace === 'string') return workspace.toLowerCase() === 'stationery';
   return (
     workspace.category === 'stationery' ||
     workspace.slug === 'stationery-demo' ||
     workspace.businessType === 'stationery' ||
-    workspace.email === 'stationery-demo@biizora.com'
+    workspace.email === 'stationery-demo@biizora.com' ||
+    (workspace.name && (workspace.name.toLowerCase().includes('stationery') || workspace.name.toLowerCase().includes('xerox')))
   );
+}
+
+export function getIndustryCapabilities(workspaceOrType) {
+  let type = 'retail';
+  if (typeof workspaceOrType === 'string') {
+    type = workspaceOrType.toLowerCase();
+  } else if (workspaceOrType && typeof workspaceOrType === 'object') {
+    if (isManufacturingWorkspace(workspaceOrType)) type = 'manufacturing';
+    else if (isSalonWorkspace(workspaceOrType)) type = 'salon';
+    else if (isRestaurantWorkspace(workspaceOrType)) type = 'restaurant';
+    else if (isStationeryWorkspace(workspaceOrType)) type = 'stationery';
+    else type = (workspaceOrType.businessType || workspaceOrType.category || 'retail').toLowerCase();
+  }
+
+  const isSalon = type === 'salon';
+  const isRestaurant = type === 'restaurant';
+  const isRetail = type === 'retail';
+  const isManufacturing = type === 'manufacturing';
+  const isStationery = type === 'stationery';
+
+  return {
+    businessType: type,
+    osName: isSalon ? 'Salon OS' : isRestaurant ? 'Restaurant OS' : isManufacturing ? 'Manufacturing OS' : isStationery ? 'Stationery OS' : 'Retail OS',
+    isSalon,
+    isRestaurant,
+    isRetail,
+    isManufacturing,
+    isStationery,
+
+    // Capability Flags
+    showAppointments: isSalon,
+    showCalendar: isSalon,
+    showServices: isSalon,
+    showStylists: isSalon,
+    showOnlineBooking: isSalon,
+
+    showTables: isRestaurant,
+    showKitchen: isRestaurant,
+    showMenu: isRestaurant,
+    showDeliveryIntegrations: isRestaurant, // Swiggy/Zomato ONLY on Restaurant
+
+    showProductionOrders: isManufacturing,
+    showRawMaterials: isManufacturing,
+    showSmartPlanner: isManufacturing,
+    showQuotations: isManufacturing,
+
+    showSchoolOrders: isStationery,
+    showPrintXerox: isStationery,
+    showPickupCodes: isStationery || isRestaurant,
+
+    showBarcode: isRetail || isStationery || isRestaurant,
+    showDataMigration: isRetail || isManufacturing || isStationery,
+    showSuppliers: isRetail || isManufacturing || isStationery,
+  };
 }
 
 export const STATIONERY_CATEGORIES = [

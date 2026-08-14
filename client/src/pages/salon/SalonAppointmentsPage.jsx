@@ -41,6 +41,7 @@ const timeSlots = [
 ];
 
 export default function SalonAppointmentsPage() {
+  const { t, i18n } = useTranslation();
   const { customers, addCustomer } = useBusiness();
   const { addNotification } = useNotification();
 
@@ -235,6 +236,7 @@ export default function SalonAppointmentsPage() {
       a.client.toLowerCase().includes(search.toLowerCase()) ||
       (a.phone && a.phone.includes(search));
     const matchesStylist = stylistFilter === 'All' || a.stylist === stylistFilter;
+    const matchesStatus = statusFilter === 'All' || a.status === statusFilter;
     return matchesSearch && matchesStylist && matchesStatus;
   });
   const isGu = i18n.language?.startsWith('gu');
@@ -344,13 +346,13 @@ export default function SalonAppointmentsPage() {
                         {appt.stylist}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        appt.status === 'Confirmed' ? 'bg-green-sage/20 text-green-bottle' :
-                        appt.status === 'In Progress' ? 'bg-blue-50 text-blue-600' :
-                        appt.status === 'Completed' ? 'bg-stone text-warm-gray' :
-                        appt.status === 'Cancelled' ? 'bg-red-50 text-red-600' :
-                        'bg-yellow-champagne text-mustard'
+                    <td className="p-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        appt.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                        appt.status === 'In Progress' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                        appt.status === 'Completed' ? 'bg-stone-100 text-charcoal border border-stone-200' :
+                        appt.status === 'Cancelled' ? 'bg-red-100 text-red-800 border border-red-200' :
+                        'bg-amber-100 text-amber-900 border border-amber-300'
                       }`}>
                         {appt.status}
                       </span>

@@ -10,6 +10,8 @@ import { Skeleton } from '../components/ui/Badge';
 
 import { isStationeryWorkspace } from '../config/workspaceFeatures';
 
+import BiizoraPageLoader from '../components/ui/BiizoraPageLoader';
+
 const MEMBERSHIP_PATHS = ['/app/membership', '/app/pending', '/app/billing'];
 
 export default function AppLayout() {
@@ -25,17 +27,7 @@ export default function AppLayout() {
   }, [location.pathname]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-ivory flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-11 h-11 mx-auto rounded-[14px] bg-green-bottle text-white flex items-center justify-center font-display font-semibold text-lg shadow-card">
-            B
-          </div>
-          <p className="text-sm text-warm-gray">Loading Biizora…</p>
-          <Skeleton className="h-1.5 w-36 mx-auto" />
-        </div>
-      </div>
-    );
+    return <BiizoraPageLoader message="Initializing Biizora Engine..." />;
   }
 
   if (!user) {

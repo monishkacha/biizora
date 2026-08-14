@@ -68,9 +68,9 @@ export default function MembershipPage() {
     <div className="space-y-8 max-w-4xl">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-warm-gray">Subscription</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-warm-gray">{isGu ? 'સબ્સ્ક્રિપ્શન' : 'Subscription'}</p>
           <h1 className="font-display text-2xl sm:text-3xl font-semibold text-charcoal tracking-tight">
-            Membership
+            {isGu ? 'મેમ્બરશિપ પ્લાન' : 'Membership'}
           </h1>
           <p className="text-sm text-warm-gray mt-1">
             {biz?.name || 'Your business'} ·{' '}
@@ -79,31 +79,30 @@ export default function MembershipPage() {
         </div>
         {isDemo && (
           <span className="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-900 text-xs font-semibold">
-            Demo Enterprise Account
+            {isGu ? 'ડેમો એન્ટરપ્રાઇઝ એકાઉન્ટ' : 'Demo Enterprise Account'}
           </span>
         )}
       </div>
 
       {!isActive && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-900 space-y-2">
-          <p className="font-semibold">Your account has been created successfully.</p>
+          <p className="font-semibold">{isGu ? 'તમારું એકાઉન્ટ સફળતાપૂર્વક બનાવવામાં આવ્યું છે.' : 'Your account has been created successfully.'}</p>
           <p>
-            Your subscription is currently <strong>{status}</strong>. Dashboard access is paused until
-            activation. Please contact{' '}
+            {isGu ? 'તમારું સબ્સ્ક્રિપ્શન હાલમાં' : 'Your subscription is currently'} <strong>{status}</strong>. {isGu ? 'ઍક્સેસ માટે કૃપા કરીને સંપર્ક કરો' : 'Dashboard access is paused until activation. Please contact'}{' '}
             <a href="mailto:biizora@gmail.com" className="underline font-medium">
               biizora@gmail.com
             </a>
-            . Once activated you will automatically receive dashboard access.
+            .
           </p>
         </div>
       )}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {[
-          ['Current Plan', isDemo ? 'Enterprise' : plan.name],
-          ['Status', status],
-          ['Billing Cycle', isDemo ? 'Monthly' : (activated !== '—' ? 'Active' : 'Pending')],
-          ['Next Renewal / Expiry', expiry],
+          [isGu ? 'હાલનો પ્લાન' : 'Current Plan', isDemo ? (isGu ? 'એન્ટરપ્રાઇઝ' : 'Enterprise') : plan.name],
+          [isGu ? 'સ્થિતિ' : 'Status', status === 'Active' ? (isGu ? 'સક્રિય' : 'Active') : status],
+          [isGu ? 'બિલિંગ સાયકલ' : 'Billing Cycle', isDemo ? (isGu ? 'માસિક' : 'Monthly') : (activated !== '—' ? (isGu ? 'સક્રિય' : 'Active') : 'Pending')],
+          [isGu ? 'આગામી રિન્યુઅલ / એક્સપાયરી' : 'Next Renewal / Expiry', expiry],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-stone bg-white p-4 shadow-subtle">
             <p className="text-[11px] uppercase tracking-wider text-warm-gray">{label}</p>

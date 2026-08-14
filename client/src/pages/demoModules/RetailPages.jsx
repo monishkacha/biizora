@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import CameraBarcodeScannerModal from '../../components/ui/CameraBarcodeScannerModal';
 import {
   Store,
   ShoppingCart,
@@ -13,18 +14,89 @@ import {
   AlertTriangle,
   Users,
   Truck,
-  FileText
+  FileText,
+  Camera
 } from 'lucide-react';
 
 export function RetailBillingPage() {
   const [cart, setCart] = useState([
-    { id: 1, name: 'Smart Touchscreen POS Terminal X1', price: 16500, qty: 1, tax: 18 },
-    { id: 2, name: 'Thermal Receipt Rolls (Box 50)', price: 1250, qty: 2, tax: 12 },
+    { id: 1, name: 'Smart Touchscreen POS Terminal X1', price: 16500, qty: 1, tax: 18, barcode: '8901001111' },
+    { id: 2, name: 'Thermal Receipt Rolls (Box 50)', price: 1250, qty: 2, tax: 12, barcode: '8901002222' },
   ]);
+
+  const retailProducts = [
+    { id: 1, name: 'Smart Touchscreen POS Terminal X1', price: 16500, tax: 18, barcode: '8901001111', stock: 12 },
+    { id: 2, name: 'Thermal Receipt Rolls (Box 50)', price: 1250, tax: 12, barcode: '8901002222', stock: 50 },
+    { id: 3, name: 'Wireless Barcode Scanner X1', price: 3499, tax: 18, barcode: '8901003333', stock: 8 },
+    { id: 4, name: 'Android Cash Drawer Unit', price: 4200, tax: 18, barcode: '8901004444', stock: 5 },
+    { id: 5, name: 'Thermal Label Printer 4-Inch', price: 8900, tax: 18, barcode: '8901005555', stock: 15 },
+  ];
+
+  const [barcodeInput, setBarcodeInput] = useState('');
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scanMessage, setScanMessage] = useState(null);
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const taxTotal = cart.reduce((sum, item) => sum + (item.price * item.qty * (item.tax / 100)), 0);
   const grandTotal = subtotal + taxTotal;
+
+  const addOrUpdateCart = (product) => {
+    setCart((prev) => {
+      const idx = prev.findIndex((i) => i.id === product.id || i.name.toLowerCase() === product.name.toLowerCase());
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = { ...next[idx], qty: next[idx].qty + 1 };
+        return next;
+      }
+      return [
+        ...prev,
+        {
+          id: product.id || Date.now(),
+          name: product.name,
+          price: product.price,
+          qty: 1,
+          tax: product.tax || 18,
+          barcode: product.barcode,
+        },
+      ];
+    });
+    setScanMessage({ type: 'success', text: `Added "${product.name}" to bill!` });
+    setTimeout(() => setScanMessage(null), 3500);
+  };
+
+  const handleBarcodeSubmit = (e) => {
+    e.preventDefault();
+    if (!barcodeInput.trim()) return;
+    const matched = retailProducts.find(
+      (p) =>
+        p.barcode.toLowerCase() === barcodeInput.trim().toLowerCase() ||
+        p.name.toLowerCase().includes(barcodeInput.trim().toLowerCase())
+    );
+
+    if (matched) {
+      addOrUpdateCart(matched);
+      setBarcodeInput('');
+    } else {
+      setScanMessage({ type: 'error', text: `No product found matching "${barcodeInput}". Try manual search.` });
+      setTimeout(() => setScanMessage(null), 4000);
+    }
+  };
+
+  const handleCameraScanSuccess = (scannedCode, matchedProduct) => {
+    if (matchedProduct) {
+      addOrUpdateCart(matchedProduct);
+    } else {
+      const matched = retailProducts.find(
+        (p) => p.barcode.toLowerCase() === scannedCode.toLowerCase()
+      );
+      if (matched) {
+        addOrUpdateCart(matched);
+      } else {
+        setScanMessage({ type: 'error', text: `Scanned code "${scannedCode}" is not registered in product catalog.` });
+        setTimeout(() => setScanMessage(null), 4000);
+      }
+    }
+  };
 
   const updateQty = (id, delta) => {
     setCart(prev => prev.map(item => {
@@ -46,22 +118,52 @@ export function RetailBillingPage() {
         <div>
           <span className="text-xs font-bold text-green-bottle uppercase tracking-wider">Retail POS Terminal</span>
           <h1 className="text-2xl font-display font-semibold text-charcoal">Retail Counter Billing</h1>
-          <p className="text-xs text-warm-gray mt-0.5">Fast barcode scanning, GST tax auto-calculation, and quick receipt printing</p>
+          <p className="text-xs text-warm-gray mt-0.5">Fast camera barcode scanning, GST tax auto-calculation, and quick receipt printing</p>
         </div>
       </div>
+
+      {scanMessage && (
+        <div
+          className={`p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-between animate-in fade-in ${
+            scanMessage.type === 'success'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              : 'bg-amber-50 border-amber-200 text-amber-900'
+          }`}
+        >
+          <span>{scanMessage.text}</span>
+          <button onClick={() => setScanMessage(null)} className="text-warm-gray hover:text-charcoal">✕</button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Side: Product Selector & Cart */}
         <div className="lg:col-span-2 space-y-4">
           <Card className="p-4 space-y-3">
-            <div className="relative">
-              <Barcode className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" />
-              <input
-                type="text"
-                placeholder="Scan barcode or type product name..."
-                className="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-green-bottle font-mono"
-              />
-            </div>
+            <form onSubmit={handleBarcodeSubmit} className="flex gap-2">
+              <div className="relative flex-1">
+                <Barcode className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray" />
+                <input
+                  type="text"
+                  value={barcodeInput}
+                  onChange={(e) => setBarcodeInput(e.target.value)}
+                  placeholder="Scan barcode or type product name..."
+                  className="w-full pl-10 pr-4 py-2.5 text-sm bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:border-green-bottle font-mono"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-4 py-2.5 bg-cream border border-stone text-charcoal font-semibold text-xs rounded-xl hover:bg-stone/20"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsScannerOpen(true)}
+                className="px-4 py-2.5 bg-green-bottle text-white font-semibold text-xs rounded-xl hover:bg-green-forest flex items-center gap-1.5 shadow-subtle"
+              >
+                <Camera className="w-4 h-4" /> Camera Scan
+              </button>
+            </form>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -78,7 +180,10 @@ export function RetailBillingPage() {
                 <tbody className="divide-y divide-stone-200">
                   {cart.map((item) => (
                     <tr key={item.id} className="hover:bg-cream/30">
-                      <td className="py-3 px-3 font-bold text-charcoal">{item.name}</td>
+                      <td className="py-3 px-3">
+                        <p className="font-bold text-charcoal">{item.name}</p>
+                        {item.barcode && <p className="text-[10px] text-warm-gray font-mono">Bar: {item.barcode}</p>}
+                      </td>
                       <td className="py-3 px-3">₹{item.price.toLocaleString()}</td>
                       <td className="py-3 px-3">
                         <div className="flex items-center gap-1.5 border border-stone-300 rounded-lg px-2 py-0.5 w-fit">
@@ -96,6 +201,13 @@ export function RetailBillingPage() {
                       </td>
                     </tr>
                   ))}
+                  {cart.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="py-8 text-center text-warm-gray">
+                        Cart is currently empty. Scan a product barcode or enter product name above.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -130,6 +242,15 @@ export function RetailBillingPage() {
           </div>
         </Card>
       </div>
+
+      <CameraBarcodeScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onScanSuccess={handleCameraScanSuccess}
+        products={retailProducts}
+        title="Retail POS Barcode Camera Scanner"
+        subtitle="Hold laptop/PC or mobile camera over product barcode"
+      />
     </div>
   );
 }

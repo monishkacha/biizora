@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import AuthBrandHeader from '../components/AuthBrandHeader';
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -13,12 +14,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex flex-col justify-center py-12 px-4">
       <div className="w-full max-w-md mx-auto space-y-8">
         <div className="text-center space-y-3">
-          <Link to="/" className="inline-flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-[14px] bg-accent text-white flex items-center justify-center">
-              <Sparkles className="w-5 h-5" strokeWidth={1.75} />
-            </div>
-            <span className="text-xl font-display font-semibold">Biizora</span>
-          </Link>
+          <AuthBrandHeader />
           <h1 className="text-2xl font-display font-semibold tracking-tight">{t('auth.resetPasswordTitle', 'Reset password')}</h1>
           <p className="text-sm text-text-muted">{t('auth.resetPasswordSubtitle', "We'll email you a reset link")}</p>
         </div>

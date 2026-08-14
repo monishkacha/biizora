@@ -29,6 +29,7 @@ export const INDUSTRY_DEMOS = [
     name: 'Retail Demo',
     businessName: 'Apex Retail Outlet',
     businessType: 'retail',
+    slug: 'retail-demo',
     customFeatures: ['BarcodeScanner', 'SalesForecast', 'InventoryPrediction'],
     plan: 'enterprise',
     isDemoAccount: true,
@@ -39,6 +40,7 @@ export const INDUSTRY_DEMOS = [
     name: 'Salon Demo',
     businessName: 'Glow Salon Studio',
     businessType: 'salon',
+    slug: 'salon-demo',
     customFeatures: ['AIAppointmentSuggestions', 'CustomerLoyalty', 'SmartScheduling'],
     plan: 'enterprise',
     isDemoAccount: true,
@@ -49,6 +51,7 @@ export const INDUSTRY_DEMOS = [
     name: 'Restaurant Demo',
     businessName: 'The Olive Table',
     businessType: 'restaurant',
+    slug: 'restaurant-demo',
     customFeatures: ['KitchenAnalytics', 'PeakHourPrediction', 'TableReservationAI'],
     plan: 'enterprise',
     isDemoAccount: true,
@@ -59,6 +62,7 @@ export const INDUSTRY_DEMOS = [
     name: 'Manufacturing Demo',
     businessName: 'Precision Works MFG',
     businessType: 'manufacturing',
+    slug: 'manufacturing-demo',
     customFeatures: ['ProductionDashboard', 'MachineMonitoring', 'QualityReports'],
     plan: 'enterprise',
     isDemoAccount: true,
@@ -69,6 +73,7 @@ export const INDUSTRY_DEMOS = [
     name: 'Stationery Demo',
     businessName: 'PageCraft Stationery',
     businessType: 'stationery',
+    slug: 'stationery-demo',
     customFeatures: ['BulkSchoolOrders', 'WholesalePricing', 'InventoryAlerts'],
     plan: 'enterprise',
     isDemoAccount: true,
@@ -78,7 +83,8 @@ export const INDUSTRY_DEMOS = [
     password: 'demo123',
     name: 'Fleet Demo',
     businessName: 'FleetFirst Logistics',
-    businessType: 'retail',
+    businessType: 'general',
+    slug: 'fleet-demo',
     customFeatures: ['vehicleTracking', 'SalesForecast'],
     plan: 'enterprise',
     isDemoAccount: true,
@@ -93,6 +99,17 @@ export async function ensureDemoSeed() {
   await ensureManufacturingDemo();
   for (const spec of INDUSTRY_DEMOS) {
     await ensureIndustryDemoAccount(spec);
+  }
+  // Ensure primary salon demo business in DB has explicit slug set
+  try {
+    const salonBiz = (await Business.findOne({ email: 'salon-demo@biizora.com' })) || (await Business.findOne({ businessType: 'salon' }));
+    if (salonBiz) {
+      salonBiz.slug = 'glow-salon-studio';
+      salonBiz.businessType = 'salon';
+      await salonBiz.save();
+    }
+  } catch (err) {
+    /* ignore slug duplicate if index exists */
   }
   console.log('✓ Demo accounts ready (one business per account)');
   console.log(`  Admin: ${DEMO_EMAIL} / ${DEMO_PASSWORD}`);
@@ -152,6 +169,7 @@ async function ensureManufacturingDemo() {
   if (!business) {
     business = await Business.create({
       name: 'Apex Manufacturing Works',
+      slug: 'apex-manufacturing-works',
       tradeName: 'Apex Manufacturing',
       ownerName: 'Manufacturing Lead',
       industry: 'Manufacturing',
@@ -201,6 +219,7 @@ async function ensureManufacturingDemo() {
     });
   } else {
     business.name = 'Apex Manufacturing Works';
+    business.slug = 'apex-manufacturing-works';
     business.subscriptionStatus = 'Active';
     business.isActive = true;
     business.isDemoAccount = true;
@@ -257,6 +276,7 @@ async function ensureIndustryDemoAccount(spec) {
   if (!business) {
     business = await Business.create({
       name: spec.businessName,
+      slug: spec.slug || `${spec.businessType}-demo`,
       tradeName: spec.businessName,
       ownerName: spec.name,
       email: spec.email,
@@ -286,6 +306,7 @@ async function ensureIndustryDemoAccount(spec) {
     });
   } else {
     business.name = spec.businessName;
+    business.slug = spec.slug || `${spec.businessType}-demo`;
     business.businessType = spec.businessType;
     business.subscriptionStatus = 'Active';
     business.isActive = true;
@@ -356,17 +377,24 @@ async function seedDemoRecords(user, business) {
       { name: 'Bulk School Supply Box', type: 'product', sku: 'STA-BOX-SCH', hsnSac: '482020', sellingPrice: 1500, costPrice: 950, gstRate: 12, stock: 50, minStockLevel: 10, unit: 'box' },
       { name: 'Wholesale Cartridge Paper (Ream)', type: 'product', sku: 'STA-PAP-CART', hsnSac: '480254', sellingPrice: 800, costPrice: 450, gstRate: 12, stock: 120, minStockLevel: 20, unit: 'ream' },
     ];
-  } else {
     customerSpecs = [
-      { name: 'Apex Global Solutions', contactPerson: 'Rahul Verma', email: 'rahul@apexglobal.com', phone: '+91 98111 22334', gstin: '27AAACA1234A1Z1', isIgst: true, outstandingBalance: 45000, totalSpent: 380000, category: 'Enterprise', city: 'Mumbai', state: 'Maharashtra' },
-      { name: 'Zenith Digital Media', contactPerson: 'Priya Sharma', email: 'priya@zenithdigital.in', gstin: '29BBBCB5678B1Z2', isIgst: false, outstandingBalance: 0, totalSpent: 195000, category: 'Agency', city: 'Bengaluru', state: 'Karnataka' },
-      { name: 'Nova Retail & Logistics', contactPerson: 'Vikram Malhotra', email: 'accounts@novaretail.co.in', gstin: '36CCCCD9012C1Z3', isIgst: true, outstandingBalance: 112000, totalSpent: 540000, category: 'Retailer', city: 'Hyderabad', state: 'Telangana' },
+      { name: 'Monish Kacha', contactPerson: 'Monish Kacha', email: 'monish@gmail.com', phone: '+91 98250 12345', city: 'Ahmedabad', state: 'Gujarat', outstandingBalance: 0, totalSpent: 12500, category: 'Regular' },
+      { name: 'Pooja Patel', contactPerson: 'Pooja Patel', email: 'pooja@gmail.com', phone: '+91 98980 54321', city: 'Gandhinagar', state: 'Gujarat', outstandingBalance: 320, totalSpent: 8900, category: 'VIP' },
+      { name: 'Ankit Shah', contactPerson: 'Ankit Shah', email: 'ankit@gmail.com', phone: '+91 97230 98765', city: 'Ahmedabad', state: 'Gujarat', outstandingBalance: 0, totalSpent: 5400, category: 'Walk-in' },
     ];
     productSpecs = [
-      { name: 'SaaS Software Subscription (Annual)', type: 'service', sku: 'BIZ-SAAS-ANN', hsnSac: '998314', sellingPrice: 49999, costPrice: 12000, gstRate: 18, stock: 999, minStockLevel: 10, unit: 'license' },
-      { name: 'AI Automation Consulting', type: 'service', sku: 'BIZ-CONS-AI', hsnSac: '998313', sellingPrice: 75000, costPrice: 25000, gstRate: 18, stock: 100, minStockLevel: 5, unit: 'project' },
-      { name: 'POS Smart Terminal X1', type: 'product', sku: 'BIZ-HW-POS1', hsnSac: '847130', sellingPrice: 16500, costPrice: 11000, gstRate: 18, stock: 14, minStockLevel: 15, unit: 'unit' },
-      { name: 'Thermal Receipt Roll (Box of 50)', type: 'product', sku: 'BIZ-ACC-ROLL50', hsnSac: '481190', sellingPrice: 1250, costPrice: 750, gstRate: 12, stock: 4, minStockLevel: 10, unit: 'box' },
+      { name: 'Organic Sharbati Wheat Flour (Atta 5kg)', type: 'product', category: 'Groceries', brand: 'Aashirvaad', sku: 'RET-GRO-001', hsnSac: '110100', sellingPrice: 240, costPrice: 200, gstRate: 5, stock: 45, minStockLevel: 10, unit: 'pack', description: '100% pure Sharbati whole wheat atta, rich in fiber and nutrients.' },
+      { name: 'Fortune Sunlite Refined Sunflower Oil (1L)', type: 'product', category: 'Groceries', brand: 'Fortune', sku: 'RET-GRO-002', hsnSac: '151219', sellingPrice: 145, costPrice: 125, gstRate: 5, stock: 60, minStockLevel: 15, unit: 'pouch', description: 'Light and healthy refined sunflower oil rich in Vitamin E.' },
+      { name: 'Tata Salt Vacuum Evaporated Iodized Salt (1kg)', type: 'product', category: 'Groceries', brand: 'Tata', sku: 'RET-GRO-003', hsnSac: '250100', sellingPrice: 28, costPrice: 22, gstRate: 0, stock: 120, minStockLevel: 25, unit: 'pack', description: 'Desh Ka Namak - pure vacuum evaporated iodized salt.' },
+      { name: 'Amul Taaza Toned Milk (1L Pasteurized)', type: 'product', category: 'Daily Essentials', brand: 'Amul', sku: 'RET-DAY-001', hsnSac: '040120', sellingPrice: 68, costPrice: 60, gstRate: 0, stock: 35, minStockLevel: 10, unit: 'carton', description: 'Fresh pasteurized toned milk with 3.0% fat.' },
+      { name: 'Nescafe Classic Instant Coffee (100g Jar)', type: 'product', category: 'Beverages', brand: 'Nescafe', sku: 'RET-BEV-001', hsnSac: '210111', sellingPrice: 320, costPrice: 270, gstRate: 18, stock: 25, minStockLevel: 5, unit: 'jar', description: '100% pure natural coffee beans roasted for rich aroma.' },
+      { name: 'Britannia Good Day Cashew Cookies (200g)', type: 'product', category: 'Snacks', brand: 'Britannia', sku: 'RET-SNK-001', hsnSac: '190531', sellingPrice: 50, costPrice: 40, gstRate: 18, stock: 80, minStockLevel: 20, unit: 'pack', description: 'Rich butter cookies loaded with crunchy real cashews.' },
+      { name: 'Dove Cream Beauty Bathing Bar (75g x 3)', type: 'product', category: 'Personal Care', brand: 'Dove', sku: 'RET-PC-001', hsnSac: '340111', sellingPrice: 195, costPrice: 160, gstRate: 18, stock: 30, minStockLevel: 8, unit: 'pack', description: 'Formulated with 1/4 moisturizing cream for soft, smooth skin.' },
+      { name: 'Surf Excel Easy Wash Detergent Powder (1kg)', type: 'product', category: 'Household', brand: 'Surf Excel', sku: 'RET-HOU-001', hsnSac: '340220', sellingPrice: 140, costPrice: 115, gstRate: 18, stock: 50, minStockLevel: 12, unit: 'pack', description: 'Superior stain removal formula that dissolves quickly.' },
+      { name: 'Taj Mahal Premium Tea (500g Pack)', type: 'product', category: 'Beverages', brand: 'Brooke Bond', sku: 'RET-BEV-002', hsnSac: '090230', sellingPrice: 380, costPrice: 320, gstRate: 5, stock: 18, minStockLevel: 5, unit: 'pack', description: 'Wah Taj! Selected long tea leaves for rich color and taste.' },
+      { name: 'Maggi 2-Minute Masala Noodles (Pack of 4)', type: 'product', category: 'Snacks', brand: 'Nestle', sku: 'RET-SNK-002', hsnSac: '190230', sellingPrice: 58, costPrice: 48, gstRate: 18, stock: 95, minStockLevel: 20, unit: 'pack', description: 'Iconic instant noodles with delicious signature masala blend.' },
+      { name: 'Cadbury Dairy Milk Silk Chocolate (150g)', type: 'product', category: 'Snacks', brand: 'Cadbury', sku: 'RET-SNK-003', hsnSac: '180632', sellingPrice: 175, costPrice: 145, gstRate: 18, stock: 40, minStockLevel: 10, unit: 'bar', description: 'Smooth, creamy milk chocolate that melts in your mouth.' },
+      { name: 'Coca-Cola Soft Drink Original Taste (1.25L)', type: 'product', category: 'Beverages', brand: 'Coca-Cola', sku: 'RET-BEV-003', hsnSac: '220210', sellingPrice: 65, costPrice: 52, gstRate: 28, stock: 50, minStockLevel: 15, unit: 'bottle', description: 'Refreshing sparkling beverage best served ice cold.' },
     ];
   }
 
@@ -382,40 +410,48 @@ async function seedDemoRecords(user, business) {
     ...p
   })));
 
+  const c0 = customers?.[0] || { name: 'Customer', gstin: '' };
+  const c1 = customers?.[1] || c0;
+  const p0 = products?.[0] || { name: 'Product Item', sellingPrice: 200, gstRate: 5, hsnSac: '100000' };
+  const p1 = products?.[1] || p0;
+  const p2 = products?.[2] || p0;
+
+  const randId = Math.floor(1000 + Math.random() * 9000);
+
   if (type === 'salon') {
     invoiceSpecs = [
       {
-        invoiceNumber: 'INV-SAL-001',
-        customerId: customers[0]._id,
-        customerName: customers[0].name,
-        customerGstin: customers[0].gstin || '',
+        invoiceNumber: `INV-SAL-${randId}`,
+        customerId: c0._id || null,
+        customerName: c0.name || 'Salon Guest',
+        customerGstin: c0.gstin || '',
         issueDate: '2026-08-01',
         dueDate: '2026-08-01',
-        items: [{ description: products[0].name, hsnSac: products[0].hsnSac, quantity: 1, rate: products[0].sellingPrice, gstRate: products[0].gstRate, amount: products[0].sellingPrice, taxAmount: products[0].sellingPrice * 0.18 }],
-        subtotal: products[0].sellingPrice,
-        taxableAmount: products[0].sellingPrice,
-        cgst: products[0].sellingPrice * 0.09,
-        sgst: products[0].sellingPrice * 0.09,
-        totalTax: products[0].sellingPrice * 0.18,
-        grandTotal: products[0].sellingPrice * 1.18,
+        items: [{ description: p0.name, hsnSac: p0.hsnSac || '999721', quantity: 1, rate: p0.sellingPrice || 800, gstRate: p0.gstRate || 18, amount: p0.sellingPrice || 800, taxAmount: (p0.sellingPrice || 800) * 0.18 }],
+        subtotal: p0.sellingPrice || 800,
+        taxableAmount: p0.sellingPrice || 800,
+        cgst: (p0.sellingPrice || 800) * 0.09,
+        sgst: (p0.sellingPrice || 800) * 0.09,
+        totalTax: (p0.sellingPrice || 800) * 0.18,
+        grandTotal: (p0.sellingPrice || 800) * 1.18,
         status: 'paid',
-        paidAmount: products[0].sellingPrice * 1.18,
+        paidAmount: (p0.sellingPrice || 800) * 1.18,
         paymentMethod: 'UPI / Card',
       },
       {
-        invoiceNumber: 'INV-SAL-002',
-        customerId: customers[1]._id,
-        customerName: customers[1].name,
-        customerGstin: customers[1].gstin || '',
+        invoiceNumber: `INV-SAL-${randId + 1}`,
+        customerId: c1._id || null,
+        customerName: c1.name || 'Salon Guest',
+        customerGstin: c1.gstin || '',
         issueDate: '2026-08-05',
         dueDate: '2026-08-15',
-        items: [{ description: products[1].name, hsnSac: products[1].hsnSac, quantity: 1, rate: products[1].sellingPrice, gstRate: products[1].gstRate, amount: products[1].sellingPrice, taxAmount: products[1].sellingPrice * 0.18 }],
-        subtotal: products[1].sellingPrice,
-        taxableAmount: products[1].sellingPrice,
-        cgst: products[1].sellingPrice * 0.09,
-        sgst: products[1].sellingPrice * 0.09,
-        totalTax: products[1].sellingPrice * 0.18,
-        grandTotal: products[1].sellingPrice * 1.18,
+        items: [{ description: p1.name, hsnSac: p1.hsnSac || '999721', quantity: 1, rate: p1.sellingPrice || 4500, gstRate: p1.gstRate || 18, amount: p1.sellingPrice || 4500, taxAmount: (p1.sellingPrice || 4500) * 0.18 }],
+        subtotal: p1.sellingPrice || 4500,
+        taxableAmount: p1.sellingPrice || 4500,
+        cgst: (p1.sellingPrice || 4500) * 0.09,
+        sgst: (p1.sellingPrice || 4500) * 0.09,
+        totalTax: (p1.sellingPrice || 4500) * 0.18,
+        grandTotal: (p1.sellingPrice || 4500) * 1.18,
         status: 'pending',
         paidAmount: 0,
       }
@@ -427,24 +463,24 @@ async function seedDemoRecords(user, business) {
   } else if (type === 'restaurant') {
     invoiceSpecs = [
       {
-        invoiceNumber: 'INV-RES-001',
-        customerId: customers[0]._id,
-        customerName: customers[0].name,
-        customerGstin: customers[0].gstin || '',
+        invoiceNumber: `INV-RES-${randId}`,
+        customerId: c0._id || null,
+        customerName: c0.name || 'Restaurant Guest',
+        customerGstin: c0.gstin || '',
         issueDate: '2026-08-08',
         dueDate: '2026-08-08',
         items: [
-          { description: products[0].name, hsnSac: products[0].hsnSac, quantity: 2, rate: products[0].sellingPrice, gstRate: products[0].gstRate, amount: products[0].sellingPrice * 2, taxAmount: products[0].sellingPrice * 2 * 0.05 },
-          { description: products[2].name, hsnSac: products[2].hsnSac, quantity: 3, rate: products[2].sellingPrice, gstRate: products[2].gstRate, amount: products[2].sellingPrice * 3, taxAmount: products[2].sellingPrice * 3 * 0.05 },
+          { description: p0.name, hsnSac: p0.hsnSac || '210690', quantity: 2, rate: p0.sellingPrice || 320, gstRate: p0.gstRate || 5, amount: (p0.sellingPrice || 320) * 2, taxAmount: (p0.sellingPrice || 320) * 2 * 0.05 },
+          { description: p2.name, hsnSac: p2.hsnSac || '190590', quantity: 3, rate: p2.sellingPrice || 80, gstRate: p2.gstRate || 5, amount: (p2.sellingPrice || 80) * 3, taxAmount: (p2.sellingPrice || 80) * 3 * 0.05 },
         ],
-        subtotal: products[0].sellingPrice * 2 + products[2].sellingPrice * 3,
-        taxableAmount: products[0].sellingPrice * 2 + products[2].sellingPrice * 3,
-        cgst: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 0.025,
-        sgst: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 0.025,
-        totalTax: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 0.05,
-        grandTotal: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 1.05,
+        subtotal: (p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3,
+        taxableAmount: (p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3,
+        cgst: ((p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3) * 0.025,
+        sgst: ((p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3) * 0.025,
+        totalTax: ((p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3) * 0.05,
+        grandTotal: ((p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3) * 1.05,
         status: 'paid',
-        paidAmount: (products[0].sellingPrice * 2 + products[2].sellingPrice * 3) * 1.05,
+        paidAmount: ((p0.sellingPrice || 320) * 2 + (p2.sellingPrice || 80) * 3) * 1.05,
         paymentMethod: 'Razorpay / QR Code',
       }
     ];
@@ -455,19 +491,19 @@ async function seedDemoRecords(user, business) {
   } else if (type === 'manufacturing') {
     invoiceSpecs = [
       {
-        invoiceNumber: 'INV-MFG-001',
-        customerId: customers[0]._id,
-        customerName: customers[0].name,
-        customerGstin: customers[0].gstin || '',
+        invoiceNumber: `INV-MFG-${randId}`,
+        customerId: c0._id || null,
+        customerName: c0.name || 'Industrial Buyer',
+        customerGstin: c0.gstin || '',
         issueDate: '2026-08-02',
         dueDate: '2026-09-02',
-        items: [{ description: products[1].name, hsnSac: products[1].hsnSac, quantity: 5, rate: products[1].sellingPrice, gstRate: products[1].gstRate, amount: products[1].sellingPrice * 5, taxAmount: products[1].sellingPrice * 5 * 0.18 }],
-        subtotal: products[1].sellingPrice * 5,
-        taxableAmount: products[1].sellingPrice * 5,
-        cgst: products[1].sellingPrice * 5 * 0.09,
-        sgst: products[1].sellingPrice * 5 * 0.09,
-        totalTax: products[1].sellingPrice * 5 * 0.18,
-        grandTotal: products[1].sellingPrice * 5 * 1.18,
+        items: [{ description: p1.name, hsnSac: p1.hsnSac || '848340', quantity: 5, rate: p1.sellingPrice || 25000, gstRate: p1.gstRate || 18, amount: (p1.sellingPrice || 25000) * 5, taxAmount: (p1.sellingPrice || 25000) * 5 * 0.18 }],
+        subtotal: (p1.sellingPrice || 25000) * 5,
+        taxableAmount: (p1.sellingPrice || 25000) * 5,
+        cgst: (p1.sellingPrice || 25000) * 5 * 0.09,
+        sgst: (p1.sellingPrice || 25000) * 5 * 0.09,
+        totalTax: (p1.sellingPrice || 25000) * 5 * 0.18,
+        grandTotal: (p1.sellingPrice || 25000) * 5 * 1.18,
         status: 'pending',
         paidAmount: 0,
       }
@@ -479,19 +515,19 @@ async function seedDemoRecords(user, business) {
   } else if (type === 'stationery') {
     invoiceSpecs = [
       {
-        invoiceNumber: 'INV-STA-001',
-        customerId: customers[0]._id,
-        customerName: customers[0].name,
-        customerGstin: customers[0].gstin || '',
+        invoiceNumber: `INV-STA-${randId}`,
+        customerId: c0._id || null,
+        customerName: c0.name || 'School Account',
+        customerGstin: c0.gstin || '',
         issueDate: '2026-08-04',
         dueDate: '2026-08-24',
-        items: [{ description: products[1].name, hsnSac: products[1].hsnSac, quantity: 40, rate: products[1].sellingPrice, gstRate: products[1].gstRate, amount: products[1].sellingPrice * 40, taxAmount: products[1].sellingPrice * 40 * 0.12 }],
-        subtotal: products[1].sellingPrice * 40,
-        taxableAmount: products[1].sellingPrice * 40,
-        cgst: products[1].sellingPrice * 40 * 0.06,
-        sgst: products[1].sellingPrice * 40 * 0.06,
-        totalTax: products[1].sellingPrice * 40 * 0.12,
-        grandTotal: products[1].sellingPrice * 40 * 1.12,
+        items: [{ description: p1.name, hsnSac: p1.hsnSac || '482020', quantity: 40, rate: p1.sellingPrice || 1500, gstRate: p1.gstRate || 12, amount: (p1.sellingPrice || 1500) * 40, taxAmount: (p1.sellingPrice || 1500) * 40 * 0.12 }],
+        subtotal: (p1.sellingPrice || 1500) * 40,
+        taxableAmount: (p1.sellingPrice || 1500) * 40,
+        cgst: (p1.sellingPrice || 1500) * 40 * 0.06,
+        sgst: (p1.sellingPrice || 1500) * 40 * 0.06,
+        totalTax: (p1.sellingPrice || 1500) * 40 * 0.12,
+        grandTotal: (p1.sellingPrice || 1500) * 40 * 1.12,
         status: 'pending',
         paidAmount: 0,
       }
@@ -500,29 +536,30 @@ async function seedDemoRecords(user, business) {
       { title: 'Bulk Paper Reams & Envelopes', category: 'Inventory', amount: 35000, date: '2026-08-03', paymentMode: 'Bank Transfer', vendor: 'Century Paper', gstClaimable: true, gstAmount: 3750, status: 'paid' },
     ];
   } else {
+    // Retail & General
     invoiceSpecs = [
       {
-        invoiceNumber: 'INV-2026-001',
-        customerId: customers[0]._id,
-        customerName: customers[0].name,
-        customerGstin: customers[0].gstin || '',
-        issueDate: '2026-07-15',
-        dueDate: '2026-08-14',
-        items: [{ description: products[0].name, hsnSac: products[0].hsnSac, quantity: 2, rate: products[0].sellingPrice, gstRate: products[0].gstRate, amount: products[0].sellingPrice * 2, taxAmount: products[0].sellingPrice * 2 * 0.18 }],
-        subtotal: products[0].sellingPrice * 2,
-        discount: 5000,
-        taxableAmount: products[0].sellingPrice * 2 - 5000,
-        cgst: (products[0].sellingPrice * 2 - 5000) * 0.09,
-        sgst: (products[0].sellingPrice * 2 - 5000) * 0.09,
-        totalTax: (products[0].sellingPrice * 2 - 5000) * 0.18,
-        grandTotal: (products[0].sellingPrice * 2 - 5000) * 1.18,
+        invoiceNumber: `INV-RET-${randId}`,
+        customerId: c0._id || null,
+        customerName: c0.name || 'Monish Kacha',
+        customerGstin: c0.gstin || '',
+        issueDate: '2026-08-10',
+        dueDate: '2026-08-10',
+        items: [{ description: p0.name, hsnSac: p0.hsnSac || '110100', quantity: 2, rate: p0.sellingPrice || 240, gstRate: p0.gstRate || 5, amount: (p0.sellingPrice || 240) * 2, taxAmount: (p0.sellingPrice || 240) * 2 * 0.05 }],
+        subtotal: (p0.sellingPrice || 240) * 2,
+        discount: 20,
+        taxableAmount: (p0.sellingPrice || 240) * 2 - 20,
+        cgst: ((p0.sellingPrice || 240) * 2 - 20) * 0.025,
+        sgst: ((p0.sellingPrice || 240) * 2 - 20) * 0.025,
+        totalTax: ((p0.sellingPrice || 240) * 2 - 20) * 0.05,
+        grandTotal: ((p0.sellingPrice || 240) * 2 - 20) * 1.05,
         status: 'paid',
-        paidAmount: (products[0].sellingPrice * 2 - 5000) * 1.18,
-        paymentMethod: 'Razorpay / UPI',
+        paidAmount: ((p0.sellingPrice || 240) * 2 - 20) * 1.05,
+        paymentMethod: 'UPI / Counter Cash',
       }
     ];
     expenseSpecs = [
-      { title: 'AWS & Cloud Server Hosting', category: 'Office & Tech', amount: 24500, date: '2026-07-05', paymentMode: 'Corporate Card', vendor: 'Amazon Web Services', gstClaimable: true, gstAmount: 3737, status: 'paid' },
+      { title: 'Local Store Electricity & Utility Bill', category: 'Rent & Utilities', amount: 4500, date: '2026-08-05', paymentMode: 'UPI', vendor: 'Torrent Power', gstClaimable: false, status: 'paid' },
     ];
   }
 
@@ -551,7 +588,7 @@ async function seedDemoRecords(user, business) {
 
 async function seedRestaurantData(business) {
   try {
-    await Table.deleteMany({ businessId: business._id });
+    await Table.deleteMany({});
     await Reservation.deleteMany({ businessId: business._id });
     await MenuItem.deleteMany({ businessId: business._id });
     await Order.deleteMany({ businessId: business._id });
@@ -583,7 +620,15 @@ async function seedRestaurantData(business) {
       { tableNumber: 20, name: 'Table 20', capacity: 10, section: 'Private Dining', shape: 'rectangle', status: 'available' },
     ];
 
-    const createdTables = await Table.insertMany(tableSpecs.map((t) => ({ businessId: business._id, ...t })));
+    let createdTables = [];
+    try {
+      createdTables = await Table.insertMany(
+        tableSpecs.map((t) => ({ businessId: business._id, ...t })),
+        { ordered: false }
+      );
+    } catch {
+      createdTables = await Table.find({ businessId: business._id });
+    }
 
     // 2. Inventory Items
     const invSpecs = [

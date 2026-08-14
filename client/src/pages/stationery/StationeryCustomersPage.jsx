@@ -168,7 +168,7 @@ export default function StationeryCustomersPage() {
                     <td className="text-xs text-warm-gray">{c.phone || c.mobile || '—'}</td>
                     <td>
                       {c.schoolOrCollege ? (
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-purple-50 text-purple-800 border border-purple-200 inline-flex items-center gap-1">
+                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
                           <GraduationCap className="w-3 h-3" /> {c.schoolOrCollege}
                         </span>
                       ) : (

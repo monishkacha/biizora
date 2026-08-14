@@ -7,6 +7,11 @@ const router = Router();
 router.post('/register', auth.register);
 router.post('/signup-otp/request', auth.requestSignupOTP);
 router.post('/signup-otp/verify', auth.verifySignupOTP);
+
+// Standardized Auth Endpoints
+router.post('/verify-email', auth.verifyEmail);
+router.post('/resend-otp', auth.resendOTP);
+
 router.post('/login', auth.login);
 router.post('/login-otp/request', auth.requestLoginOTP);
 router.post('/login-otp/verify', auth.verifyLoginOTP);

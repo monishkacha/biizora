@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_SUPPLIERS } from './mockManufacturingData';
 import { useBusiness } from '../../context/BusinessContext';
+import ManufacturingDataMigrationModal from '../../components/manufacturing/ManufacturingDataMigrationModal';
 
 export default function SuppliersPage() {
   const { t } = useTranslation();
@@ -29,6 +30,7 @@ export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState(INITIAL_SUPPLIERS);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [isMigrationModalOpen, setIsMigrationModalOpen] = useState(false);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -139,11 +141,36 @@ export default function SuppliersPage() {
   };
 
   const handleImportCSV = () => {
-    showToast('Import CSV dialog launched');
+    setIsMigrationModalOpen(true);
   };
 
   return (
     <div className="space-y-6 pb-12">
+      <ManufacturingDataMigrationModal
+        isOpen={isMigrationModalOpen}
+        onClose={() => setIsMigrationModalOpen(false)}
+        defaultDataType="suppliers"
+        onImportSuccess={(newRecords) => {
+          if (newRecords && newRecords.length) {
+            const formatted = newRecords.map((r, i) => ({
+              id: `sup-mig-${Date.now()}-${i}`,
+              name: r.name || r.Name || 'Imported Vendor',
+              company: r.company || r.Company || r.name || 'Vendor Corp',
+              phone: r.phone || r.Phone || '+91 98000 00000',
+              email: r.email || r.Email || 'vendor@supplier.com',
+              gstin: r.gstin || r.GSTIN || '24AAACA1234A1Z5',
+              address: r.address || r.Address || 'GIDC Industrial Area',
+              products: r.products ? r.products.split(',') : ['Raw Materials'],
+              paymentTerms: r.paymentTerms || 'Net 30',
+              outstandingBalance: Number(r.outstandingBalance || 0),
+              status: 'Active',
+            }));
+            setSuppliers((prev) => [...formatted, ...prev]);
+            showToast(`Successfully imported ${formatted.length} supplier records!`);
+          }
+        }}
+      />
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-[22px] border border-stone shadow-card">
         <div>
@@ -153,10 +180,10 @@ export default function SuppliersPage() {
             <span>Procurement & Vendors</span>
           </div>
           <h1 className="text-2xl font-bold font-display text-charcoal flex items-center gap-2.5">
-            <Building2 className="w-7 h-7 text-green-bottle" /> Suppliers & Vendors
+            <Building2 className="w-7 h-7 text-green-bottle" /> {t('mfgPages.suppliersTitle', 'Suppliers & Vendors')}
           </h1>
           <p className="text-xs text-warm-gray mt-1">
-            Manage raw material vendors, GSTIN profiles, payment terms, and outstanding balances.
+            {t('mfgPages.suppliersSubtitle', 'Manage raw material vendors, GSTIN profiles, payment terms, and outstanding balances.')}
           </p>
         </div>
 
@@ -165,19 +192,19 @@ export default function SuppliersPage() {
             onClick={handleImportCSV}
             className="px-3.5 py-2 rounded-xl bg-cream border border-stone text-charcoal font-semibold hover:bg-stone/20 text-xs flex items-center gap-1.5 transition-all"
           >
-            <Upload className="w-4 h-4" /> Import CSV
+            <Upload className="w-4 h-4" /> {t('mfgPages.dataMigration', 'Import CSV')}
           </button>
           <button
             onClick={handleExportCSV}
             className="px-3.5 py-2 rounded-xl bg-cream border border-stone text-charcoal font-semibold hover:bg-stone/20 text-xs flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-4 h-4" /> Export
+            <Download className="w-4 h-4" /> {t('mfgPages.exportSchedule', 'Export')}
           </button>
           <button
             onClick={handleOpenAddModal}
             className="px-4 py-2 rounded-xl bg-green-bottle text-white font-semibold hover:bg-green-forest text-xs flex items-center gap-2 shadow-subtle transition-all"
           >
-            <Plus className="w-4 h-4" /> + Add Supplier
+            <Plus className="w-4 h-4" /> {t('mfgPages.addSupplier', '+ Add Supplier')}
           </button>
         </div>
       </div>
@@ -185,30 +212,28 @@ export default function SuppliersPage() {
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Total Suppliers</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.colSupplierName', 'Total Suppliers')}</p>
           <h3 className="text-2xl font-bold font-display text-charcoal mt-1">{suppliers.length}</h3>
           <p className="text-[11px] text-green-forest mt-0.5">Approved vendor list</p>
         </div>
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Active Suppliers</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.activeSuppliers', 'Active Suppliers')}</p>
           <h3 className="text-2xl font-bold font-display text-emerald-700 mt-1">
             {suppliers.filter((s) => s.status === 'Active').length}
           </h3>
-          <p className="text-[11px] text-emerald-600 mt-0.5">Fulfilling active POs</p>
+          <p className="text-[11px] text-emerald-600 mt-0.5">Available for purchase orders</p>
         </div>
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Total Payables</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.pendingOrders', 'Pending Payables')}</p>
           <h3 className="text-2xl font-bold font-display text-amber-800 mt-1">
-            ₹{suppliers.reduce((sum, s) => sum + (s.outstanding || 0), 0).toLocaleString('en-IN')}
+            ₹{suppliers.reduce((acc, s) => acc + (s.outstandingBalance || 0), 0).toLocaleString('en-IN')}
           </h3>
-          <p className="text-[11px] text-amber-700 mt-0.5">Outstanding vendor bills</p>
+          <p className="text-[11px] text-amber-700 mt-0.5">Outstanding vendor dues</p>
         </div>
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Overdue Accounts</p>
-          <h3 className="text-2xl font-bold font-display text-red-700 mt-1">
-            {suppliers.filter((s) => s.outstanding > 100000 || s.status === 'Outstanding Payment').length}
-          </h3>
-          <p className="text-[11px] text-red-600 mt-0.5">Requires payment audit</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.avgLeadTime', 'Average Delivery Time')}</p>
+          <h3 className="text-2xl font-bold font-display text-green-bottle mt-1">4.2 Days</h3>
+          <p className="text-[11px] text-warm-gray mt-0.5">Standard Lead Time</p>
         </div>
       </div>
 
@@ -248,14 +273,14 @@ export default function SuppliersPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-stone bg-cream/40 text-warm-gray font-bold uppercase tracking-wider">
-                <th className="py-3.5 px-4">Supplier & Company</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colSupplierName', 'Supplier & Company')}</th>
                 <th className="py-3.5 px-4">GSTIN & PAN</th>
-                <th className="py-3.5 px-4">Contact Person</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colContactPerson', 'Contact Person')}</th>
                 <th className="py-3.5 px-4">Phone & Email</th>
                 <th className="py-3.5 px-4">City</th>
                 <th className="py-3.5 px-4 text-right">Outstanding (₹)</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-4 text-center">{t('mfgPages.colStatus', 'Status')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colActions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone text-charcoal font-medium">
@@ -278,14 +303,14 @@ export default function SuppliersPage() {
                   <td className="py-3.5 px-4 text-right font-bold text-charcoal">
                     ₹{Number(sup.outstanding || 0).toLocaleString('en-IN')}
                   </td>
-                  <td className="py-3.5 px-4 text-center">
+                  <td className="py-3.5 px-4 text-center whitespace-nowrap">
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                      className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         sup.status === 'Active'
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                           : sup.status === 'Outstanding Payment'
-                          ? 'bg-amber-100 text-amber-900'
-                          : 'bg-stone/40 text-warm-gray'
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          : 'bg-stone/40 text-warm-gray border border-stone-300'
                       }`}
                     >
                       {sup.status}

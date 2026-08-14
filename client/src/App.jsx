@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { BusinessProvider } from './context/BusinessContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -34,6 +34,9 @@ import ExpensePage from './pages/ExpensePage';
 import ReportsPage from './pages/ReportsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AIPowerSuitePage from './pages/AIPowerSuitePage';
+import GrowthEnginePage from './pages/GrowthEnginePage';
+import CustomerExperienceAdminPage from './pages/CustomerExperienceAdminPage';
+import PublicBusinessPortal from './pages/public/PublicBusinessPortal';
 import PaymentsPage from './pages/PaymentsPage';
 import SaaSBillingPage from './pages/SaaSBillingPage';
 import SettingsPage from './pages/SettingsPage';
@@ -148,6 +151,8 @@ function DynamicMembershipPage() {
   return <MembershipPage />;
 }
 
+import BiizoraPageLoader from './components/ui/BiizoraPageLoader';
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -156,7 +161,8 @@ export default function App() {
           <NotificationProvider>
             <CommandPaletteProvider>
               <BrowserRouter>
-                <Routes>
+                <React.Suspense fallback={<BiizoraPageLoader />}>
+                  <Routes>
                   <Route path="/" element={<LandingHome />} />
                   <Route path="/features" element={<FeaturesPage />} />
                   <Route path="/ai-features" element={<AIFeaturesPage />} />
@@ -175,6 +181,9 @@ export default function App() {
                   <Route path="/reset-password" element={<ResetPasswordPage />} />
                   <Route path="/book" element={<PublicBookingPage />} />
                   <Route path="/order" element={<PublicOrderingPage />} />
+                  <Route path="/b/:slug" element={<PublicBusinessPortal />} />
+                  <Route path="/b/:slug/:subpath" element={<PublicBusinessPortal />} />
+                  <Route path="/order-status/:id" element={<PublicBusinessPortal />} />
 
                   {/* Top-Level Stationery Billing Shortcut */}
                   <Route path="/stationery/billing" element={<AppLayout><StationeryPOSBillingPage /></AppLayout>} />
@@ -195,6 +204,9 @@ export default function App() {
                     <Route path="reports" element={<ReportsPage />} />
                     <Route path="analytics" element={<AnalyticsPage />} />
                     <Route path="ai-suite" element={<AIPowerSuitePage />} />
+                    <Route path="growth-engine" element={<GrowthEnginePage />} />
+                    <Route path="customer-experience" element={<CustomerExperienceAdminPage />} />
+                    <Route path="online-business" element={<CustomerExperienceAdminPage />} />
                     <Route path="migration" element={<MigrationCenterPage />} />
                     <Route path="payments" element={<PaymentsPage />} />
                     <Route path="billing" element={<DynamicBillingPage />} />
@@ -229,13 +241,6 @@ export default function App() {
                     <Route path="stationery/reports" element={<StationeryReportsPage />} />
                     <Route path="stationery/settings" element={<StationerySettingsPage />} />
 
-                    {/* Salon Dedicated Routes */}
-                    <Route path="calendar" element={<SalonCalendarPage />} />
-                    <Route path="appointments" element={<SalonAppointmentsPage />} />
-                    <Route path="stylists" element={<SalonStylistsPage />} />
-                    <Route path="services" element={<SalonServicesPage />} />
-                    <Route path="memberships" element={<SalonMembershipsPage />} />
-                    <Route path="reviews" element={<SalonReviewsPage />} />
                     <Route path="salon-reports" element={<SalonReportsPage />} />
 
                     {/* Restaurant Routes */}
@@ -278,9 +283,15 @@ export default function App() {
                     <Route path="ai-hair" element={<AIHairRecommendationPage />} />
                     <Route path="reservation-ai" element={<TableReservationAIPage />} />
                     <Route path="amazon-sync" element={<IntegrationsHubPage />} />
+                    <Route path="barcode" element={<RetailBillingPage />} />
+                    <Route path="scanner" element={<RetailBillingPage />} />
+                    <Route path="stationery/barcode" element={<StationeryPOSBillingPage />} />
+                    <Route path="*" element={<DashboardPage />} />
                   </Route>
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
-              </BrowserRouter>
+              </React.Suspense>
+            </BrowserRouter>
             </CommandPaletteProvider>
           </NotificationProvider>
         </BusinessProvider>

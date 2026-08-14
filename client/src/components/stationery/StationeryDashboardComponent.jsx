@@ -87,7 +87,7 @@ export default function StationeryDashboardComponent() {
       value: pendingSchoolOrders.length,
       hint: 'Quotations & packed kits',
       icon: GraduationCap,
-      color: 'bg-purple-50 text-purple-700 border-purple-200',
+      color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       action: () => navigate('/app/stationery/school-orders'),
     },
     {

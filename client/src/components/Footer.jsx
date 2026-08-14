@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import BiizoraBrandLogo from './ui/BiizoraBrandLogo';
 
 export default function Footer() {
   return (
@@ -8,11 +8,8 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2 space-y-4">
-            <Link to="/" className="inline-flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[10px] bg-green-bottle text-white flex items-center justify-center">
-                <Sparkles className="w-4 h-4" strokeWidth={1.75} />
-              </div>
-              <span className="text-lg font-display font-semibold text-charcoal">Biizora</span>
+            <Link to="/" className="inline-flex items-center gap-2">
+              <BiizoraBrandLogo size="md" />
             </Link>
             <p className="text-sm text-warm-gray leading-relaxed max-w-sm">
               Smarter Invoicing. Better Cash Flow. Powered by AI.

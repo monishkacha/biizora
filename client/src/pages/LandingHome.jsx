@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SupportTopBar from '../components/SupportTopBar';
+import BusinessInMotion from '../components/BusinessInMotion';
+import GrowthEngineShowcase from '../components/GrowthEngineShowcase';
+import BiizoraBrandLogo from '../components/ui/BiizoraBrandLogo';
 import {
   ArrowRight,
   CheckCircle2,
@@ -239,19 +242,19 @@ export default function LandingHome() {
       <Navbar />
 
       {/* Hero — brand first, quiet composition */}
-      <section className="relative overflow-hidden pt-20 pb-16 sm:pt-28 sm:pb-20">
+      <section className="relative overflow-hidden pt-16 pb-16 sm:pt-24 sm:pb-20">
         <div className="absolute inset-0 bg-hero-glow pointer-events-none" />
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-stone to-transparent" />
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative">
-          <div className="max-w-3xl mx-auto text-center space-y-7 sm:space-y-8">
+          <div className="max-w-4xl mx-auto text-center space-y-7 sm:space-y-8 flex flex-col items-center">
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display font-light text-[4.25rem] leading-[0.92] tracking-[-0.04em] text-charcoal sm:text-[6.5rem] sm:tracking-[-0.045em] lg:text-[8rem] lg:tracking-[-0.05em]"
+              className="font-display font-light text-[4.5rem] leading-[0.9] tracking-[-0.04em] text-charcoal sm:text-[7rem] sm:tracking-[-0.045em] md:text-[9rem] lg:text-[11rem] lg:tracking-[-0.05em] lowercase select-none py-2 sm:py-4"
             >
-              Biizora
+              biizora
             </motion.h1>
 
             <motion.p
@@ -325,6 +328,12 @@ export default function LandingHome() {
           <FeatureShowcase />
         </div>
       </section>
+
+      {/* Business in Motion — Interactive Simulation */}
+      <BusinessInMotion />
+
+      {/* Layer 3B Growth Engine & Ecosystem Loop Showcase */}
+      <GrowthEngineShowcase />
 
       {/* Spacious feature narrative */}
       <section className="py-24 sm:py-28 border-y border-stone bg-white/55">
@@ -430,10 +439,10 @@ export default function LandingHome() {
               remote support and live assistance from the in-app Support center.
             </p>
             <a
-              href="mailto:biizora@gmail.com"
+              href="mailto:biizoraos@gmail.com"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-green-bottle text-white font-semibold text-sm hover:opacity-90 shadow-subtle"
             >
-              biizora@gmail.com
+              biizoraos@gmail.com
             </a>
             <div className="pt-2">
               <Link

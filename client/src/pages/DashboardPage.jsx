@@ -324,7 +324,7 @@ export default function DashboardPage() {
           { name: 'Haircut', percent: 42, color: 'bg-green-bottle' },
           { name: 'Hair Color', percent: 28, color: 'bg-blue-500' },
           { name: 'Hair Spa', percent: 18, color: 'bg-yellow-butter' },
-          { name: 'Manicure', percent: 12, color: 'bg-purple-500' },
+          { name: 'Manicure', percent: 12, color: 'bg-emerald-700' },
         ];
 
     // Upcoming Birthdays from Customer List
@@ -453,16 +453,16 @@ export default function DashboardPage() {
           {/* Staff Utilization Card */}
           <div
             onClick={() => navigate('/app/stylists')}
-            className="bz-kpi border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all"
+            className="bz-kpi border-l-4 border-emerald-600 cursor-pointer hover:shadow-md transition-all"
           >
             <div className="flex items-start justify-between gap-3">
               <p className="text-xs font-medium text-warm-gray">Staff Utilization</p>
-              <div className="w-8 h-8 rounded-[10px] bg-purple-50 text-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-[10px] bg-emerald-50 text-emerald-700 flex items-center justify-center">
                 <Sparkles className="w-4 h-4" />
               </div>
             </div>
             <p className="mt-3 font-display text-3xl font-semibold tracking-tight text-charcoal">{utilizationPercent}%</p>
-            <p className="mt-1.5 text-[11px] text-purple-600 font-semibold">{busyStylistsCount} of {totalStylistsCount} stylists busy</p>
+            <p className="mt-1.5 text-[11px] text-emerald-700 font-semibold">{busyStylistsCount} of {totalStylistsCount} stylists busy</p>
           </div>
         </div>
 

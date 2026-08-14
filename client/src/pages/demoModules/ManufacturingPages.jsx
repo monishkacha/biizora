@@ -143,10 +143,10 @@ export function ManufacturingProductionOrdersPage() {
                     </div>
                   </td>
                   <td className="py-3 px-4 text-warm-gray">{o.targetDate}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      o.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' :
-                      o.status === 'In Production' ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-warm-gray'
+                  <td className="py-3 px-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold ${
+                      o.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                      o.status === 'In Production' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-stone-100 text-warm-gray border border-stone-200'
                     }`}>
                       {o.status}
                     </span>
@@ -257,8 +257,8 @@ export function MachinesStatusPage() {
               <div className="w-10 h-10 rounded-xl bg-stone-100 text-charcoal flex items-center justify-center">
                 <Cpu className="w-5 h-5" />
               </div>
-              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                m.status === 'Optimal' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+              <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold ${
+                m.status === 'Optimal' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'
               }`}>
                 {m.status}
               </span>
@@ -316,7 +316,7 @@ export function RawMaterialsPage() {
                 <th className="py-3 px-4">Current Stock</th>
                 <th className="py-3 px-4">Reorder Level</th>
                 <th className="py-3 px-4">Primary Vendor</th>
-                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 text-center">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">
@@ -327,9 +327,9 @@ export function RawMaterialsPage() {
                   <td className="py-3 px-4 font-mono font-bold text-charcoal">{m.stock} {m.unit}</td>
                   <td className="py-3 px-4 text-warm-gray">{m.reorderLevel} {m.unit}</td>
                   <td className="py-3 px-4 font-medium text-charcoal">{m.vendor}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                      m.status === 'Optimal' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                  <td className="py-3 px-4 text-center whitespace-nowrap">
+                    <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      m.status === 'Optimal' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'
                     }`}>
                       {m.status}
                     </span>

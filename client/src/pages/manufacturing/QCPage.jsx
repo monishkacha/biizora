@@ -127,10 +127,10 @@ export default function QCPage() {
             <span>Quality Assurance</span>
           </div>
           <h1 className="text-2xl font-bold font-display text-charcoal flex items-center gap-2.5">
-            <BadgeCheck className="w-7 h-7 text-green-bottle" /> Quality Control & Inspections
+            <BadgeCheck className="w-7 h-7 text-green-bottle" /> {t('mfgPages.qcTitle', 'Quality Control & Inspections')}
           </h1>
           <p className="text-xs text-warm-gray mt-1">
-            Batch quality audits, dimensional tolerances, lab spectro test certificates, and rework disposition logs.
+            {t('mfgPages.qcSubtitle', 'Batch quality audits, dimensional tolerances, lab spectro test certificates, and rework disposition logs.')}
           </p>
         </div>
 
@@ -139,13 +139,13 @@ export default function QCPage() {
             onClick={() => showToast('Monthly QC Audit Summary exported')}
             className="px-3.5 py-2 rounded-xl bg-cream border border-stone text-charcoal font-semibold hover:bg-stone/20 text-xs flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-4 h-4" /> Export Audit Log
+            <Download className="w-4 h-4" /> {t('mfgPages.exportSchedule', 'Export Audit Log')}
           </button>
           <button
             onClick={handleOpenAddModal}
             className="px-4 py-2 rounded-xl bg-green-bottle text-white font-semibold hover:bg-green-forest text-xs flex items-center gap-2 shadow-subtle transition-all"
           >
-            <Plus className="w-4 h-4" /> + Log Inspection
+            <Plus className="w-4 h-4" /> {t('mfgPages.createPo', '+ Log Inspection')}
           </button>
         </div>
       </div>
@@ -159,7 +159,7 @@ export default function QCPage() {
         </div>
         <div className="bg-white border border-emerald-200 bg-emerald-50/30 p-4 rounded-[18px] shadow-subtle">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-emerald-800 font-semibold">Passed Batches</p>
+            <p className="text-xs text-emerald-800 font-semibold">{t('mfgPages.passRate', 'Passed Batches')}</p>
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
           <h3 className="text-2xl font-bold font-display text-emerald-700 mt-1">{passedCount} Passed</h3>
@@ -167,7 +167,7 @@ export default function QCPage() {
         </div>
         <div className="bg-white border border-amber-200 bg-amber-50/30 p-4 rounded-[18px] shadow-subtle">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-amber-900 font-semibold">Rework Required</p>
+            <p className="text-xs text-amber-900 font-semibold">{t('mfgPages.pendingInspection', 'Rework Required')}</p>
             <AlertTriangle className="w-4 h-4 text-amber-600" />
           </div>
           <h3 className="text-2xl font-bold font-display text-amber-800 mt-1">{reworkCount} Sent Back</h3>
@@ -175,7 +175,7 @@ export default function QCPage() {
         </div>
         <div className="bg-white border border-red-200 bg-red-50/30 p-4 rounded-[18px] shadow-subtle">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-red-800 font-semibold">Rejected / Failed</p>
+            <p className="text-xs text-red-800 font-semibold">{t('mfgPages.rejectedBatches', 'Rejected / Failed')}</p>
             <XCircle className="w-4 h-4 text-red-600" />
           </div>
           <h3 className="text-2xl font-bold font-display text-red-700 mt-1">{failedCount} Rejected</h3>
@@ -260,14 +260,14 @@ export default function QCPage() {
                         {qc.result}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 text-center">
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
                       <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
+                        className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           qc.status === 'Passed'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                             : qc.status === 'Rework Required'
-                            ? 'bg-amber-100 text-amber-900'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                            : 'bg-red-100 text-red-800 border border-red-200'
                         }`}
                       >
                         {qc.status}

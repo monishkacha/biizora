@@ -265,7 +265,7 @@ export default function StationeryReportsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white p-5 rounded-[18px] border border-stone shadow-subtle">
             <span className="text-xs font-semibold text-warm-gray uppercase">Pending School Orders</span>
-            <h3 className="text-2xl font-bold text-purple-700 mt-2">{pendingSchool.length} orders</h3>
+            <h3 className="text-2xl font-bold text-green-bottle mt-2">{pendingSchool.length} orders</h3>
           </div>
           <div className="bg-white p-5 rounded-[18px] border border-stone shadow-subtle">
             <span className="text-xs font-semibold text-warm-gray uppercase">Delivered Orders</span>

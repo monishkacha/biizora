@@ -207,11 +207,11 @@ export default function InvoiceListPage() {
                     <td className="py-3.5 px-4 text-right font-extrabold text-slate-900 dark:text-white">
                       ₹{inv.grandTotal.toLocaleString('en-IN')}
                     </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                        isPaid ? 'bg-emerald-100 dark:bg-bg-secondary text-text dark:text-text-muted' :
-                        isOverdue ? 'bg-bg-hover dark:bg-red-950 text-text dark:text-red-400' :
-                        'bg-amber-100 dark:bg-bg-hover text-accent-soft dark:text-text-muted'
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        isPaid ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                        isOverdue ? 'bg-red-100 text-red-800 border border-red-200' :
+                        'bg-amber-100 text-amber-900 border border-amber-300'
                       }`}>
                         {inv.status}
                       </span>

@@ -221,7 +221,7 @@ export default function RestaurantDashboardComponent() {
         <div className="bg-white p-5 rounded-2xl border border-stone/40 shadow-sm space-y-2">
           <div className="flex justify-between items-center text-xs font-bold text-warm-gray">
             <span>{isGu ? 'સરેરાશ ઓર્ડર મૂલ્ય (AOV)' : 'Avg Order Value (AOV)'}</span>
-            <Receipt className="w-4 h-4 text-purple-600" />
+            <Receipt className="w-4 h-4 text-green-bottle" />
           </div>
           <div className="text-2xl font-black text-charcoal">₹{avgOrderValue}</div>
           <div className="text-[11px] font-medium text-warm-gray">{isGu ? 'પ્રતિ ચુકવાયેલ ટેબલ / ઓર્ડર' : 'Per Paid Table/Order'}</div>
@@ -428,31 +428,78 @@ export default function RestaurantDashboardComponent() {
         </div>
 
         <div className="lg:col-span-6 bg-white p-5 rounded-3xl border border-stone/40 shadow-sm space-y-4">
-          <h3 className="font-extrabold text-charcoal text-base border-b border-stone/40 pb-3">
-            Category Revenue Breakdown
-          </h3>
-          <div className="h-60">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={categoryChartData.length > 0 ? categoryChartData : defaultCategoryData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {(categoryChartData.length > 0 ? categoryChartData : defaultCategoryData).map(
-                    (entry, index) => (
-                      <Cell key={`cell-${index}`} fill={categoryColors[index % categoryColors.length]} />
-                    )
-                  )}
-                </Pie>
-                <Tooltip formatter={(val) => `₹${val}`} />
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="flex justify-between items-center border-b border-stone/40 pb-3">
+            <h3 className="font-extrabold text-charcoal text-base">
+              Category Revenue Breakdown
+            </h3>
+            <span className="text-[11px] font-semibold text-warm-gray">Total Revenue by Category</span>
           </div>
+
+          {(() => {
+            const chartData = categoryChartData.length > 0 ? categoryChartData : defaultCategoryData;
+            const totalRev = chartData.reduce((sum, item) => sum + item.value, 0) || 1;
+            const colors = ['#174D38', '#C86D51', '#2D3748', '#D99B26', '#5B8A72', '#387B8E'];
+
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                <div className="sm:col-span-6 h-56 relative">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={48}
+                        outerRadius={78}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} stroke="#fff" strokeWidth={2} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Revenue']}
+                        contentStyle={{
+                          backgroundColor: '#1E2421',
+                          borderColor: '#38423C',
+                          borderRadius: '12px',
+                          color: '#fff',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Structured Legend List */}
+                <div className="sm:col-span-6 space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {chartData.map((item, idx) => {
+                    const pct = Math.round((item.value / totalRev) * 100);
+                    const color = colors[idx % colors.length];
+                    return (
+                      <div
+                        key={item.name}
+                        className="flex items-center justify-between p-2 rounded-xl bg-cream/40 border border-stone/30 text-xs font-semibold"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span
+                            className="w-3 h-3 rounded-md shrink-0"
+                            style={{ backgroundColor: color }}
+                          />
+                          <span className="text-charcoal truncate">{item.name}</span>
+                        </div>
+                        <div className="text-right shrink-0 font-mono">
+                          <span className="text-charcoal font-bold">₹{item.value.toLocaleString('en-IN')}</span>
+                          <span className="text-[10px] text-warm-gray ml-1.5 font-bold">({pct}%)</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </div>
     </div>

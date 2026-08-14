@@ -118,10 +118,10 @@ export default function MachinesPage() {
             <span>Plant Maintenance</span>
           </div>
           <h1 className="text-2xl font-bold font-display text-charcoal flex items-center gap-2.5">
-            <Cpu className="w-7 h-7 text-green-bottle" /> Machines & Equipment
+            <Cpu className="w-7 h-7 text-green-bottle" /> {t('mfgPages.machinesTitle', 'Machines & Equipment')}
           </h1>
           <p className="text-xs text-warm-gray mt-1">
-            Monitor CNC, Fiber Lasers, Injection Moulding machines, maintenance schedules, and live shop floor utilization.
+            {t('mfgPages.machinesSubtitle', 'Monitor CNC, Fiber Lasers, Injection Moulding machines, maintenance schedules, and live shop floor utilization.')}
           </p>
         </div>
 
@@ -130,13 +130,13 @@ export default function MachinesPage() {
             onClick={() => showToast('OEE & Machine Health Audit exported')}
             className="px-3.5 py-2 rounded-xl bg-cream border border-stone text-charcoal font-semibold hover:bg-stone/20 text-xs flex items-center gap-1.5 transition-all"
           >
-            <Download className="w-4 h-4" /> Export OEE Audit
+            <Download className="w-4 h-4" /> {t('mfgPages.exportSchedule', 'Export OEE Audit')}
           </button>
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="px-4 py-2 rounded-xl bg-green-bottle text-white font-semibold hover:bg-green-forest text-xs flex items-center gap-2 shadow-subtle transition-all"
           >
-            <Plus className="w-4 h-4" /> + Register Machine
+            <Plus className="w-4 h-4" /> {t('mfgPages.addMachine', '+ Register Machine')}
           </button>
         </div>
       </div>
@@ -144,13 +144,13 @@ export default function MachinesPage() {
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white border border-stone p-4 rounded-[18px] shadow-subtle">
-          <p className="text-xs text-warm-gray font-medium">Total Machines</p>
+          <p className="text-xs text-warm-gray font-medium">{t('mfgPages.totalMachines', 'Total Machines')}</p>
           <h3 className="text-2xl font-bold font-display text-charcoal mt-1">{totalMachines} Equipment</h3>
           <p className="text-[11px] text-green-forest mt-0.5">Shop floor asset register</p>
         </div>
         <div className="bg-white border border-emerald-200 bg-emerald-50/30 p-4 rounded-[18px] shadow-subtle">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-emerald-800 font-semibold">Running Now</p>
+            <p className="text-xs text-emerald-800 font-semibold">{t('mfgPages.runningNow', 'Running Now')}</p>
             <Activity className="w-4 h-4 text-emerald-600 animate-pulse" />
           </div>
           <h3 className="text-2xl font-bold font-display text-emerald-700 mt-1">{runningCount} Active</h3>
@@ -158,7 +158,7 @@ export default function MachinesPage() {
         </div>
         <div className="bg-white border border-amber-200 bg-amber-50/30 p-4 rounded-[18px] shadow-subtle">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-amber-900 font-semibold">Maintenance Due</p>
+            <p className="text-xs text-amber-900 font-semibold">{t('mfgPages.underMaintenance', 'Maintenance Due')}</p>
             <Wrench className="w-4 h-4 text-amber-600" />
           </div>
           <h3 className="text-2xl font-bold font-display text-amber-800 mt-1">{maintenanceCount} Due</h3>
@@ -198,7 +198,7 @@ export default function MachinesPage() {
                   : 'bg-cream text-warm-gray hover:text-charcoal'
               }`}
             >
-              {st}
+              {st === 'All' ? t('common.all', 'All') : st === 'Running' ? t('mfgPages.runningNow', 'Running') : st === 'Maintenance' ? t('mfgPages.underMaintenance', 'Maintenance') : st}
             </button>
           ))}
         </div>
@@ -210,14 +210,14 @@ export default function MachinesPage() {
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="border-b border-stone bg-cream/40 text-warm-gray font-bold uppercase tracking-wider">
-                <th className="py-3.5 px-4">Machine ID & Name</th>
-                <th className="py-3.5 px-4">Type & Department</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colMachineCode', 'Machine ID & Name')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colDepartment', 'Type & Department')}</th>
                 <th className="py-3.5 px-4">Rated Capacity</th>
-                <th className="py-3.5 px-4 text-center">Status</th>
-                <th className="py-3.5 px-4">Maintenance Schedule</th>
-                <th className="py-3.5 px-4 text-center">Utilization</th>
-                <th className="py-3.5 px-4">Operator</th>
-                <th className="py-3.5 px-4 text-right">Actions</th>
+                <th className="py-3.5 px-4 text-center">{t('mfgPages.colStatus', 'Status')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colNextMaintenance', 'Maintenance Schedule')}</th>
+                <th className="py-3.5 px-4 text-center">{t('mfgPages.colUtilization', 'Utilization')}</th>
+                <th className="py-3.5 px-4">{t('mfgPages.colOperator', 'Operator')}</th>
+                <th className="py-3.5 px-4 text-right">{t('mfgPages.colActions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone text-charcoal font-medium">
@@ -248,8 +248,8 @@ export default function MachinesPage() {
                       <p className="text-[11px] text-warm-gray">{m.department}</p>
                     </td>
                     <td className="py-3.5 px-4 font-semibold text-charcoal">{m.capacity}</td>
-                    <td className="py-3.5 px-4 text-center">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${getStatusBadge(m.status)}`}>
+                    <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                      <span className={`inline-flex items-center justify-center whitespace-nowrap px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusBadge(m.status)}`}>
                         {m.status}
                       </span>
                     </td>

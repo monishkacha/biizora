@@ -99,6 +99,8 @@ export default function Sidebar({ collapsed, mobileOpen }) {
       if (isStationery) {
         const stationeryModules = [
           { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'growth-engine', title: 'Growth Engine', route: '/app/growth-engine', icon: 'Zap' },
+          { id: 'customer-experience', title: 'Customer Experience', route: '/app/customer-experience', icon: 'Globe' },
           { id: 'new-bill', title: 'New Bill', route: '/app/stationery/billing', icon: 'Receipt' },
           { id: 'bills', title: 'Bills', route: '/app/stationery/bills', icon: 'FileText' },
           { id: 'products', title: 'Products', route: '/app/stationery/products', icon: 'Package' },
@@ -117,6 +119,8 @@ export default function Sidebar({ collapsed, mobileOpen }) {
       if (biz?.businessType === 'restaurant') {
         const restaurantModules = [
           { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'growth-engine', title: 'Growth Engine', route: '/app/growth-engine', icon: 'Zap' },
+          { id: 'customer-experience', title: 'Customer Experience', route: '/app/customer-experience', icon: 'Globe' },
           { id: 'tables', title: 'Tables', route: '/app/tables', icon: 'Store' },
           { id: 'reservations', title: 'Reservations', route: '/app/reservations', icon: 'Calendar' },
           { id: 'orders', title: 'Orders / POS', route: '/app/orders', icon: 'Receipt' },
@@ -134,9 +138,11 @@ export default function Sidebar({ collapsed, mobileOpen }) {
         return;
       }
 
-      if (biz?.businessType === 'salon') {
+      if (biz?.businessType === 'salon' || isSalonWorkspace(biz)) {
         const salonModules = [
           { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'growth-engine', title: 'Growth Engine', route: '/app/growth-engine', icon: 'Zap' },
+          { id: 'customer-experience', title: 'Customer Experience', route: '/app/customer-experience', icon: 'Globe' },
           { id: 'calendar', title: 'Calendar', route: '/app/calendar', icon: 'Calendar' },
           { id: 'appointments', title: 'Appointments', route: '/app/appointments', icon: 'Clock' },
           { id: 'customers', title: 'Customers', route: '/app/customers', icon: 'Users' },
@@ -155,6 +161,8 @@ export default function Sidebar({ collapsed, mobileOpen }) {
       if (biz?.businessType === 'manufacturing') {
         const manufacturingModules = [
           { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'growth-engine', title: 'Growth Engine', route: '/app/growth-engine', icon: 'Zap' },
+          { id: 'customer-experience', title: 'Customer Experience', route: '/app/customer-experience', icon: 'Globe' },
           { id: 'smart-production-planner', title: 'Smart Production Planner', route: '/app/smart-production-planner', icon: 'Sparkles' },
           { id: 'suppliers', title: 'Suppliers', route: '/app/suppliers', icon: 'Building2' },
           { id: 'raw-materials', title: 'Raw Materials', route: '/app/raw-materials', icon: 'Boxes' },
@@ -162,10 +170,28 @@ export default function Sidebar({ collapsed, mobileOpen }) {
           { id: 'machines', title: 'Machines', route: '/app/machines', icon: 'Cpu' },
           { id: 'warehouse', title: 'Warehouse', route: '/app/warehouse', icon: 'Factory' },
           { id: 'qc', title: 'Quality Control', route: '/app/qc', icon: 'BadgeCheck' },
+          { id: 'migration', title: 'Data Migration', route: '/app/migration', icon: 'Database' },
           { id: 'reports', title: 'Reports', route: '/app/reports', icon: 'BarChart3' },
           { id: 'settings', title: 'Settings', route: '/app/settings', icon: 'Settings' },
         ];
         setNavItems(modulesToNavItems(manufacturingModules));
+        return;
+      }
+
+      if (biz?.businessType === 'retail' || (!isStationery && biz?.businessType !== 'restaurant' && biz?.businessType !== 'salon' && biz?.businessType !== 'manufacturing')) {
+        const retailModules = [
+          { id: 'dashboard', title: 'Dashboard', route: '/app', icon: 'LayoutDashboard' },
+          { id: 'growth-engine', title: 'Growth Engine', route: '/app/growth-engine', icon: 'Zap' },
+          { id: 'customer-experience', title: 'Customer Experience', route: '/app/customer-experience', icon: 'Globe' },
+          { id: 'invoices', title: 'Sales / Invoices', route: '/app/invoices', icon: 'Receipt' },
+          { id: 'inventory', title: 'Inventory', route: '/app/inventory', icon: 'Boxes' },
+          { id: 'customers', title: 'Customers', route: '/app/customers', icon: 'Users' },
+          { id: 'suppliers', title: 'Suppliers', route: '/app/suppliers', icon: 'Building2' },
+          { id: 'migration', title: 'Data Migration', route: '/app/migration', icon: 'Database' },
+          { id: 'reports', title: 'Reports', route: '/app/reports', icon: 'BarChart3' },
+          { id: 'settings', title: 'Settings', route: '/app/settings', icon: 'Settings' },
+        ];
+        setNavItems(modulesToNavItems(retailModules));
         return;
       }
 

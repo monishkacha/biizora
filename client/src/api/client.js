@@ -38,15 +38,21 @@ function clearLegacyStorage() {
 export { clearLegacyStorage };
 
 async function refreshAccessToken() {
-  const res = await fetch(`${API_BASE}/auth/refresh`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  setAccessToken(data.accessToken);
-  return data;
+  try {
+    const res = await fetch(`${API_BASE}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(() => null);
+    if (data?.accessToken) {
+      setAccessToken(data.accessToken);
+    }
+    return data;
+  } catch (err) {
+    return null;
+  }
 }
 
 export async function api(path, options = {}) {

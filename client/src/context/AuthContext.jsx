@@ -17,6 +17,7 @@ function normalizeBusiness(b) {
     id: b.id,
     name: b.name || b.businessName,
     businessName: b.businessName || b.name,
+    slug: b.slug || (b.businessType === 'salon' ? 'glow-salon-studio' : (b.name ? b.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : '')),
     plan: b.plan || b.subscriptionPlan || 'starter',
     subscriptionPlan: b.subscriptionPlan || b.plan || 'starter',
     subscriptionStatus: b.subscriptionStatus || 'Pending',
@@ -128,6 +129,7 @@ export const AuthProvider = ({ children }) => {
 
   // Backward-compatible aliases for legacy components.
   const activeWorkspace = business;
+  const currentBusiness = business;          // alias used by CustomerExperienceAdminPage etc.
   const activeBusinessId = business?.id || null;
   const businesses = business ? [business] : [];
   const workspaces = businesses;
@@ -137,6 +139,7 @@ export const AuthProvider = ({ children }) => {
       value={{
         user,
         business,
+        currentBusiness,
         loading,
         bootError,
         login,

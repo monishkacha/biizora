@@ -105,10 +105,10 @@ export default function WarehousePage() {
             <span>Plant Logistics</span>
           </div>
           <h1 className="text-2xl font-bold font-display text-charcoal flex items-center gap-2.5">
-            <Factory className="w-7 h-7 text-green-bottle" /> Warehouse & Bin Locations
+            <Factory className="w-7 h-7 text-green-bottle" /> {t('mfgPages.warehouseTitle', 'Warehouse & Bin Locations')}
           </h1>
           <p className="text-xs text-warm-gray mt-1">
-            Multi-warehouse stock distribution, rack & bin tracking, inter-store transfers, and dispatch staging.
+            {t('mfgPages.warehouseSubtitle', 'Multi-warehouse stock distribution, rack & bin tracking, inter-store transfers, and dispatch staging.')}
           </p>
         </div>
 
